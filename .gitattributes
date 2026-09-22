@@ -1,0 +1,5 @@
+# Evita problemas de saltos de línea entre Windows y Linux (Vercel / GitHub Actions)
+* text=auto
+*.png binary
+*.jpg binary
+*.woff2 binary
