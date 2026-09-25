@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { esAdmin, normalizarCodigo, codigoValido, nombreDeMiembro, combinarAgendas, seCruzaConAlgo, tablaPosiciones, ordenarSolicitudes, destinatarioTexto } from '../src/lib/espacios.js';
+import { esAdmin, normalizarCodigo, codigoValido, nombreDeMiembro, combinarAgendas, seCruzaConAlgo, tablaPosiciones, ordenarSolicitudes, destinatarioTexto, diaSemanaDe, minutosDelDia, chocaConHorarioSemanal } from '../src/lib/espacios.js';
 
 const perfiles = [{ id: 'u1', nombre: 'Ana', puntos: 40 }, { id: 'u2', nombre: 'Luis', puntos: 90 }];
 const admin = { user_id: 'u1', rol: 'admin', color: '#5B8DEF', esYo: true };
@@ -53,5 +53,29 @@ describe('espacios compartidos', () => {
   it('destinatario de una solicitud', () => {
     expect(destinatarioTexto({ para_user_id: null }, [admin, miembro], perfiles)).toBe('Para todo el espacio');
     expect(destinatarioTexto({ para_user_id: 'u2' }, [admin, miembro], perfiles)).toBe('Para Luis');
+  });
+});
+
+describe('agenda semanal del grupo (para pedir un espacio sin chocar)', () => {
+  const LUNES_M = [{ id: 'm1', nombre: 'Cálculo', day_of_week: 1, start_minutes: 480, end_minutes: 570 }];
+  const LUNES_B = [{ id: 'b1', title: 'Reunión de equipo', day_of_week: 1, start_minutes: 600, end_minutes: 720 }];
+  it('detecta el día y los minutos del día correctamente', () => {
+    expect(diaSemanaDe(new Date(2026, 8, 21, 10, 0))).toBe(1); // lunes
+    expect(diaSemanaDe(new Date(2026, 8, 27, 10, 0))).toBe(7); // domingo
+    expect(minutosDelDia(new Date(2026, 8, 21, 8, 30))).toBe(510);
+  });
+  it('bloquea si choca con una clase o un bloque de trabajo/reunión', () => {
+    const r1 = chocaConHorarioSemanal(new Date(2026, 8, 21, 8, 30), new Date(2026, 8, 21, 9, 0), { materias: LUNES_M, bloques: [] });
+    expect(r1).toHaveLength(1);
+    const r2 = chocaConHorarioSemanal(new Date(2026, 8, 21, 11, 0), new Date(2026, 8, 21, 12, 0), { materias: [], bloques: LUNES_B });
+    expect(r2).toHaveLength(1);
+  });
+  it('no bloquea si es otro día o no se cruza la hora', () => {
+    expect(chocaConHorarioSemanal(new Date(2026, 8, 22, 8, 30), new Date(2026, 8, 22, 9, 0), { materias: LUNES_M, bloques: [] })).toHaveLength(0);
+    expect(chocaConHorarioSemanal(new Date(2026, 8, 21, 9, 30), new Date(2026, 8, 21, 10, 0), { materias: LUNES_M, bloques: [] })).toHaveLength(0);
+  });
+  it('las tareas nunca bloquean (no reciben tareas: estructuralmente no pueden bloquear)', () => {
+    const r = chocaConHorarioSemanal(new Date(2026, 8, 21, 8, 30), new Date(2026, 8, 21, 9, 0), { materias: LUNES_M, bloques: [] });
+    expect(r.every((x) => x.tipo !== 'tarea')).toBe(true);
   });
 });

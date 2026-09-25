@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { mensajeAmigable } from '../../lib/erroresAmigables';
 import { Download, Upload, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { leerTabla } from '../../offline/db';
@@ -44,7 +45,7 @@ export default function RespaldoCard() {
       a.href = url; a.download = `workversity_respaldo_${new Date().toISOString().slice(0, 10)}.json`; a.click();
       URL.revokeObjectURL(url);
       setMensaje('✅ Copia descargada. Guárdala en un lugar seguro.');
-    } catch (e) { setError(e.message || 'No se pudo generar la copia'); } finally { setTrabajando(false); }
+    } catch (e) { setError(mensajeAmigable(e, 'generar la copia')); } finally { setTrabajando(false); }
   };
 
   const elegirArchivo = async (e) => {
@@ -68,7 +69,7 @@ export default function RespaldoCard() {
       await vaciarCola();
       setMensaje(`✅ Se restauraron ${vista.prep.operaciones.length} registros.`);
       setVista(null);
-    } catch (e) { setError(e.message || 'No se pudo restaurar'); } finally { setTrabajando(false); }
+    } catch (e) { setError(mensajeAmigable(e, 'restaurar la copia')); } finally { setTrabajando(false); }
   };
 
   return (

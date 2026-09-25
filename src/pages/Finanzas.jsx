@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { estadoPresupuesto } from '../lib/presupuesto';
 import { Plus, TrendingUp, TrendingDown, PiggyBank, Pencil, Trash2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -39,7 +40,7 @@ export default function Finanzas() {
       setPresupuesto(presu);
       setError('');
     } catch (err) {
-      setError(err.message || String(err));
+      setError(mensajeAmigable(err, 'cargar tus finanzas'));
     } finally {
       setCargando(false);
     }

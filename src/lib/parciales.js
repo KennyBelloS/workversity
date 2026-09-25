@@ -2,65 +2,160 @@
 // Todo se genera con reglas claras (frecuencia de palabras, patrones "X es Y"…), no con una IA
 // externa —así funciona sin conexión y sin depender de un servicio de pago— y siempre es editable.
 
+// Para agrupar variaciones de una misma palabra ("célula"/"células", "producir"/"produce") se
+// recortan las terminaciones más comunes del español (plurales, verbos, sustantivos en
+// -ción/-mente…). No es tan fino como una librería de PLN completa, pero es liviano, no
+// depende de nada externo (cero riesgo de que un import se rompa) y funciona igual en
+// cualquier navegador o sistema operativo.
+const cacheStem = new Map();
+const SUFIJOS_ES = [
+  'aciones', 'amiento', 'imiento', 'mente', 'ciones', 'idades', 'idad', 'ación', 'sión',
+  'ando', 'iendo', 'aron', 'ieron', 'aban', 'ían', 'aba', 'ía', 'ado', 'ada', 'ados', 'adas',
+  'ido', 'ida', 'idos', 'idas', 'ar', 'er', 'ir', 'es', 's',
+];
+function stemEs(palabraCruda) {
+  const palabra = palabraCruda.toLowerCase();
+  let v = cacheStem.get(palabra);
+  if (v !== undefined) return v;
+  v = palabra;
+  for (const suf of SUFIJOS_ES) {
+    if (v.length - suf.length >= 4 && v.endsWith(suf)) { v = v.slice(0, -suf.length); break; }
+  }
+  v = v.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); // quita tildes, para que "célula" y "celula" agrupen igual
+  cacheStem.set(palabra, v);
+  return v;
+}
+
 const CONECTORES = new Set('el la los las un una unos unas de del al a en y o u que como para por con sin sobre entre desde hasta hacia según durante mediante tras este esta estos estas ese esa esos esas su sus mi mis tu tus se le les lo lo cual cuales cual quien quienes cuando donde su es son fue fueron ser estar está están era eran no sí más menos también pero porque si ya solo muy tan tanto cada otro otra otros otras'.split(' '));
 
-export function dividirEnOraciones(texto) {
+/** Solo el énfasis en línea (negrita, cursiva, código, títulos) — conserva los marcadores de
+ * lista/numeración, que "generarDiagramaFlujo" todavía necesita para detectar pasos. */
+function quitarEnfasis(texto) {
   return String(texto || '')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/^\s{0,3}#{1,6}\s+/gm, '')
+    .replace(/(\*\*\*|___)(.*?)\1/g, '$2')
+    .replace(/(\*\*|__)(.*?)\1/g, '$2')
+    .replace(/(?<!\*)\*(?!\*)(.+?)\*(?!\*)/g, '$1')
+    .replace(/`(.*?)`/g, '$1')
+    // Marcadores sueltos que quedaron sin su pareja (p. ej. un "**" al que le falta el cierre):
+    // ya no aportan nada útil, así que se retiran en vez de dejarlos colados en el texto.
+    .replace(/\*{1,}|`+/g, '');
+}
+/** Quita el formato Markdown de los apuntes (**negrita**, *cursiva*, `código`, # títulos, - listas)
+ * antes de buscar conceptos: si no se limpia, símbolos como "**" terminan colándose en las
+ * preguntas y los mapas generados. */
+export function quitarMarcado(texto) {
+  return quitarEnfasis(texto)
+    .replace(/^\s{0,3}[-*+]\s+/gm, '')
+    .replace(/^\s{0,3}\d+[.)]\s+/gm, '');
+}
+
+export function dividirEnOraciones(texto) {
+  return quitarMarcado(texto)
     .replace(/\s+/g, ' ')
     .split(/(?<=[.;:!?])\s+(?=[A-ZÁÉÍÓÚÑ0-9])|\s+(?=[-•*]\s)|\n+/)
     .map((s) => s.trim().replace(/^[-•*]\s*/, ''))
     .filter((s) => s.length > 8);
 }
 
-/** Palabras clave por frecuencia (ignora conectores y números sueltos). */
+/** Palabras clave por frecuencia (ignora conectores y números sueltos). Cuenta juntas las
+ * variaciones de una misma palabra ("célula"/"células") recortando sus terminaciones,
+ * y muestra la forma más común de cada una (no un lexema artificial). */
 export function palabrasClave(texto, max = 12) {
-  const cuentas = new Map();
-  for (const palabra of String(texto || '').toLowerCase().match(/[a-záéíóúñ]{4,}/g) || []) {
+  const porLexema = new Map(); // lexema -> { veces, formas: Map(forma -> veces) }
+  for (const palabra of quitarMarcado(texto).toLowerCase().match(/[a-záéíóúñ]{4,}/g) || []) {
     if (CONECTORES.has(palabra)) continue;
-    cuentas.set(palabra, (cuentas.get(palabra) || 0) + 1);
+    const lexema = stemEs(palabra);
+    const entrada = porLexema.get(lexema) || { veces: 0, formas: new Map() };
+    entrada.veces += 1;
+    entrada.formas.set(palabra, (entrada.formas.get(palabra) || 0) + 1);
+    porLexema.set(lexema, entrada);
   }
-  return [...cuentas.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, max).map(([palabra, veces]) => ({ palabra, veces }));
+  return [...porLexema.entries()]
+    .sort((a, b) => b[1].veces - a[1].veces || a[0].localeCompare(b[0]))
+    .slice(0, max)
+    .map(([, { veces, formas }]) => ({ palabra: [...formas.entries()].sort((a, b) => b[1] - a[1])[0][0], veces }));
 }
 
 const mayuscInicial = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+
+/**
+ * Busca en cada oración una relación "término → definición" (con dos puntos, con un verbo
+ * como "es/tiene/produce…", o con guion). Es la pieza compartida entre las tarjetas de
+ * estudio y el mapa conceptual, para que ambos muestren exactamente el mismo conocimiento.
+ */
+function extraerRelaciones(texto) {
+  const relaciones = [];
+  const vistos = new Set();
+  const reVerbo = new RegExp(`^(.{3,60}?)\\s+(${VERBOS_DEFINITORIOS})\\s+(.{5,220})$`, 'i');
+  for (const oracion of dividirEnOraciones(texto)) {
+    let m = oracion.match(/^[-•*]?\s*([^:–]{3,60}):\s*(.{3,220})$/);
+    if (m) { relaciones.push({ termino: m[1].trim(), relacion: 'es', definicion: m[2].trim(), oracion }); continue; }
+    m = oracion.match(reVerbo);
+    if (m) { relaciones.push({ termino: m[1].trim(), relacion: m[2].toLowerCase(), definicion: m[3].trim(), oracion }); continue; }
+    m = oracion.match(/^(.{3,60}?)\s*[-–]\s*(.{5,220})$/);
+    if (m) { relaciones.push({ termino: m[1].trim(), relacion: 'es', definicion: m[2].trim(), oracion }); continue; }
+  }
+  return relaciones.filter((r) => { const k = r.termino.toLowerCase(); if (vistos.has(k)) return false; vistos.add(k); return true; });
+}
 
 /**
  * Genera tarjetas pregunta/respuesta a partir de texto (apuntes, un PDF, una diapositiva…).
  * Reconoce: "Término: definición", "Término es/son definición", líneas con guion,
  * y como respaldo usa la oración más relevante de cada palabra clave.
  */
-export function generarTarjetas(texto, max = 20) {
+const VERBOS_DEFINITORIOS = 'es|son|significa[n]?|se define como|se refiere a|produce[n]?|contiene[n]?|tiene[n]?|permite[n]?|genera[n]?|reduce[n]?|guarda[n]?|convierte[n]?|incluye[n]?|forma[n]?|compone[n]?|requiere[n]?|necesita[n]?|ayuda[n]? a|sirve[n]? para|consiste[n] en|se encarga[n]? de|representa[n]?|corresponde[n]? a|entra[n]? por|actúa[n]? como|funciona[n]? como';
+
+/**
+ * Para una oración que no encaja en ningún patrón de definición, se arma una tarjeta de
+ * "completar la idea": la pregunta es el principio de la oración tal cual está escrita, y la
+ * respuesta es el resto — así siempre es coherente (es la oración real, no una adivinanza
+ * sobre "de qué habla"), y funciona como una técnica de estudio real (huecos para completar).
+ */
+function partirEnMitad(oracion) {
+  const palabras = oracion.replace(/[.,;:]$/, '').split(/\s+/);
+  if (palabras.length < 5) return null; // muy corta para partirla con sentido
+  const corte = Math.max(3, Math.min(palabras.length - 2, Math.round(palabras.length * 0.45)));
+  return { inicio: palabras.slice(0, corte).join(' '), resto: palabras.slice(corte).join(' ') };
+}
+
+/**
+ * Genera tarjetas pregunta/respuesta a partir de texto (apuntes, un PDF, una diapositiva…).
+ * Busca dar cobertura a CADA idea del texto (no solo a las más frecuentes): reconoce
+ * "Término: definición", muchas formas de "Término es/tiene/produce/permite… definición",
+ * líneas con guion, y para lo que no encaje en ningún patrón, arma una tarjeta de "completa
+ * la idea" con la oración misma (nunca inventa una pregunta rara sobre "de qué habla").
+ * `max` limita cuántas se devuelven como máximo (por defecto, todas las que encuentre).
+ */
+export function generarTarjetas(texto, max = Infinity) {
   const tarjetas = [];
   const vistos = new Set();
   const agregar = (pregunta, respuesta) => {
     const clave = pregunta.toLowerCase();
-    if (!pregunta || !respuesta || respuesta.length < 2 || vistos.has(clave)) return;
+    if (!pregunta || !respuesta || respuesta.length < 2 || vistos.has(clave)) return false;
     vistos.add(clave);
     tarjetas.push({ id: `t${tarjetas.length + 1}`, pregunta: mayuscInicial(pregunta.trim()), respuesta: mayuscInicial(respuesta.trim()) });
+    return true;
   };
 
-  for (const linea of dividirEnOraciones(texto)) {
-    let m = linea.match(/^[-•*]?\s*([^:–]{3,60}):\s*(.{3,220})$/);
-    if (m) { agregar(`¿Qué es ${m[1].trim()}?`, m[2]); continue; }
-    m = linea.match(/^(.{3,60}?)\s+(?:es|son|significa[n]?|se define como)\s+(.{5,220})$/i);
-    if (m) { agregar(`¿Qué es ${m[1].trim()}?`, m[2]); continue; }
-    m = linea.match(/^(.{3,60}?)\s*[-–]\s*(.{5,220})$/);
-    if (m) { agregar(`¿Qué es ${m[1].trim()}?`, m[2]); continue; }
+  const relaciones = extraerRelaciones(texto);
+  const conPatron = new Set(relaciones.map((r) => r.oracion));
+  for (const r of relaciones) {
+    if (tarjetas.length >= max) break;
+    agregar(`¿Qué es ${r.termino}?`, r.definicion);
   }
 
-  if (tarjetas.length < max) {
-    const oraciones = dividirEnOraciones(texto);
-    const oracionesUsadas = new Set(tarjetas.map((t) => t.respuesta.toLowerCase()));
-    for (const { palabra } of palabrasClave(texto, max * 3)) {
-      if (tarjetas.length >= max) break;
-      // Cada tarjeta debe tener una respuesta distinta: si la mejor oración de esta palabra
-      // ya la usó otra tarjeta, no sirve como pregunta de opción múltiple (se verían dos
-      // respuestas idénticas), así que se ignora esa palabra.
-      const oracion = oraciones.find((o) => o.toLowerCase().includes(palabra) && !oracionesUsadas.has(o.toLowerCase()));
-      if (oracion) { agregar(`¿Qué relación tiene "${palabra}" con el tema?`, oracion); oracionesUsadas.add(oracion.toLowerCase()); }
-    }
+  // Cada oración que no encajó en un patrón todavía es una idea del texto: se convierte en
+  // una tarjeta de "completa la idea" con su propio contenido (cobertura completa del tema).
+  for (const oracion of dividirEnOraciones(texto)) {
+    if (tarjetas.length >= max) break;
+    if (conPatron.has(oracion) || oracion.length < 20) continue;
+    const partido = partirEnMitad(oracion);
+    if (!partido) continue;
+    agregar(`Completa la idea: "${partido.inicio}…"`, partido.resto);
   }
-  return tarjetas.slice(0, max);
+  return tarjetas;
 }
 
 /** Une tarjetas generadas de varias fuentes con las que la persona escribió a mano, sin duplicar. */
@@ -154,23 +249,46 @@ export function consejosEstudio({ diasRestantes, dominio, tarjetasDificiles = []
 }
 
 // --- Mapa conceptual y diagrama de flujo (esquemas visuales, no una IA: se generan por reglas) ---
+const MARCADOR_PASO = /^\s*(?:paso\s*)?(\d{1,2})[.)]\s*(.+)$/i;
 
-/** Mapa conceptual radial: un centro (el tema) y ramas con las ideas clave y su explicación. */
-export function generarMapaConceptual(texto, titulo = 'Tema', max = 8) {
+/**
+ * Mapa conceptual: el tema en el centro y, alrededor, cada término con su definición real
+ * (la misma relación "término → definición" que arman las tarjetas, para que el mapa
+ * muestre relaciones de verdad y no solo palabras sueltas por frecuencia).
+ * Si el texto no tiene definiciones reconocibles, usa las palabras más repetidas como respaldo.
+ */
+export function generarMapaConceptual(texto, titulo = 'Tema', max = 9) {
+  const relaciones = extraerRelaciones(texto).slice(0, max);
+  if (relaciones.length >= 3) {
+    return { centro: titulo, ramas: relaciones.map((r) => ({ palabra: mayuscInicial(r.termino), relacion: r.relacion, detalle: mayuscInicial(r.definicion) })) };
+  }
+  // Respaldo para texto sin definiciones claras (p. ej. una lista suelta de datos).
   const oraciones = dividirEnOraciones(texto);
   const ramas = palabrasClave(texto, max).map(({ palabra }) => ({
-    palabra: mayuscInicial(palabra),
-    detalle: oraciones.find((o) => o.toLowerCase().includes(palabra)) || '',
+    palabra: mayuscInicial(palabra), relacion: 'se relaciona con',
+    detalle: mayuscInicial(oraciones.find((o) => o.toLowerCase().includes(palabra)) || ''),
   }));
   return { centro: titulo, ramas };
 }
 
-const MARCADOR_PASO = /^\s*(?:paso\s*)?(\d{1,2})[.)]\s*(.+)$/i;
+const PISTAS_SECUENCIA = /^(primero|para empezar|en primer lugar|segundo|tercero|luego|después|despues|a continuación|a continuacion|posteriormente|entonces|seguidamente|finalmente|por último|por ultimo|al final)\b/i;
 
-/** Diagrama de flujo: pasos en orden. Si el texto ya numera pasos, los usa; si no, toma las primeras oraciones. */
-export function generarDiagramaFlujo(texto, max = 8) {
-  const lineas = String(texto || '').split(/\n+/).map((l) => l.trim()).filter(Boolean);
+/**
+ * Diagrama de flujo: solo tiene sentido si el texto describe pasos en orden. Si ya vienen
+ * numerados ("1.", "Paso 2"…) o con palabras de secuencia ("primero", "luego", "finalmente"…),
+ * arma los pasos con eso. Si no encuentra ninguna pista de secuencia, no inventa un flujo
+ * falso a partir de definiciones sueltas (eso no ayuda a analizar nada): avisa que este texto
+ * no parece describir un proceso y sugiere el mapa conceptual en su lugar.
+ */
+export function generarDiagramaFlujo(texto, max = 10) {
+  const lineas = quitarEnfasis(texto).split(/\n+/).map((l) => l.trim()).filter(Boolean);
   const numerados = lineas.map((l) => l.match(MARCADOR_PASO)).filter(Boolean).sort((a, b) => Number(a[1]) - Number(b[1]));
-  const pasos = (numerados.length >= 2 ? numerados.map((m) => m[2]) : dividirEnOraciones(texto)).slice(0, max);
-  return pasos.map((texto, i) => ({ n: i + 1, texto: mayuscInicial(texto.trim()) }));
+  if (numerados.length >= 2) return numerados.slice(0, max).map((m, i) => ({ n: i + 1, texto: mayuscInicial(m[2].trim()) }));
+
+  const oraciones = dividirEnOraciones(texto);
+  const conPista = oraciones.filter((o) => PISTAS_SECUENCIA.test(o.trim()));
+  if (conPista.length >= 2) return conPista.slice(0, max).map((o, i) => ({ n: i + 1, texto: mayuscInicial(o.replace(PISTAS_SECUENCIA, '').replace(/^[,:]\s*/, '').trim()) }));
+
+  return [];
 }
+

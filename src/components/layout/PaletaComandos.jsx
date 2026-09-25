@@ -14,6 +14,7 @@ const PAGINAS = [
   { to: '/metas', t: 'Metas (ahorro y progreso)', k: 'ahorro leer libro lectura progreso estudio ejercicio curso', i: Target },
   { to: '/parciales', t: 'Parciales (tarjetas, tests, mapas)', k: 'parcial examen estudiar tarjetas flashcards quiz simulacro mapa conceptual diagrama flujo', i: NotebookPen },
   { to: '/grupo', t: 'Grupo (agenda compartida)', k: 'grupo pareja compartir agenda espacio codigo invitacion puntos', i: Users2 },
+  { to: '/apuntes', t: 'Apuntes (cuaderno digital)', k: 'apuntes notas cuaderno clase tarea proyecto mapa mental conceptual diagrama flujo', i: NotebookPen },
   { to: '/?revision=1', t: 'Hacer mi revisión semanal', k: 'revision semanal vencidas reprogramar cierre', i: CalendarCheck },
   { to: '/resumen', t: 'Logros', k: 'logros insignias trofeos racha', i: Trophy },
   { to: '/resumen', t: 'Resumen', k: 'semana mes reporte tablero', i: BarChart3 },

@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { ChevronLeft, ChevronRight, Copy, Check, Printer, CalendarCheck, Flame, CheckCircle2, AlertTriangle, Timer, GraduationCap, Wallet, Target } from 'lucide-react';
 import { useSyncEstado } from '../hooks/useSyncEstado';
 import LogrosCard from '../components/resumen/LogrosCard';
@@ -49,7 +50,7 @@ export default function Resumen() {
         setDatos({ tareas, materias, bloques, movimientos, sesiones, evaluaciones, cortes });
         setError('');
       } catch (err) {
-        setError(err.message || String(err));
+        setError(mensajeAmigable(err, 'cargar el resumen'));
       } finally {
         setCargando(false);
       }

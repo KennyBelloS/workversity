@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { LogOut, KeyRound, User, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { actualizarPerfil, actualizarPassword } from '../services/auth';
@@ -40,7 +41,7 @@ export default function Configuracion() {
       setNuevaPassword('');
       setMensaje('Contraseña actualizada');
     } catch (err) {
-      setMensaje(err.message);
+      setMensaje(mensajeAmigable(err, 'guardar los cambios'));
     } finally {
       setGuardandoPassword(false);
     }

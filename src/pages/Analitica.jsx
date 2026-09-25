@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { useSearchParams } from 'react-router-dom';
 import { Sparkles, AlertTriangle, Award, Timer, Target, FileText, GraduationCap, Brain } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -49,7 +50,7 @@ export default function Analitica() {
       setMaterias(m);
       setError('');
     } catch (err) {
-      setError(err.message || String(err));
+      setError(mensajeAmigable(err, 'cargar el asistente'));
     } finally {
       setCargando(false);
     }

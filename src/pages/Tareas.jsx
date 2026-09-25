@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -50,7 +51,7 @@ export default function Tareas() {
       setMaterias(m);
       setErrorCarga('');
     } catch (err) {
-      setErrorCarga(err.message);
+      setErrorCarga(mensajeAmigable(err, 'cargar tus tareas'));
     } finally {
       setCargando(false);
     }

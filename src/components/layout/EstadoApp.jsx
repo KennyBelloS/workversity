@@ -78,7 +78,12 @@ export default function EstadoApp() {
         </Barra>
       )}
 
-      {!sync.enLinea && (
+      {!sync.enLinea && sync.probableProblemaServidor && (
+        <Barra color="#E5484D" icono={AlertTriangle} accion={<button onClick={() => vaciarCola()} className={botonAccion}>Reintentar</button>}>
+          Tu internet funciona, pero la app no logra comunicarse con tu base de datos ({sync.pendientes} por subir). Es probable que tu proyecto de Supabase esté pausado, borrado, o que la dirección en tu archivo .env no sea la correcta. Revisa tu panel de Supabase.
+        </Barra>
+      )}
+      {!sync.enLinea && !sync.probableProblemaServidor && (
         <Barra color="#6E7180" icono={WifiOff}>
           Sin conexión. Puedes seguir usando la app: tus cambios se guardan en este dispositivo
           {sync.pendientes > 0 ? ` (${sync.pendientes} por subir)` : ''} y se sincronizan solos al volver el internet.

@@ -18,6 +18,8 @@ const Metas = lazy(() => import('./pages/Metas'));
 const Parciales = lazy(() => import('./pages/Parciales'));
 const Parcial = lazy(() => import('./pages/Parcial'));
 const Grupo = lazy(() => import('./pages/Grupo'));
+const Apuntes = lazy(() => import('./pages/Apuntes'));
+const Apunte = lazy(() => import('./pages/Apunte'));
 const Analitica = lazy(() => import('./pages/Analitica'));
 const Configuracion = lazy(() => import('./pages/Configuracion'));
 
@@ -55,6 +57,8 @@ export default function App() {
       <Route path="/parciales" element={<Pagina titulo="Parciales"><Parciales /></Pagina>} />
       <Route path="/parciales/:id" element={<Pagina titulo="Parcial"><Parcial /></Pagina>} />
       <Route path="/grupo" element={<Pagina titulo="Grupo"><Grupo /></Pagina>} />
+      <Route path="/apuntes" element={<Pagina titulo="Apuntes"><Apuntes /></Pagina>} />
+      <Route path="/apuntes/:id" element={<Pagina titulo="Apunte"><Apunte /></Pagina>} />
       <Route path="/analitica" element={<Pagina titulo="Asistente inteligente"><Analitica /></Pagina>} />
       <Route path="/configuracion" element={<Pagina titulo="Configuración"><Configuracion /></Pagina>} />
       <Route path="*" element={<Navigate to="/" replace />} />

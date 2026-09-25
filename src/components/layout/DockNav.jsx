@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, CalendarClock, KanbanSquare, Wallet, BookOpen, Sparkles, BarChart3, Target, Settings, HelpCircle, MoreHorizontal, GraduationCap, Users2 } from 'lucide-react';
+import { LayoutDashboard, CalendarClock, KanbanSquare, Wallet, BookOpen, Sparkles, BarChart3, Target, Settings, HelpCircle, MoreHorizontal, GraduationCap, Users2, NotebookPen } from 'lucide-react';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
 
 const TODOS = [
@@ -14,6 +14,7 @@ const TODOS = [
   { to: '/metas', label: 'Metas', icon: Target },
   { to: '/parciales', label: 'Parciales', icon: GraduationCap },
   { to: '/grupo', label: 'Grupo', icon: Users2 },
+  { to: '/apuntes', label: 'Apuntes', icon: NotebookPen },
   { to: '/configuracion', label: 'Ajustes', icon: Settings },
   { to: '/ayuda', label: 'Cómo se usa', icon: HelpCircle },
 ];

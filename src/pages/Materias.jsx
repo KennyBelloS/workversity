@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { Plus, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -28,7 +29,7 @@ export default function Materias() {
       setTareas(t);
       setError('');
     } catch (err) {
-      setError(err.message || String(err));
+      setError(mensajeAmigable(err, 'cargar tus materias'));
     } finally {
       setCargando(false);
     }

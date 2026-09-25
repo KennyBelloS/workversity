@@ -49,3 +49,30 @@ export function destinatarioTexto(solicitud, miembros, perfiles) {
   if (!solicitud.para_user_id) return 'Para todo el espacio';
   return `Para ${nombreDeMiembro(miembros.find((m) => m.user_id === solicitud.para_user_id) || {}, perfiles)}`;
 }
+
+// --- Agenda semanal del grupo: para saber si alguien ya tiene algo a esa hora ---
+
+/** Día de la semana (1 = lunes … 7 = domingo), igual convención que materias/bloques. */
+export const diaSemanaDe = (fecha) => (((new Date(fecha)).getDay() + 6) % 7) + 1;
+export const minutosDelDia = (fecha) => { const f = new Date(fecha); return f.getHours() * 60 + f.getMinutes(); };
+
+/**
+ * ¿El rango [inicio, fin) choca con alguna materia o bloque semanal (de una o varias
+ * personas)? Las tareas NUNCA cuentan como ocupado: una entrega no impide agendar algo
+ * a esa hora. Si `inicio`/`fin` cruzan la medianoche, se revisa solo el día de `inicio`.
+ */
+export function chocaConHorarioSemanal(inicio, fin, { materias = [], bloques = [] }) {
+  const dia = diaSemanaDe(inicio);
+  const mIni = minutosDelDia(inicio);
+  const mFin = Math.max(mIni + 1, minutosDelDia(fin) || mIni + 60);
+  const ocupados = [
+    ...materias.map((m) => ({ ...m, tipo: 'clase', titulo: m.nombre })),
+    ...bloques.map((b) => ({ ...b, titulo: b.title })),
+  ].filter((x) => x.day_of_week === dia && x.start_minutes < mFin && x.end_minutes > mIni);
+  return ocupados;
+}
+
+/** Junta la agenda semanal (materias+bloques) de varias personas en una sola lista. */
+export function combinarHorariosSemanaleS(porMiembro) {
+  return { materias: porMiembro.flatMap((m) => m.materias || []), bloques: porMiembro.flatMap((m) => m.bloques || []) };
+}

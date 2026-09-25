@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Copy, Check, Crown, UserMinus, ShieldCheck, ChevronDown, Users2, Calendar, Trophy, Inbox } from 'lucide-react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
+import { Copy, Check, Crown, UserMinus, ShieldCheck, ChevronDown, Users2, Calendar, Trophy, Inbox, WifiOff, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { crearEspacio, unirseAEspacio, listarMisEspacios, listarMiembros, listarPerfilesDe, cambiarRolMiembro, quitarMiembro, listarSolicitudes, crearSolicitud, responderSolicitud, eliminarSolicitud } from '../services/espacios';
+import { crearEspacio, unirseAEspacio, listarMisEspacios, listarMiembros, listarPerfilesDe, cambiarRolMiembro, quitarMiembro, eliminarEspacio, listarSolicitudes, crearSolicitud, responderSolicitud, eliminarSolicitud } from '../services/espacios';
 import { esAdmin, nombreDeMiembro, tablaPosiciones, ordenarSolicitudes, destinatarioTexto } from '../lib/espacios';
+import { traerConCacheRapida } from '../lib/cacheRapido';
 import { formatearFechaHora } from '../lib/dateUtils';
 import CrearOUnirse from '../components/grupo/CrearOUnirse';
 import SolicitarHorario from '../components/grupo/SolicitarHorario';
 
 export default function Grupo() {
   const { usuario } = useAuth();
-  const [espacios, setEspacios] = useState(null); // null = cargando
+  const [espacios, setEspacios] = useState(null); // null = cargando (sin nada que mostrar todavía)
   const [activoId, setActivoId] = useState(() => { try { return localStorage.getItem('workversity:espacio-activo'); } catch { return null; } });
   const [miembros, setMiembros] = useState([]);
   const [perfiles, setPerfiles] = useState([]);
@@ -17,11 +19,26 @@ export default function Grupo() {
   const [error, setError] = useState('');
   const [copiado, setCopiado] = useState(false);
   const [selectorAbierto, setSelectorAbierto] = useState(false);
+  const [mostrandoDeCache, setMostrandoDeCache] = useState(false);
 
+  // La pantalla de Grupo depende de otras personas, así que necesita el servidor — pero eso no
+  // debe significar quedarse "cargando…" cada vez que la red anda lenta. Se guarda la última
+  // respuesta buena y se muestra de inmediato, mientras de fondo se intenta traer algo más nuevo
+  // (máximo unos segundos: si tarda más, se sigue mostrando lo guardado sin más espera).
   const cargarEspacios = useCallback(async () => {
-    const lista = await listarMisEspacios(usuario.id);
-    setEspacios(lista);
-    if (lista.length > 0 && !lista.some((e) => e.id === activoId)) setActivoId(lista[0].id);
+    try {
+      const { datos: lista, deCache } = await traerConCacheRapida(
+        `espacios:${usuario.id}`,
+        () => listarMisEspacios(usuario.id),
+        { onRapido: setEspacios }
+      );
+      setEspacios(lista);
+      setMostrandoDeCache(deCache);
+      if (lista.length > 0 && !lista.some((e) => e.id === activoId)) setActivoId(lista[0].id);
+    } catch (err) {
+      setEspacios((e) => e ?? []);
+      setError(mensajeAmigable(err, 'cargar tus espacios'));
+    }
   }, [usuario.id, activoId]);
   useEffect(() => { cargarEspacios(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -29,12 +46,24 @@ export default function Grupo() {
 
   const cargarDetalle = useCallback(async () => {
     if (!espacio) return;
-    const m = await listarMiembros(espacio.id);
-    const p = await listarPerfilesDe(m.map((x) => x.user_id));
-    const s = await listarSolicitudes(espacio.id);
-    setMiembros(m.map((x) => ({ ...x, esYo: x.user_id === usuario.id })));
-    setPerfiles(p);
-    setSolicitudes(s);
+    const pedir = async () => {
+      const m = await listarMiembros(espacio.id);
+      const p = await listarPerfilesDe(m.map((x) => x.user_id));
+      const s = await listarSolicitudes(espacio.id);
+      return { miembros: m, perfiles: p, solicitudes: s };
+    };
+    const aplicar = (d) => {
+      setMiembros(d.miembros.map((x) => ({ ...x, esYo: x.user_id === usuario.id })));
+      setPerfiles(d.perfiles);
+      setSolicitudes(d.solicitudes);
+    };
+    try {
+      const { datos, deCache } = await traerConCacheRapida(`espacio-detalle:${espacio.id}`, pedir, { onRapido: aplicar });
+      aplicar(datos);
+      setMostrandoDeCache(deCache);
+    } catch (err) {
+      setError(mensajeAmigable(err, 'cargar este espacio'));
+    }
   }, [espacio, usuario.id]);
   useEffect(() => { cargarDetalle(); }, [cargarDetalle]);
 
@@ -42,11 +71,11 @@ export default function Grupo() {
 
   const crear = async (nombre) => {
     setError('');
-    try { const e = await crearEspacio(nombre); setActivoId(e.id); await cargarEspacios(); } catch (err) { setError(err.message); }
+    try { const e = await crearEspacio(nombre); setActivoId(e.id); await cargarEspacios(); } catch (err) { setError(mensajeAmigable(err, 'crear el espacio')); }
   };
   const unirse = async (codigo) => {
     setError('');
-    try { const e = await unirseAEspacio(codigo); setActivoId(e.id); await cargarEspacios(); } catch (err) { setError(err.message); }
+    try { const e = await unirseAEspacio(codigo); setActivoId(e.id); await cargarEspacios(); } catch (err) { setError(mensajeAmigable(err, 'unirte con ese código')); }
   };
 
   const yo = miembros.find((m) => m.esYo);
@@ -56,17 +85,55 @@ export default function Grupo() {
   const aceptadas = useMemo(() => solicitudes.filter((s) => s.estado === 'aceptada').sort((a, b) => new Date(a.inicio) - new Date(b.inicio)), [solicitudes]);
 
   const copiarCodigo = () => { navigator.clipboard.writeText(espacio.codigo).then(() => { setCopiado(true); setTimeout(() => setCopiado(false), 2000); }); };
-  const enviarSolicitud = async (datos) => { await crearSolicitud({ espacio_id: espacio.id, de_user_id: usuario.id, ...datos }); await cargarDetalle(); };
-  const responder = async (id, estado) => { await responderSolicitud(id, estado); await cargarDetalle(); };
-  const cancelar = async (id) => { await eliminarSolicitud(id); await cargarDetalle(); };
-  const ascender = async (m) => { await cambiarRolMiembro(m.id, m.rol === 'admin' ? 'miembro' : 'admin'); await cargarDetalle(); };
-  const quitar = async (m) => { if (window.confirm(`¿Quitar a ${nombreDeMiembro(m, perfiles)} del espacio?`)) { await quitarMiembro(m.id); await cargarDetalle(); } };
+  const enviarSolicitud = async (datos) => {
+    try { await crearSolicitud({ espacio_id: espacio.id, de_user_id: usuario.id, ...datos }); await cargarDetalle(); }
+    catch (err) { setError(mensajeAmigable(err, 'enviar la solicitud')); }
+  };
+  const responder = async (id, estado) => {
+    try { await responderSolicitud(id, estado); await cargarDetalle(); }
+    catch (err) { setError(mensajeAmigable(err, 'responder la solicitud')); }
+  };
+  const cancelar = async (id) => {
+    try { await eliminarSolicitud(id); await cargarDetalle(); }
+    catch (err) { setError(mensajeAmigable(err, 'cancelar la solicitud')); }
+  };
+  const ascender = async (m) => {
+    try { await cambiarRolMiembro(m.id, m.rol === 'admin' ? 'miembro' : 'admin'); await cargarDetalle(); }
+    catch (err) { setError(mensajeAmigable(err, 'cambiar el rol')); }
+  };
+  const quitar = async (m) => {
+    if (!window.confirm(`¿Quitar a ${nombreDeMiembro(m, perfiles)} del espacio?`)) return;
+    try { await quitarMiembro(m.id); await cargarDetalle(); }
+    catch (err) { setError(mensajeAmigable(err, 'quitar a esa persona')); }
+  };
+  const salirme = async () => {
+    if (!window.confirm(soyAdmin && miembros.length > 1 ? '¿Salir de este espacio? Como eres admin, alguien más quedará a cargo.' : '¿Salir de este espacio?')) return;
+    try {
+      await quitarMiembro(yo.id);
+      setActivoId(null);
+      await cargarEspacios();
+    } catch (err) { setError(mensajeAmigable(err, 'salir del espacio')); }
+  };
+  const eliminarTodoElEspacio = async () => {
+    if (!window.confirm(`Esto elimina «${espacio.nombre}» para TODOS los miembros, junto con sus solicitudes. No se puede deshacer. ¿Seguro?`)) return;
+    try {
+      await eliminarEspacio(espacio.id);
+      setActivoId(null);
+      await cargarEspacios();
+    } catch (err) { setError(mensajeAmigable(err, 'eliminar el espacio')); }
+  };
 
   if (espacios === null) return <p className="py-10 text-center text-sm text-textSecondary">Cargando…</p>;
   if (!espacio) return <CrearOUnirse onCrear={crear} onUnirse={unirse} error={error} />;
 
   return (
     <div className="space-y-4">
+      {mostrandoDeCache && (
+        <p className="flex items-center gap-1.5 rounded-sm2 bg-warningSoft px-3 py-2 text-xs font-semibold text-warning">
+          <WifiOff size={13} /> Sin conexión ahora mismo: mostrando lo último que se guardó de este espacio.
+        </p>
+      )}
+      {error && <p className="rounded-sm2 bg-dangerSoft px-3 py-2 text-xs font-semibold text-danger">{error}</p>}
       <div className="rounded-md2 bg-white p-4 shadow-card">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="relative">
@@ -82,6 +149,9 @@ export default function Grupo() {
               </div>
             )}
           </div>
+          <button onClick={soyAdmin ? eliminarTodoElEspacio : salirme} className="flex items-center gap-1.5 rounded-full border border-danger/30 px-3 py-1.5 text-xs font-bold text-danger">
+            <LogOut size={13} /> {soyAdmin ? 'Eliminar espacio' : 'Salir del espacio'}
+          </button>
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <span className="text-xs text-textSecondary">Código de invitación:</span>

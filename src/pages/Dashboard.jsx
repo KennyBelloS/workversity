@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { Link, useNavigate } from 'react-router-dom';
 import { Clock, AlertTriangle, Wallet, Target, Star, Check, ArrowUpDown, Video, MapPin, Sparkles, BookOpen, CalendarClock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -60,7 +61,7 @@ export default function Dashboard() {
       setDatos({ tareas, bloques, materias, movimientos, sesiones });
       setError('');
     } catch (err) {
-      setError(err.message || String(err));
+      setError(mensajeAmigable(err, 'cargar el dashboard'));
     } finally {
       setCargando(false);
     }

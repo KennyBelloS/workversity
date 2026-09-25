@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { mensajeAmigable } from '../../lib/erroresAmigables';
 import { Bell, BellOff, Send } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { actualizarPerfil } from '../../services/auth';
@@ -24,7 +25,7 @@ export default function NotificacionesCard() {
       setActiva(true);
       setMensaje('¡Listo! Recibirás avisos aunque la app esté cerrada.');
     } catch (err) {
-      setError(err.message || String(err));
+      setError(mensajeAmigable(err, 'activar los avisos'));
     } finally {
       setTrabajando(false);
     }

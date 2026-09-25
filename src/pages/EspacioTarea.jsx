@@ -1,4 +1,5 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, FileText, Table2, Presentation, Search, Bot, Flag, Loader2, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -162,7 +163,7 @@ export default function EspacioTarea() {
       const tarea = tareas.find((t) => t.id === id);
       if (!tarea) { setError('No encontramos esta tarea. Puede que ya se haya eliminado.'); return; }
       setDatos({ tarea, tareas, materias, sesiones, docs: d.lista, docsDisponible: d.disponible });
-    } catch (e) { setError(e.message || String(e)); }
+    } catch (e) { setError(mensajeAmigable(e, 'cargar el espacio de trabajo')); }
   }, [id]);
   useEffect(() => { cargar(); }, [cargar, version]);
 

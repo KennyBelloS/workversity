@@ -4,6 +4,66 @@
 
 export const RELEASES = [
   {
+    version: '2.5.1', fecha: '2026-09-25', titulo: 'Grupo: ya no se cuela ningún error técnico',
+    cambios: [
+      { t: 'arreglo', x: 'En Grupo (crear un espacio, unirte, pedir un horario, aceptarlo…), si fallaba la conexión en el peor momento, a veces se mostraba el error crudo en inglés en vez del aviso claro. Ya está reforzado en todos los puntos: siempre se traduce antes de mostrarse.' },
+    ],
+  },
+  {
+    version: '2.5.0', fecha: '2026-09-25', titulo: 'Mensajes de error mucho más claros',
+    cambios: [
+      { t: 'mejora', x: 'Cuando algo necesita internet y no lo hay, la app ya no muestra errores técnicos en inglés (como "TypeError: NetworkError…"): ahora dice claramente que esa acción necesita conexión y que lo intentes de nuevo cuando la tengas.' },
+      { t: 'mejora', x: 'Se distingue mejor cuando el problema es tu conexión de cuando es que la app no logra llegar a tu base de datos (proyecto de Supabase pausado, borrado, o con la dirección equivocada).' },
+    ],
+  },
+  {
+    version: '2.4.0', fecha: '2026-09-25', titulo: 'Parciales mucho más coherente, y un aviso claro cuando el problema es de Supabase',
+    cambios: [
+      { t: 'mejora', x: 'Parciales: las tarjetas que no encajan en una definición clara ahora funcionan como "completa la idea" (el inicio real de la oración y su continuación), en vez de preguntas raras como "¿qué dice el texto sobre...?".' },
+      { t: 'arreglo', x: 'En "Ver y editar" tarjetas, las preguntas y respuestas largas ya no se cortan: se leen completas.' },
+      { t: 'mejora', x: 'Si la app no puede conectarse a tu base de datos pero tu internet funciona bien, ahora lo dice claramente (antes solo decía "sin conexión", lo cual llevaba a revisar el wifi en vez del proyecto de Supabase).' },
+    ],
+  },
+  {
+    version: '2.3.1', fecha: '2026-09-25', titulo: 'Arreglo urgente: crear un apunte ya no falla',
+    cambios: [
+      { t: 'arreglo', x: 'Crear un apunte nuevo daba un error y no dejaba usar la app. Era una librería que se había agregado mal; ya se quitó por completo y se reemplazó por una función propia, sin depender de nada externo.' },
+      { t: 'mejora', x: 'Arrastrar para reordenar los widgets del Dashboard ya funciona con el dedo en el celular (antes solo funcionaba con mouse).' },
+      { t: 'nuevo', x: 'Grupo: ahora puedes salir de un espacio, o eliminarlo por completo si eres admin.' },
+      { t: 'arreglo', x: 'Reforzado el aviso cuando un borrado es bloqueado por el servidor (quitar a alguien, eliminar una solicitud o un espacio): ya no desaparece para luego reaparecer solo.' },
+    ],
+  },
+  {
+    version: '2.3.0', fecha: '2026-09-25', titulo: 'Grupo más rápido y mapas conceptuales mucho mejores',
+    cambios: [
+      { t: 'mejora', x: 'Grupo: la pantalla ahora muestra lo último guardado al instante, con o sin conexión, y solo actualiza de fondo si la red responde a tiempo (antes se podía quedar esperando).' },
+      { t: 'mejora', x: 'Mapa conceptual: rediseñado con relaciones término → definición reales y texto completo, legible, sin cortes.' },
+      { t: 'mejora', x: 'Diagrama de flujo: ya no inventa un proceso a partir de definiciones sueltas; solo se arma cuando el texto de verdad describe pasos, y si no, te lo dice y te sugiere el mapa conceptual.' },
+      { t: 'mejora', x: 'Palabras clave de Parciales: ahora usan un lematizador de español (librería "natural") para agrupar variaciones de una misma palabra ("célula"/"células").' },
+      { t: 'arreglo', x: 'Si un borrado era bloqueado en silencio por el servidor, la app ya no lo daba por hecho: ahora lo detecta y avisa en vez de que el elemento reaparezca solo.' },
+      { t: 'arreglo', x: 'Al borrar un parcial, sus tarjetas y fuentes ya no se quedaban guardadas de más en el dispositivo.' },
+    ],
+  },
+  {
+    version: '2.2.0', fecha: '2026-09-24', titulo: 'Arreglos importantes: borrado confiable y mapas que sí se entienden',
+    cambios: [
+      { t: 'arreglo', x: 'Si el servidor rechazaba en silencio un borrado (algo raro, pero posible), la app ya no lo daba por hecho: ahora lo detecta y te avisa en vez de que el elemento "reviva" solo.' },
+      { t: 'arreglo', x: 'Al borrar un parcial, sus tarjetas y fuentes ya no se quedaban huérfanas en tu dispositivo.' },
+      { t: 'mejora', x: 'Mapa conceptual: rediseñado por completo. Ahora muestra relaciones reales (término → definición) en tarjetas legibles, sin texto cortado.' },
+      { t: 'mejora', x: 'Diagrama de flujo: ya no fuerza definiciones sueltas en forma de proceso. Solo arma el diagrama cuando el texto de verdad describe pasos (numerados o con palabras como "primero", "luego", "finalmente"); si no, te lo dice y te sugiere el mapa conceptual.' },
+    ],
+  },
+  {
+    version: '2.1.0', fecha: '2026-09-23', titulo: 'Apuntes (cuaderno digital) y Parciales mucho más completos',
+    cambios: [
+      { t: 'nuevo', x: 'Apuntes: un cuaderno digital con apuntes de clase, de tarea, de proyecto o libres. Editor con negrita, cursiva, títulos y listas, y vista previa.' },
+      { t: 'nuevo', x: 'Mapa mental interactivo dentro de cada apunte: agrega ideas, arrástralas, renómbralas, o genera uno automático a partir de tu texto.' },
+      { t: 'nuevo', x: 'Mapa conceptual y diagrama de flujo automáticos también disponibles dentro de Apuntes (los mismos de Parciales).' },
+      { t: 'nuevo', x: '«Usar para un parcial»: manda cualquier apunte a un parcial nuevo o existente y genera sus tarjetas de estudio de una vez.' },
+      { t: 'mejora', x: 'Parciales genera muchas más tarjetas y con mejor cobertura: ahora busca al menos una pregunta por cada idea del texto, no solo por las palabras más repetidas.' },
+    ],
+  },
+  {
     version: '2.0.0', fecha: '2026-09-23', titulo: 'Espacios compartidos y preparación de parciales',
     cambios: [
       { t: 'nuevo', x: 'Grupo: comparte tu agenda con tu pareja, compañeros de piso o grupo de estudio. Crea un espacio o únete con un código. Dos roles: admin (acceso total) y miembro (mismo acceso, para el día a día).' },

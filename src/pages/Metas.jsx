@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { useEscape } from '../hooks/useEscape';
 import { Plus, Target, Trash2, PiggyBank, AlertTriangle, Tags, BookOpen, Sprout, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -358,7 +359,7 @@ export default function Metas() {
       const [m, mov, av] = await Promise.all([listarMetas(), listarMovimientos(), listarAvances()]);
       setMetas(m); setMovimientos(mov); setAvances(av.lista); setError('');
     } catch (err) {
-      setError(err.message || String(err));
+      setError(mensajeAmigable(err, 'cargar tus metas'));
     } finally {
       setCargando(false);
     }

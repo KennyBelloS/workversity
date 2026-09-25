@@ -590,3 +590,55 @@ create policy "parcial_resultados_todo_propio" on parcial_resultados for all
   using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
 
 notify pgrst, 'reload schema';
+
+-- ============================================================================
+-- v12: Apuntes (cuaderno digital): clase, tarea, proyecto o libre, con mapa mental
+-- ============================================================================
+create table if not exists apuntes (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  materia_id uuid references materias (id) on delete set null,
+  tipo text not null default 'clase' check (tipo in ('clase', 'tarea', 'proyecto', 'libre')),
+  titulo text not null,
+  contenido text not null default '',
+  mapa_mental jsonb not null default '[]'::jsonb,
+  favorito boolean not null default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz not null default now()
+);
+create index if not exists idx_apuntes_user on apuntes (user_id);
+create index if not exists idx_apuntes_materia on apuntes (materia_id);
+alter table apuntes enable row level security;
+drop policy if exists "apuntes_todo_propio" on apuntes;
+create policy "apuntes_todo_propio" on apuntes for all
+  using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+drop trigger if exists trg_apuntes_updated_at on apuntes;
+create trigger trg_apuntes_updated_at before update on apuntes
+  for each row execute function public.set_updated_at();
+notify pgrst, 'reload schema';
+
+-- ============================================================================
+-- v13: agenda visible entre miembros de un espacio + conflictos al pedir un horario
+-- Quien está en tu mismo espacio ve tu horario real (materias, bloques y tareas)
+-- para poder proponer citas sin chocar con lo que ya tienes agendado. Solo lectura:
+-- nadie puede editar o borrar nada que no sea suyo.
+-- ============================================================================
+create or replace function public.comparten_espacio(p_a uuid, p_b uuid)
+returns boolean language sql security definer stable as $$
+  select exists(
+    select 1 from espacio_miembros m1 join espacio_miembros m2 using (espacio_id)
+    where m1.user_id = p_a and m2.user_id = p_b
+  );
+$$;
+
+drop policy if exists "materias_las_ve_el_espacio" on materias;
+create policy "materias_las_ve_el_espacio" on materias for select
+  using (comparten_espacio(user_id, (select auth.uid())));
+drop policy if exists "bloques_los_ve_el_espacio" on bloques_horario;
+create policy "bloques_los_ve_el_espacio" on bloques_horario for select
+  using (comparten_espacio(user_id, (select auth.uid())));
+drop policy if exists "tareas_las_ve_el_espacio" on tareas;
+create policy "tareas_las_ve_el_espacio" on tareas for select
+  using (comparten_espacio(user_id, (select auth.uid())));
+
+notify pgrst, 'reload schema';

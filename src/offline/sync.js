@@ -23,6 +23,7 @@ const INTERVALO_REINTENTO_MS = 30000;
 
 let estado = {
   enLinea: typeof navigator === 'undefined' ? true : navigator.onLine,
+  probableProblemaServidor: false,
   pendientes: 0,
   sincronizando: false,
   ultimaSync: null,
@@ -80,6 +81,18 @@ export function esErrorDeRed(err) {
   );
 }
 
+/**
+ * Un fetch() fallido se ve IGUAL en JavaScript esté la persona sin wifi, o con wifi pero sin
+ * poder llegar a Supabase (proyecto pausado, borrado, o con la URL equivocada en el .env):
+ * ambos casos lanzan un TypeError genérico. Para no confundir a la persona con un "sin
+ * conexión" cuando su internet sí funciona, se distingue: si el navegador dice que SÍ hay
+ * internet (`navigator.onLine`) y aun así la petición falló como si no lo hubiera, lo más
+ * probable es que el problema esté del lado de Supabase, no de la conexión.
+ */
+export function posibleProyectoInalcanzable(err) {
+  return esErrorDeRed(err) && typeof navigator !== 'undefined' && navigator.onLine !== false;
+}
+
 function esErrorDeSesion(err) {
   const msg = String(err?.message || '');
   return err?.status === 401 || err?.code === 'PGRST301' || /JWT (expired|invalid)/i.test(msg);
@@ -135,7 +148,17 @@ async function ejecutar(op) {
   const t = supabase.from(op.tabla);
   if (op.tipo === 'upsert') return t.upsert(op.fila, { onConflict: op.conflicto || 'id' });
   if (op.tipo === 'patch') return t.update(op.cambios).eq('id', op.idFila);
-  if (op.tipo === 'delete') return t.delete().eq('id', op.idFila);
+  if (op.tipo === 'delete') {
+    // OJO: si las políticas de seguridad (RLS) bloquean el borrado, Supabase no avisa con un
+    // error — simplemente no borra nada y responde "OK". Por eso se pide de vuelta la fila
+    // borrada: si no viene ninguna, es que en realidad no se borró, y hay que tratarlo como
+    // un error (si no, el registro "revive" la próxima vez que se descargue la tabla).
+    const { data, error } = await t.delete().eq('id', op.idFila).select('id');
+    if (!error && (!data || data.length === 0)) {
+      return { error: { message: `No se pudo eliminar de "${op.tabla}": el servidor no encontró o no permitió borrar ese registro.`, code: 'SIN_FILAS_BORRADAS' } };
+    }
+    return { data, error };
+  }
   return { error: new Error(`Operación desconocida: ${op.tipo}`) };
 }
 
@@ -171,6 +194,7 @@ export function vaciarCola() {
     let procesadas = 0;
     let habiaAntiguas = false; // cambios que esperaron (p. ej. hechos sin internet)
     let sinRed = false;
+    let probableProblemaServidor = false;
     let errorTexto = null;
     let esquemaViejo = false;
 
@@ -195,6 +219,7 @@ export function vaciarCola() {
             const err = resultado.error;
             if (esErrorDeRed(err)) {
               sinRed = true;
+              if (posibleProyectoInalcanzable(err)) probableProblemaServidor = true;
               break;
             }
             if (esErrorDeSesion(err)) {
@@ -228,6 +253,7 @@ export function vaciarCola() {
           sincronizando: false,
           pendientes: cola.length,
           enLinea: sinRed ? false : navigator.onLine !== false,
+          probableProblemaServidor,
           ultimoError: errorTexto,
           esquema: esquemaViejo,
           ultimaSync: procesadas > 0 && cola.length === 0 ? Date.now() : estado.ultimaSync,

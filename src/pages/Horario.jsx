@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import { useNavigate } from 'react-router-dom';
 import { Plus, ChevronLeft, ChevronRight, LayoutGrid, List, CalendarPlus } from 'lucide-react';
 import CalendarioModal from '../components/calendario/CalendarioModal';
@@ -37,7 +38,7 @@ export default function Horario() {
       const [b, m, t] = await Promise.all([listarBloques(), listarMaterias(), listarTareas()]);
       setBloques(b); setMaterias(m); setTareas(t); setError('');
     } catch (err) {
-      setError(err.message || String(err));
+      setError(mensajeAmigable(err, 'cargar tu agenda'));
     } finally {
       setCargando(false);
     }

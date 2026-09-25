@@ -1,4 +1,5 @@
 import { useEffect, useId, useMemo, useState } from 'react';
+import { mensajeAmigable } from '../../lib/erroresAmigables';
 import { marcarSucio } from '../../pwa/bloqueo';
 import { Plus, Trash2, GraduationCap, Target, Wand2, Layers, Save, Undo2, Check, AlertTriangle, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -171,7 +172,7 @@ export default function NotasCard({ materias, tareas = [] }) {
 
   const cargar = async () => {
     try { const [e, c] = await Promise.all([listarEvaluaciones(), listarCortes()]); setEvaluaciones(e); setCortes(c); setError(''); }
-    catch (err) { setError(err.message || String(err)); }
+    catch (err) { setError(mensajeAmigable(err, 'cargar tus notas')); }
   };
    
   useEffect(() => { cargar(); }, [version]);
