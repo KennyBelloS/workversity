@@ -58,6 +58,12 @@ export default defineConfig({
       filename: 'sw.js',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,png,svg,ico,webmanifest,woff2}'],
+        // Mermaid (mapas conceptuales y diagramas de flujo) pesa varios MB entre sus piezas
+        // de diseño de diagramas (elk, cynefin, dagre, cytoscape) que casi nadie usa en cada
+        // visita. En vez de forzar esa descarga en la instalación de la app para todo el
+        // mundo, se deja fuera de la precarga: se descarga solo (y se guarda en caché del
+        // navegador) la primera vez que alguien entra a "Mapas y diagramas".
+        globIgnores: ['**/mermaid*.js', '**/cynefin*.js', '**/cytoscape*.js', '**/dagre*.js', '**/elk-*.js'],
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
       },
       devOptions: { enabled: false },

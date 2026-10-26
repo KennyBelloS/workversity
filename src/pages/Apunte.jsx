@@ -1,18 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { PenLine, Network, Share2, Star, Trash2, GraduationCap } from 'lucide-react';
+import { PenLine, Share2, Star, Trash2, GraduationCap } from 'lucide-react';
 import { listarApuntes, actualizarApunte, eliminarApunte } from '../services/apuntes';
 import { listarMaterias } from '../services/materias';
 import { TIPOS_APUNTE, colorTipo } from '../lib/apuntes';
 import EditorApunte from '../components/apuntes/EditorApunte';
 import LienzoMental from '../components/apuntes/LienzoMental';
-import MapasYDiagramas from '../components/parciales/MapasYDiagramas';
 import UsarParaParcial from '../components/apuntes/UsarParaParcial';
 
 const PESTANAS = [
   { id: 'escribir', t: 'Escribir', icono: PenLine },
   { id: 'mental', t: 'Mapa mental', icono: Share2 },
-  { id: 'mapas', t: 'Mapas y diagramas', icono: Network },
 ];
 
 export default function Apunte() {
@@ -94,7 +92,6 @@ export default function Apunte() {
 
       {tab === 'escribir' && <EditorApunte contenido={apunte.contenido} onCambiar={(contenido) => guardar({ contenido })} />}
       {tab === 'mental' && <LienzoMental nodos={apunte.mapa_mental} onCambiar={(mapa_mental) => guardar({ mapa_mental })} texto={apunte.contenido} titulo={apunte.titulo} />}
-      {tab === 'mapas' && <MapasYDiagramas texto={apunte.contenido} titulo={apunte.titulo} />}
 
       {modalParcial && <UsarParaParcial apunte={apunte} onCerrar={() => setModalParcial(false)} />}
     </div>

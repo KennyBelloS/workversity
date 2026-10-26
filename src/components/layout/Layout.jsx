@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Topbar from './Topbar';
 import DockNav from './DockNav';
 import EstadoApp from './EstadoApp';
@@ -9,8 +10,13 @@ import Celebracion from './Celebracion';
 import RevisionSemanal from './RevisionSemanal';
 import LogrosObservador from './LogrosObservador';
 import PreviewHost from '../preview/PreviewHost';
+import { registrarEntradaDeHoy } from '../../lib/rachaEntrada';
 
 export default function Layout({ titulo, children }) {
+  // Cuenta como "entrada" la primera vez que se ve CUALQUIER pantalla protegida en el día;
+  // no depende de qué módulo sea, así refleja de verdad "abriste la app hoy".
+  useEffect(() => { registrarEntradaDeHoy(); }, []);
+
   return (
     <div className="min-h-screen bg-bg">
       <Topbar titulo={titulo} />

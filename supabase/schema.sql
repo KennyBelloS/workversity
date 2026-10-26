@@ -642,3 +642,70 @@ create policy "tareas_las_ve_el_espacio" on tareas for select
   using (comparten_espacio(user_id, (select auth.uid())));
 
 notify pgrst, 'reload schema';
+
+-- ============================================================================
+-- v14: rol de administrador de la app (distinto del admin de un espacio de Grupo)
+-- Un admin de la app ve las herramientas de base de datos en Ajustes; un usuario
+-- normal no las ve (piensa en cuando compartes la app con tu pareja o tu grupo:
+-- ellos no necesitan ni deben ver el SQL de tu proyecto de Supabase).
+-- ============================================================================
+alter table perfiles add column if not exists es_admin boolean not null default false;
+notify pgrst, 'reload schema';
+
+-- ============================================================================
+-- v15: nadie puede ascenderse a admin por su cuenta (hueco de seguridad real)
+-- La política de "cada quien edita su propia fila" controla qué FILA se puede
+-- tocar, pero no qué COLUMNA dentro de ella: sin este bloqueo, cualquier persona
+-- podría, desde la consola del navegador, mandar un update directo a la API y
+-- ponerse es_admin = true a sí misma. Este disparador lo impide: si el cambio
+-- de es_admin viene de una sesión normal de la app (no del SQL Editor), se
+-- revierte en silencio, dejando el valor que ya tenía.
+-- ============================================================================
+create or replace function public.proteger_es_admin()
+returns trigger language plpgsql security definer as $$
+begin
+  if new.es_admin is distinct from old.es_admin and auth.role() in ('authenticated', 'anon') then
+    new.es_admin := old.es_admin;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_proteger_es_admin on perfiles;
+create trigger trg_proteger_es_admin before update on perfiles
+  for each row execute function public.proteger_es_admin();
+
+notify pgrst, 'reload schema';
+
+-- ============================================================================
+-- v16: panel de administrador — ver usuarios registrados y sus ingresos
+-- El admin ve TODOS los perfiles (nombre, correo, cuándo se registró, cuándo
+-- entró por última vez y cuántas veces ha entrado). Deliberadamente NO puede
+-- ver las tareas, finanzas ni apuntes de nadie: esto es solo sobre cuentas,
+-- no sobre el contenido privado de cada persona.
+-- ============================================================================
+alter table perfiles add column if not exists ultimo_ingreso timestamptz;
+alter table perfiles add column if not exists total_ingresos integer not null default 0;
+
+-- Función de apoyo (sin recursión): evita que una política de "perfiles" tenga
+-- que leer la propia tabla "perfiles" bajo RLS para saber si eres admin.
+create or replace function public.soy_admin()
+returns boolean language sql security definer stable as $$
+  select coalesce((select es_admin from perfiles where id = auth.uid()), false);
+$$;
+
+drop policy if exists "admin_ve_todos_los_perfiles" on perfiles;
+create policy "admin_ve_todos_los_perfiles" on perfiles for select
+  using (soy_admin());
+
+-- Se llama una vez por sesión iniciada (ve AuthContext.jsx). Actualiza SOLO
+-- la fila de quien llama, y solo estas dos columnas — no toca es_admin.
+create or replace function public.registrar_ingreso()
+returns void language plpgsql security definer as $$
+begin
+  update perfiles set ultimo_ingreso = now(), total_ingresos = total_ingresos + 1
+  where id = auth.uid();
+end;
+$$;
+
+notify pgrst, 'reload schema';

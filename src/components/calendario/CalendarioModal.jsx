@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useEscape } from '../../hooks/useEscape';
-import { X, Download, Copy, Check, RefreshCw, CalendarPlus, Smartphone, Share2, ChevronDown, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
+import { X, Download, Copy, Check, RefreshCw, CalendarPlus, Smartphone, Share2, ChevronDown, CheckCircle2, Loader2, CalendarDays, MousePointerClick } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { leerTabla } from '../../offline/db';
 import { actualizarPerfil } from '../../services/auth';
@@ -10,7 +10,6 @@ import { generarICS, enlaceGoogle } from '../../../supabase/functions/_shared/ic
 
 const zonaLocal = () => Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Bogota';
 const esIos = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
-const COMANDO = 'npx supabase functions deploy calendario --no-verify-jwt';
 
 // Próxima fecha (a la hora dada) en que cae ese día de la semana (1 = lunes … 7 = domingo)
 function proxima(dow, minutos) {
@@ -100,24 +99,43 @@ export default function CalendarioModal({ onCerrar }) {
     ];
   }, [datos]);
 
-  const boton = 'flex items-center justify-center gap-2 rounded-sm2 px-4 py-2.5 text-sm font-bold';
+  const boton = 'flex items-center justify-center gap-2 rounded-sm2 px-4 py-2.5 text-sm font-bold transition';
+  // La suscripción automática (opción "se actualiza sola") solo se muestra cuando de
+  // verdad funciona. Si todavía no está lista, mejor no mostrarla en absoluto: las
+  // otras dos formas ya cubren por completo llevar la agenda al calendario.
+  const suscripcionDisponible = Boolean(token) && funcion === 'activa';
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={onCerrar}>
       <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-lg2 bg-bg sm:rounded-lg2" onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 z-10 flex items-center justify-between bg-bg px-5 py-4">
-          <h2 className="flex items-center gap-2 text-lg font-extrabold"><CalendarPlus size={20} /> Llevar tu agenda al calendario</h2>
-          <button onClick={onCerrar} className="rounded-full p-1.5 hover:bg-black/5"><X size={20} /></button>
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-bg px-5 py-4">
+          <div>
+            <h2 className="text-lg font-extrabold">Tu agenda en tu calendario</h2>
+            <p className="text-xs text-textSecondary">Clases, bloques y tareas, en Google Calendar, Apple Calendar u Outlook</p>
+          </div>
+          <button onClick={onCerrar} aria-label="Cerrar" className="shrink-0 rounded-full p-1.5 hover:bg-black/5"><X size={20} /></button>
         </div>
 
-        <div className="space-y-4 px-5 pb-8">
+        <div className="space-y-3 px-5 py-5">
+          {total === 0 && (
+            <div className="flex items-start gap-2.5 rounded-md2 bg-warningSoft p-3.5 text-xs font-semibold text-warning">
+              <CalendarDays size={16} className="mt-0.5 shrink-0" />
+              Aún no hay nada que llevar al calendario. Registra alguna materia, bloque o tarea y vuelve aquí.
+            </div>
+          )}
+
+          {/* Opción principal: archivo .ics */}
           <section className="space-y-3 rounded-md2 bg-white p-4 shadow-card">
-            <p className="text-sm font-extrabold">1. Archivo de calendario (.ics)</p>
-            {total === 0 ? (
-              <p className="rounded-sm2 bg-warningSoft p-3 text-xs font-semibold text-warning">Aún no hay nada que exportar. Registra materias, bloques o tareas y vuelve aquí.</p>
-            ) : (
+            <div className="flex items-center gap-2.5">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primarySoft text-primary"><Download size={17} /></span>
+              <div>
+                <p className="text-sm font-extrabold">Descargar e importar</p>
+                <p className="text-xs text-textSecondary">La forma más directa: un archivo que abres con tu calendario</p>
+              </div>
+            </div>
+            {total > 0 && (
               <p className="text-xs text-textSecondary">
-                Se exportará: <b className="text-textPrimary">{datos.materias.length} clases</b>, <b className="text-textPrimary">{datos.bloques.length} bloques</b> (trabajo, reuniones…) y <b className="text-textPrimary">{datos.tareas.length} tareas pendientes</b>, cada uno con su alarma.
+                Incluye <b className="text-textPrimary">{datos.materias.length} clases</b>, <b className="text-textPrimary">{datos.bloques.length} bloques</b> y <b className="text-textPrimary">{datos.tareas.length} tareas pendientes</b>, cada uno con su alarma.
               </p>
             )}
             <label className="flex items-center justify-between text-sm font-semibold">
@@ -127,57 +145,62 @@ export default function CalendarioModal({ onCerrar }) {
               </select>
             </label>
             <div className="grid gap-2 sm:grid-cols-2">
-              <button onClick={descargar} disabled={total === 0} className={`${boton} bg-primary text-white disabled:opacity-50`}><Download size={16} /> Descargar .ics</button>
-              <button onClick={compartir} disabled={total === 0} className={`${boton} border border-primary/40 text-primary disabled:opacity-50`}><Share2 size={16} /> Compartir / abrir en mi calendario</button>
+              <button onClick={descargar} disabled={total === 0} className={`${boton} bg-primary text-white hover:bg-primaryDark disabled:opacity-50`}><Download size={16} /> Descargar archivo</button>
+              <button onClick={compartir} disabled={total === 0} className={`${boton} border border-primary/40 text-primary disabled:opacity-50`}><Share2 size={16} /> Compartir / abrir</button>
             </div>
-            {esIos() && <button onClick={abrirDirecto} disabled={total === 0} className={`${boton} w-full border border-black/10 disabled:opacity-50`}><Smartphone size={16} /> Abrir directo en Calendario (iPhone)</button>}
-            {mensaje && <p className="rounded-sm2 bg-successSoft p-2.5 text-xs font-semibold text-success">{mensaje}</p>}
-            <div className="space-y-1 rounded-sm2 bg-bg p-3 text-[11px] text-textSecondary">
-              <p><b>Google Calendar (computador):</b> calendar.google.com → ⚙ Configuración → <i>Importar y exportar</i> → Importar → elige el archivo y el calendario destino → Importar.</p>
-              <p><b>iPhone:</b> toca “Compartir / abrir…” y elige <i>Calendario</i>, o abre el archivo y pulsa “Añadir todo”. <b>Android:</b> “Compartir / abrir…” → Google Calendar.</p>
-              <p><b>Mac / Outlook:</b> abre el .ics con doble clic.</p>
-            </div>
+            {esIos() && <button onClick={abrirDirecto} disabled={total === 0} className={`${boton} w-full border border-black/10 disabled:opacity-50`}><Smartphone size={16} /> Abrir directo en Calendario</button>}
+            {mensaje && <p className="flex items-center gap-1.5 rounded-sm2 bg-successSoft p-2.5 text-xs font-semibold text-success"><CheckCircle2 size={14} className="shrink-0" /> {mensaje}</p>}
+
+            <details className="group rounded-sm2 bg-bg px-3 py-2 text-xs text-textSecondary open:pb-3">
+              <summary className="cursor-pointer select-none list-none font-bold text-textPrimary marker:content-none">¿Cómo lo importo según mi calendario?</summary>
+              <div className="mt-2 space-y-1.5">
+                <p><b>Google Calendar (computador):</b> Configuración → Importar y exportar → Importar → elige el archivo.</p>
+                <p><b>iPhone:</b> toca "Compartir / abrir" y elige Calendario, o abre el archivo y pulsa "Añadir todo". <b>Android:</b> "Compartir / abrir" → Google Calendar.</p>
+                <p><b>Mac / Outlook:</b> abre el archivo con doble clic.</p>
+              </div>
+            </details>
           </section>
 
-          <section className="space-y-3 rounded-md2 bg-white p-4 shadow-card">
-            <div className="flex items-center justify-between gap-2">
-              <p className="text-sm font-extrabold">2. Suscribirte (se actualiza sola)</p>
-              {token && funcion === 'verificando' && <span className="flex items-center gap-1 text-[11px] font-bold text-textSecondary"><Loader2 size={12} className="animate-spin" /> Comprobando…</span>}
-              {token && funcion === 'activa' && <span className="flex items-center gap-1 rounded-full bg-successSoft px-2 py-0.5 text-[11px] font-bold text-success"><CheckCircle2 size={12} /> Activa</span>}
-              {token && funcion === 'inactiva' && <span className="flex items-center gap-1 rounded-full bg-warningSoft px-2 py-0.5 text-[11px] font-bold text-warning"><AlertTriangle size={12} /> No disponible</span>}
-            </div>
-            {!token ? (
-              <p className="rounded-sm2 bg-warningSoft p-3 text-xs font-semibold text-warning">Falta ejecutar <code>supabase/schema.sql</code> (columna calendario_token). Mira el manual.</p>
-            ) : (
-              <>
-                {funcion === 'inactiva' && (
-                  <div className="rounded-sm2 bg-warningSoft p-3 text-xs text-warning">
-                    <p className="font-extrabold">Por ahora este enlace no entrega tu agenda.</p>
-                    <p className="mt-1 font-medium">Falta desplegar (o volver a desplegar) la función <code>calendario</code> en Supabase. Ejecútalo en la carpeta del proyecto:</p>
-                    <div className="mt-2 flex items-center gap-2"><code className="min-w-0 flex-1 break-all rounded bg-white/70 p-1.5 text-[10px] text-textPrimary">{COMANDO}</code>
-                      <button onClick={() => copiar(COMANDO, 'cmd')} className="shrink-0 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-warning">{copiado === 'cmd' ? 'Copiado' : 'Copiar'}</button></div>
-                    <p className="mt-1.5 font-medium">Mientras tanto, usa la opción 1 o la 3: no necesitan nada más.</p>
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <input readOnly value={enlace} onFocus={(e) => e.target.select()} className="min-w-0 flex-1 rounded-sm2 bg-primarySoft/60 px-3 py-2 text-[11px] outline-none" />
-                  <button onClick={() => copiar(enlace, 'enlace')} className="flex shrink-0 items-center gap-1.5 rounded-sm2 border border-primary/30 px-3 text-xs font-bold text-primary">
-                    {copiado === 'enlace' ? <Check size={14} /> : <Copy size={14} />} {copiado === 'enlace' ? 'Copiado' : 'Copiar'}
-                  </button>
+          {/* Opción: suscripción automática — solo si de verdad está activa */}
+          {token && funcion === 'verificando' && (
+            <section className="flex items-center gap-2.5 rounded-md2 bg-white p-4 text-xs font-semibold text-textSecondary shadow-card">
+              <Loader2 size={15} className="shrink-0 animate-spin" /> Comprobando si la actualización automática está disponible…
+            </section>
+          )}
+          {suscripcionDisponible && (
+            <section className="space-y-3 rounded-md2 bg-white p-4 shadow-card">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-successSoft text-success"><RefreshCw size={16} /></span>
+                <div>
+                  <p className="text-sm font-extrabold">Suscribirte</p>
+                  <p className="text-xs text-textSecondary">Se actualiza sola: no hay que volver a exportar nada</p>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <a href={`https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcal)}`} target="_blank" rel="noreferrer" className={`${boton} border border-black/10`}><CalendarPlus size={15} /> Google Calendar</a>
-                  <a href={webcal} className={`${boton} border border-black/10`}><Smartphone size={15} /> iPhone / Mac</a>
-                </div>
-                <p className="text-[11px] text-textSecondary">Google actualiza los calendarios suscritos cada 12–24 h; iPhone/Mac es más rápido. <b>No compartas este enlace:</b> quien lo tenga puede ver tu agenda.</p>
-                <button onClick={regenerar} disabled={trabajando} className="flex items-center gap-1.5 text-xs font-bold text-textSecondary hover:text-danger"><RefreshCw size={13} className={trabajando ? 'animate-spin' : ''} /> Generar un enlace nuevo</button>
-              </>
-            )}
-          </section>
+              </div>
+              <div className="flex gap-2">
+                <input readOnly value={enlace} onFocus={(e) => e.target.select()} aria-label="Enlace de suscripción" className="min-w-0 flex-1 rounded-sm2 bg-primarySoft/60 px-3 py-2 text-[11px] outline-none" />
+                <button onClick={() => copiar(enlace, 'enlace')} className="flex shrink-0 items-center gap-1.5 rounded-sm2 border border-primary/30 px-3 text-xs font-bold text-primary">
+                  {copiado === 'enlace' ? <Check size={14} /> : <Copy size={14} />} {copiado === 'enlace' ? 'Copiado' : 'Copiar'}
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <a href={`https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcal)}`} target="_blank" rel="noreferrer" className={`${boton} border border-black/10`}><CalendarPlus size={15} /> Google Calendar</a>
+                <a href={webcal} className={`${boton} border border-black/10`}><Smartphone size={15} /> iPhone / Mac</a>
+              </div>
+              <p className="text-[11px] text-textSecondary">Google actualiza los calendarios suscritos cada 12–24 h; iPhone/Mac es más rápido. <b>No compartas este enlace:</b> quien lo tenga puede ver tu agenda.</p>
+              <button onClick={regenerar} disabled={trabajando} className="flex items-center gap-1.5 text-xs font-bold text-textSecondary hover:text-danger"><RefreshCw size={13} className={trabajando ? 'animate-spin' : ''} /> Generar un enlace nuevo</button>
+            </section>
+          )}
 
+          {/* Opción: uno por uno */}
           <section className="rounded-md2 bg-white p-4 shadow-card">
             <button onClick={() => setVerGoogle((v) => !v)} className="flex w-full items-center justify-between text-left">
-              <span><span className="block text-sm font-extrabold">3. Agregar uno por uno a Google Calendar</span><span className="text-xs text-textSecondary">Sin archivos ni configuración: un clic por evento.</span></span>
+              <span className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primarySoft text-primary"><MousePointerClick size={16} /></span>
+                <span>
+                  <span className="block text-sm font-extrabold">Agregar uno por uno</span>
+                  <span className="text-xs text-textSecondary">Sin archivos: un clic por evento, directo a Google Calendar</span>
+                </span>
+              </span>
               <ChevronDown size={18} className={`shrink-0 transition ${verGoogle ? 'rotate-180' : ''}`} />
             </button>
             {verGoogle && (

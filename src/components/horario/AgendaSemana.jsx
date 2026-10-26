@@ -73,7 +73,8 @@ export default function AgendaSemana({ inicioSemana, eventos, onAbrir }) {
                         top, height: h,
                         left: `calc(${(carril / carriles) * 100}% + 2px)`,
                         width: `calc(${100 / carriles}% - 4px)`,
-                        backgroundColor: `${e.color}${esTarea ? '33' : '24'}`,
+                        backgroundColor: `${e.color}${esTarea ? '18' : '24'}`,
+                        backgroundImage: esTarea ? `repeating-linear-gradient(135deg, ${e.color}26 0, ${e.color}26 4px, transparent 4px, transparent 9px)` : 'none',
                         borderLeft: `3px ${esTarea ? 'dashed' : 'solid'} ${e.color}`,
                       }}
                     >

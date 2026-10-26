@@ -11,10 +11,10 @@ export function calcularAlertas({ ahora = new Date(), tareas = [], materias = []
   const nombreMateria = (t) => (t.materia_id && materiaPorId.get(t.materia_id)?.nombre ? ` · ${materiaPorId.get(t.materia_id).nombre}` : '');
 
   const vencidas = pendientes.filter((t) => new Date(t.due_date) < ahora).sort((a, b) => new Date(b.due_date) - new Date(a.due_date));
-  vencidas.slice(0, 5).forEach((t) =>
+  // Se muestran TODAS las tareas vencidas, sin límite: pediste que "todas son todas".
+  vencidas.forEach((t) =>
     alertas.push({ id: `v:${t.id}`, tipo: 'vencida', nivel: 'alta', orden: 0, titulo: `Vencida: ${t.title}`, detalle: `Venció hace ${textoDuracion(ahora - new Date(t.due_date))}${nombreMateria(t)}`, url: '/tareas' })
   );
-  if (vencidas.length > 5) alertas.push({ id: `v:mas:${vencidas.length}`, tipo: 'vencida', nivel: 'alta', orden: 0, titulo: `${vencidas.length - 5} tareas vencidas más`, detalle: 'Ponte al día cuando puedas', url: '/tareas' });
 
   const enUnDia = pendientes
     .filter((t) => { const d = new Date(t.due_date) - ahora; return d >= 0 && d <= 24 * H; })

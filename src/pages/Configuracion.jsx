@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { mensajeAmigable } from '../lib/erroresAmigables';
-import { LogOut, KeyRound, User, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { LogOut, KeyRound, User, RefreshCw, Wifi, WifiOff, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { actualizarPerfil, actualizarPassword } from '../services/auth';
 import { useSyncEstado } from '../hooks/useSyncEstado';
@@ -80,7 +81,21 @@ export default function Configuracion() {
 
       <RespaldoCard />
 
-      <BaseDatosCard />
+      {perfil?.es_admin && (
+        <>
+          <Link to="/admin" className="mb-4 flex items-center justify-between rounded-md2 bg-white p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-md">
+            <span className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-primarySoft text-primary"><ShieldCheck size={18} /></span>
+              <span>
+                <p className="font-bold">Panel de administrador</p>
+                <p className="text-xs text-textSecondary">Usuarios registrados y sus ingresos</p>
+              </span>
+            </span>
+            <ArrowRight size={18} className="text-textSecondary" />
+          </Link>
+          <BaseDatosCard />
+        </>
+      )}
 
       <AparienciaCard />
 

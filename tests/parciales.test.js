@@ -231,3 +231,37 @@ Las plantas acuáticas también realizan fotosíntesis bajo el agua.
     expect(generarTarjetas(APUNTES_LARGOS, 3).length).toBeLessThanOrEqual(3);
   });
 });
+
+describe('generarTarjetas no convierte en "tarjeta" cualquier oración con dos puntos o un verbo suelto', () => {
+  it('ignora anotaciones del tipo "Nota:", "Ejemplo:", "Ver página X:" como si fueran una definición', () => {
+    const texto = 'Nota: revisar la página 5 para más detalles. Ejemplo: el caso visto en clase la semana pasada. La mitosis: proceso de división celular que produce dos células hijas idénticas.';
+    const t = generarTarjetas(texto);
+    const preguntas = t.map((x) => x.pregunta.toLowerCase());
+    expect(preguntas.some((p) => p.includes('¿qué es nota?'))).toBe(false);
+    expect(preguntas.some((p) => p.includes('¿qué es ejemplo?'))).toBe(false);
+    expect(preguntas.some((p) => p.includes('mitosis'))).toBe(true); // la definición real sí se conserva
+  });
+
+  it('no convierte una oración narrativa con un verbo débil ("entra por", "tiene") en una pregunta de "¿Qué es...?"', () => {
+    const texto = 'El profesor entra por la puerta principal todos los días antes de las siete. El estudiante tiene que entregar el trabajo antes del viernes para que cuente en la nota final.';
+    const t = generarTarjetas(texto);
+    const preguntas = t.map((x) => x.pregunta.toLowerCase());
+    expect(preguntas.some((p) => p.startsWith('¿qué es el profesor'))).toBe(false);
+    expect(preguntas.some((p) => p.startsWith('¿qué es el estudiante'))).toBe(false);
+  });
+
+  it('sigue reconociendo definiciones reales con los verbos fuertes que sí se mantienen', () => {
+    const texto = 'La fotosíntesis es el proceso mediante el cual las plantas producen su alimento. El ADN se define como la molécula que guarda la información genética.';
+    const t = generarTarjetas(texto);
+    const preguntas = t.map((x) => x.pregunta.toLowerCase());
+    expect(preguntas.some((p) => p.includes('fotosíntesis'))).toBe(true);
+    expect(preguntas.some((p) => p.includes('adn'))).toBe(true);
+  });
+
+  it('un término demasiado largo (una frase, no un concepto) no se vuelve pregunta de "¿Qué es...?"', () => {
+    const texto = 'Cuando el estudiante termina de revisar todos los apuntes de la clase anterior: puede continuar con el siguiente tema del curso.';
+    const t = generarTarjetas(texto);
+    const preguntas = t.map((x) => x.pregunta.toLowerCase());
+    expect(preguntas.some((p) => p.startsWith('¿qué es cuando el estudiante'))).toBe(false);
+  });
+});

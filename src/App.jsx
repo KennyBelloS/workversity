@@ -7,6 +7,7 @@ import Login from './pages/Login';
 // Cada pantalla se descarga solo cuando se usa (la app carga más rápido).
 // El Service Worker las guarda todas al instalar, así también abren sin internet.
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Admin = lazy(() => import('./pages/Admin'));
 const Ayuda = lazy(() => import('./pages/Ayuda'));
 const EspacioTarea = lazy(() => import('./pages/EspacioTarea'));
 const Resumen = lazy(() => import('./pages/Resumen'));
@@ -61,6 +62,7 @@ export default function App() {
       <Route path="/apuntes/:id" element={<Pagina titulo="Apunte"><Apunte /></Pagina>} />
       <Route path="/analitica" element={<Pagina titulo="Asistente inteligente"><Analitica /></Pagina>} />
       <Route path="/configuracion" element={<Pagina titulo="Configuración"><Configuracion /></Pagina>} />
+      <Route path="/admin" element={<Pagina titulo="Administrador"><Admin /></Pagina>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

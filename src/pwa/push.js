@@ -40,6 +40,44 @@ export async function suscripcionActual() {
   return registro.pushManager.getSubscription();
 }
 
+/**
+ * Diagnóstico completo de la cadena de notificaciones push, capa por capa. Como el envío
+ * real ocurre en un servidor (Edge Function + pg_cron) al que este cliente no tiene ni debe
+ * tener acceso directo (por seguridad, exige un secreto que nunca debe llegar al navegador),
+ * este diagnóstico no puede "probar el envío" de punta a punta — pero sí puede confirmar,
+ * con certeza, cuáles de los primeros pasos ya funcionan, para saber dónde seguir buscando.
+ */
+export async function diagnosticoCompleto(userId) {
+  const est = estadoPush();
+  const pasos = [
+    { id: 'soportado', ok: est.soportado, detalle: est.soportado ? 'Este navegador admite notificaciones push.' : 'Este navegador o dispositivo no las admite (revisa si necesitas instalar la app primero).' },
+    { id: 'permiso', ok: est.permiso === 'granted', detalle: est.permiso === 'granted' ? 'Le diste permiso a la app para notificarte.' : `Permiso: "${est.permiso}". Actívalo con el botón de arriba.` },
+    { id: 'clave', ok: est.configurado, detalle: est.configurado ? 'Tu app tiene una clave VAPID configurada.' : 'Falta VITE_VAPID_PUBLIC_KEY en tu .env (ver el manual).' },
+  ];
+  if (!pasos.every((p) => p.ok)) return { pasos, siguiente: 'Resuelve lo de arriba primero (de arriba hacia abajo) y vuelve a intentar.' };
+
+  const sub = await suscripcionActual().catch(() => null);
+  pasos.push({ id: 'suscrito', ok: !!sub, detalle: sub ? 'Tu navegador está suscrito a las notificaciones.' : 'Tu navegador no está suscrito todavía: pulsa "Activar".' });
+  if (!sub) return { pasos, siguiente: 'Pulsa "Activar" arriba para suscribirte.' };
+
+  try {
+    const { data, error } = await conTimeout(supabase.from('push_suscripciones').select('id, created_at').eq('user_id', userId).eq('endpoint', sub.endpoint), 6000);
+    const guardada = !error && data && data.length > 0;
+    pasos.push({ id: 'guardada', ok: guardada, detalle: guardada ? 'Tu suscripción está guardada en la base de datos: el servidor puede encontrarte.' : 'Tu suscripción no llegó a guardarse en la base de datos (revisa tu conexión e inténtalo de nuevo).' });
+    if (!guardada) return { pasos, siguiente: 'Vuelve a pulsar "Activar" con buena conexión a internet.' };
+  } catch {
+    pasos.push({ id: 'guardada', ok: false, detalle: 'No se pudo confirmar contra la base de datos (revisa tu conexión).' });
+    return { pasos, siguiente: 'Revisa tu conexión a internet e inténtalo de nuevo.' };
+  }
+
+  pasos.push({
+    id: 'servidor',
+    ok: null, // no verificable desde aquí, por diseño: enviarlas exige un secreto que nunca debe estar en el navegador
+    detalle: 'Todo lo anterior está bien de tu lado. Que SÍ llegue una notificación con la app cerrada depende de un paso que se hace una sola vez en Supabase (no en esta app): desplegar la función "enviar-recordatorios" y programarla con pg_cron para que corra cada minuto. Si no la has desplegado, es justo por eso que "por fuera de la app" no llega nada — no es un error de la aplicación. Los pasos exactos están en MANUAL.md.',
+  });
+  return { pasos, siguiente: null };
+}
+
 export async function activarNotificaciones(userId) {
   const est = estadoPush();
   if (!est.soportado) throw new Error('Este navegador no permite notificaciones push. En iPhone, primero instala la app (Compartir → Añadir a pantalla de inicio).');

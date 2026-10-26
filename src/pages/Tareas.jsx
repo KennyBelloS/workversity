@@ -110,6 +110,12 @@ export default function Tareas() {
     setTareaEditando(null);
   };
 
+  const handleReprogramar = async (nuevaFechaISO) => {
+    await actualizarTarea(tareaDetalle.id, { due_date: nuevaFechaISO });
+    await cargar();
+    mostrarSnackbar({ texto: 'Tarea reprogramada', etiqueta: 'Deshacer', onAccion: async () => { await actualizarTarea(tareaDetalle.id, { due_date: tareaDetalle.due_date }); await cargar(); } });
+  };
+
   const handleEliminar = async (tarea) => {
     await eliminarTarea(tarea.id);
     await cargar();
@@ -207,6 +213,7 @@ export default function Tareas() {
           onEditar={() => { setTareaEditando(tareaDetalle); setModalAbierto(true); }}
           onToggle={() => handleToggle(tareaDetalle)}
           onMover={(estado) => handleMover(tareaDetalle.id, estado)}
+          onReprogramar={handleReprogramar}
           onEliminar={() => handleEliminar(tareaDetalle)}
         />
       )}

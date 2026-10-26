@@ -46,3 +46,14 @@ describe('alertas de metas de progreso', () => {
     expect(al.filter((a) => a.tipo === 'meta').map((a) => a.titulo)).toEqual(['Vas atrasado con «Leer»', 'Hace 4 días que no avanzas en «Curso»']);
   });
 });
+
+describe('todas las tareas vencidas se avisan, sin límite (así lo pidió el usuario)', () => {
+  it('con más de 5 vencidas, se muestran las 8, no un resumen de "3 más"', () => {
+    const ahora = new Date(2026, 8, 21, 10, 0);
+    const T = (id, horas) => ({ id, title: id, status: 'pendiente', priority: 'media', due_date: new Date(ahora.getTime() + horas * 3600000).toISOString() });
+    const tareas = Array.from({ length: 8 }, (_, i) => T(`t${i}`, -1 - i));
+    const al = calcularAlertas({ ahora, tareas }).filter((a) => a.tipo === 'vencida');
+    expect(al).toHaveLength(8);
+    expect(al.some((a) => a.titulo.includes('más'))).toBe(false);
+  });
+});

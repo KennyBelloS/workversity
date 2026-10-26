@@ -5,6 +5,7 @@ import { Sparkles, AlertTriangle, Award, Timer, Target, FileText, GraduationCap,
 import { useAuth } from '../context/AuthContext';
 import { useSyncEstado } from '../hooks/useSyncEstado';
 import ErrorCarga from '../components/ErrorCarga';
+import { SkeletonAnalitica } from '../components/ui/Skeleton';
 import { listarTareas } from '../services/tareas';
 import { listarMaterias } from '../services/materias';
 import { listarBloques } from '../services/horario';
@@ -59,7 +60,7 @@ export default function Analitica() {
    
   useEffect(() => { cargar(); }, [version]);
 
-  if (cargando) return <p className="py-10 text-center text-sm text-textSecondary">Analizando tu actividad…</p>;
+  if (cargando) return <SkeletonAnalitica />;
 
   const capacidad = perfil?.capacidad_maxima_horas ?? 8;
   const prediccion = predecirCarga(tareas, capacidad, 14);

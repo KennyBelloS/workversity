@@ -1,6 +1,7 @@
 // Logros: se calculan solos a partir de tus datos (nada que registrar aparte).
 import { calcularRacha } from './productividad';
 import { agruparNotas } from './notas';
+import { estadoRachaEntrada } from './rachaEntrada';
 import { estadoProgreso } from './progresoMeta';
 
 export const LOGROS = [
@@ -12,6 +13,8 @@ export const LOGROS = [
   { id: 'racha-3', emoji: '🔥', titulo: 'Tres seguidos', desc: 'Racha de 3 días con actividad', meta: 3, medir: (c) => c.racha },
   { id: 'racha-7', emoji: '🌋', titulo: 'Semana perfecta', desc: 'Racha de 7 días', meta: 7, medir: (c) => c.racha },
   { id: 'racha-30', emoji: '☄️', titulo: 'Hábito de hierro', desc: 'Racha de 30 días', meta: 30, medir: (c) => c.racha },
+  { id: 'entrada-7', emoji: '📅', titulo: 'Presente todos los días', desc: 'Entra a la app 7 días seguidos', meta: 7, medir: (c) => c.rachaEntrada },
+  { id: 'entrada-30', emoji: '🗓️', titulo: 'Un mes entero', desc: 'Entra a la app 30 días seguidos', meta: 30, medir: (c) => c.rachaEntrada },
   { id: 'primer-pomodoro', emoji: '🍅', titulo: 'Primer Pomodoro', desc: 'Termina una sesión de enfoque', meta: 1, medir: (c) => c.pomodoros },
   { id: 'diez-pomodoros', emoji: '🎯', titulo: 'Enfocado', desc: 'Termina 10 sesiones de enfoque', meta: 10, medir: (c) => c.pomodoros },
   { id: 'enfoque-10h', emoji: '🧠', titulo: 'Concentración total', desc: 'Acumula 10 horas de enfoque', meta: 10, medir: (c) => Math.floor(c.minutosEnfoque / 60) },
@@ -39,6 +42,7 @@ export function contextoLogros({ tareas = [], sesiones = [], materias = [], eval
     hechas: hechas.length,
     puntuales: hechas.filter((t) => t.completed_at && new Date(t.completed_at) <= new Date(t.due_date)).length,
     racha: calcularRacha(tareas, sesiones, ahora),
+    rachaEntrada: estadoRachaEntrada(ahora).racha,
     pomodoros: completadas.length,
     minutosEnfoque: completadas.reduce((s, x) => s + Number(x.duracion_minutos || 0), 0),
     materias: new Set(materias.map((m) => m.nombre)).size,

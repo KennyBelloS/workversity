@@ -30,7 +30,7 @@ function PreviewTarea({ tarea, datos, ahora, acciones }) {
   const hecha = tarea.status === 'hecha';
   const color = colorUrgencia(ms, hecha);
   const cd = cuentaAtras(ms);
-  const prioridad = PRIORITIES[tarea.priority];
+  const prioridad = PRIORITIES[tarea.priority] || PRIORITIES.media;
   const materia = datos.materias.find((m) => m.id === tarea.materia_id);
   const subs = datos.tareas.filter((t) => t.parent_task_id === tarea.id);
   const subsOk = subs.filter((s) => s.status === 'hecha').length;

@@ -12,6 +12,7 @@ import MetasResumen from '../components/dashboard/MetasResumen';
 import WidgetGrid from '../components/dashboard/WidgetGrid';
 import AprendizajeResumen from '../components/dashboard/AprendizajeResumen';
 import { calcularRacha } from '../lib/productividad';
+import { estadoRachaEntrada } from '../lib/rachaEntrada';
 import { listarBloques } from '../services/horario';
 import { listarMaterias } from '../services/materias';
 import { listarMovimientos } from '../services/finanzas';
@@ -21,6 +22,7 @@ import { formatearFechaHora, minutosAHora, claveMesActual, claveMesDe } from '..
 import { inicioDeSemana, eventosDeSemana, proximoEvento, textoDuracion, TIPOS_AGENDA } from '../lib/agenda';
 import { useSyncEstado } from '../hooks/useSyncEstado';
 import ErrorCarga from '../components/ErrorCarga';
+import { SkeletonDashboard } from '../components/ui/Skeleton';
 
 const DashboardGraficos = lazy(() => import('../components/dashboard/DashboardGraficos'));
 
@@ -29,12 +31,13 @@ const hora = (f) => minutosAHora(f.getHours() * 60 + f.getMinutes());
 
 function Kpi({ to, icono: Icono, color, etiqueta, valor, nota }) {
   return (
-    <Link to={to} className="group rounded-md2 bg-white p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-md">
+    <Link to={to} className="group relative overflow-hidden rounded-md2 bg-white p-4 shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+      <span className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 transition-transform duration-300 group-hover:scale-x-100" style={{ backgroundColor: color }} />
       <div className="flex items-center gap-2 text-xs font-bold" style={{ color }}>
-        <span className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ backgroundColor: `${color}1F` }}><Icono size={15} /></span>
+        <span className="flex h-7 w-7 items-center justify-center rounded-lg transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: `${color}1F` }}><Icono size={15} /></span>
         {etiqueta}
       </div>
-      <p className="mt-2 text-2xl font-extrabold tracking-tight">{valor}</p>
+      <p className="mt-2 font-display text-2xl font-semibold tracking-tight">{valor}</p>
       {nota && <p className="text-[11px] text-textSecondary">{nota}</p>}
     </Link>
   );
@@ -83,7 +86,7 @@ export default function Dashboard() {
   );
   const siguiente = useMemo(() => proximoEvento(ahora, { materias, bloques, tareas }), [ahora, materias, bloques, tareas]);
 
-  if (cargando) return <p className="py-10 text-center text-sm text-textSecondary">Cargando…</p>;
+  if (cargando) return <SkeletonDashboard />;
 
   const idxHoy = (ahora.getDay() + 6) % 7;
   const hoyEventos = eventosSemana.filter((e) => e.dia === idxHoy);
@@ -100,6 +103,7 @@ export default function Dashboard() {
   const balance = total('ingreso') - total('gasto') - total('ahorro');
 
   const racha = calcularRacha(tareas, sesiones, ahora);
+  const rachaEntrada = estadoRachaEntrada(ahora).racha;
   const puntos = perfil?.puntos || 0;
   const nivel = Math.floor(puntos / 100) + 1;
 
@@ -138,13 +142,15 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div>
-          <h2 className="text-2xl font-extrabold tracking-tight">{saludo}, {nombre} 👋</h2>
+      <div className="relative flex flex-wrap items-end justify-between gap-2 overflow-hidden">
+        <div aria-hidden="true" className="pointer-events-none absolute -left-6 -top-16 h-40 w-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="relative animate-aparece-suave">
+          <h2 className="font-display text-[2rem] font-semibold leading-tight tracking-tight">{saludo}, {nombre} <span className="inline-block">👋</span></h2>
           <p className="text-sm text-textSecondary">{ahora.toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' }).replace(/^./, (c) => c.toUpperCase())}</p>
         </div>
         <div className="flex items-center gap-2">
-          {racha > 0 && <span title="Días seguidos con actividad" className="rounded-full bg-white px-3 py-2 text-xs font-bold text-warning shadow-card">🔥 {racha} día{racha > 1 ? 's' : ''}</span>}
+          {racha > 0 && <span title="Días seguidos con actividad (tareas, Pomodoros…)" className="rounded-full bg-white px-3 py-2 text-xs font-bold text-warning shadow-card">🔥 {racha} día{racha > 1 ? 's' : ''} de uso</span>}
+          {rachaEntrada > 0 && <span title="Días seguidos entrando a la app" className="rounded-full bg-white px-3 py-2 text-xs font-bold text-primary shadow-card">📅 {rachaEntrada} día{rachaEntrada > 1 ? 's' : ''} seguidos</span>}
           {vencidas.length > 0 && <button onClick={() => window.dispatchEvent(new CustomEvent('workversity:revision', { detail: { paso: 1 } }))} className="rounded-full bg-dangerSoft px-3 py-2 text-xs font-bold text-danger">⚠️ {vencidas.length} vencida{vencidas.length > 1 ? 's' : ''} · Reprogramar</button>}
           {logros.length > 0 && <Link to="/resumen" title="Tus logros" className="rounded-full bg-white px-3 py-2 text-xs font-bold text-textPrimary shadow-card">🏆 {logros.filter((l) => l.logrado).length}/{logros.length}</Link>}
           <Link to="/analitica" className="flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-xs font-bold text-primary shadow-card">
@@ -170,7 +176,11 @@ export default function Dashboard() {
       )}
 
       {/* Ahora / siguiente */}
-      <div className="hero-grad overflow-hidden rounded-lg2 p-5 text-white shadow-card" {...(siguiente ? previewDeEvento(siguiente) : {})}>
+      <div className="hero-grad relative overflow-hidden rounded-lg2 p-5 text-white shadow-card animate-aparece-suave [animation-delay:60ms]" {...(siguiente ? previewDeEvento(siguiente) : {})}>
+        <svg aria-hidden="true" className="pointer-events-none absolute -right-8 -top-10 h-44 w-44 opacity-[0.12]" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="49" stroke="white" strokeWidth="1.5" />
+          <circle cx="50" cy="50" r="35" stroke="white" strokeWidth="1.5" />
+        </svg>
         <div className="flex flex-wrap items-center justify-between gap-4">
           {siguiente ? (
             <div className="min-w-0">
@@ -202,7 +212,7 @@ export default function Dashboard() {
         <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/25"><div className="h-full rounded-full bg-white transition-all" style={{ width: `${progresoHoy}%` }} /></div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 animate-aparece-suave [animation-delay:120ms] lg:grid-cols-5">
         <Kpi to="/tareas" icono={Clock} color="#F5A524" etiqueta="Pendientes" valor={pendientes.length} nota={`${cumplimiento}% completado`} />
         <Kpi to="/tareas" icono={AlertTriangle} color="#E5484D" etiqueta="Vencidas" valor={vencidas.length} nota={vencidas.length ? 'Ponte al día' : '¡Todo en orden!'} />
         <Kpi to="/horario" icono={CalendarClock} color="#3E7BFA" etiqueta="Hoy" valor={hoyEventos.length} nota={`${hoyEventos.filter((e) => e.tipo === 'clase').length} clases`} />
@@ -310,7 +320,7 @@ export default function Dashboard() {
               <tbody>
                 {filas.map((t) => {
                   const m = materiaPorId.get(t.materia_id);
-                  const p = PRIORITIES[t.priority];
+                  const p = PRIORITIES[t.priority] || PRIORITIES.media;
                   return (
                     <tr key={t.id} {...propsPreview('tarea', t.id)} className="border-t border-black/5">
                       <td className="max-w-[220px] truncate py-2.5 pr-2 font-semibold">{t.title}</td>

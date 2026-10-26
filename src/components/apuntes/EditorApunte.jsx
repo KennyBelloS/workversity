@@ -41,7 +41,7 @@ export default function EditorApunte({ contenido, onCambiar }) {
       {vistaPrevia ? (
         <div className="min-h-[320px] px-4 py-3 text-sm leading-relaxed [&_code]:rounded [&_code]:bg-bg [&_code]:px-1 [&_h1]:text-lg [&_h1]:font-extrabold [&_h2]:text-base [&_h2]:font-extrabold [&_li]:ml-4 [&_ol]:list-decimal [&_p]:mb-2 [&_ul]:list-disc" dangerouslySetInnerHTML={{ __html: contenido.trim() ? renderizarApunte(contenido) : '<p class="text-textSecondary">Nada que mostrar todavía.</p>' }} />
       ) : (
-        <textarea ref={areaRef} value={contenido} onChange={(e) => onCambiar(e.target.value)} placeholder="Escribe aquí… usa **negrita**, *cursiva*, # títulos y - listas." rows={14} className="w-full resize-y px-4 py-3 text-sm leading-relaxed outline-none" aria-label="Contenido del apunte" />
+        <textarea ref={areaRef} value={contenido} onChange={(e) => onCambiar(e.target.value)} placeholder="Escribe aquí… usa **negrita**, *cursiva*, # títulos y - listas." rows={14} className="w-full resize-y bg-white px-4 py-3 text-sm leading-relaxed text-textPrimary outline-none" aria-label="Contenido del apunte" />
       )}
       <p className="border-t border-black/5 px-4 py-1.5 text-right text-[11px] text-textSecondary">{contarPalabras(contenido)} palabras</p>
     </div>

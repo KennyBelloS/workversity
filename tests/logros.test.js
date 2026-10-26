@@ -1,5 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { LOGROS, contextoLogros, evaluarLogros } from '../src/lib/logros.js';
+import { registrarEntradaDeHoy } from '../src/lib/rachaEntrada.js';
+
+if (typeof localStorage === 'undefined') {
+  const mapa = new Map();
+  globalThis.localStorage = { getItem: (k) => (mapa.has(k) ? mapa.get(k) : null), setItem: (k, v) => mapa.set(k, String(v)), removeItem: (k) => mapa.delete(k), clear: () => mapa.clear() };
+}
+beforeEach(() => localStorage.clear());
 
 const ahora = new Date(2026, 8, 21, 12, 0);
 const iso = (d, h = 12) => new Date(2026, 8, d, h).toISOString();
@@ -36,5 +43,17 @@ describe('logros de metas de progreso', () => {
     expect(l['meta-lectura'].logrado).toBe(true);
     expect(l['meta-cumplida'].logrado).toBe(false); // una meta de progreso no cuenta como meta de ahorro
     expect(l['constancia-30'].logrado).toBe(false);
+  });
+});
+
+describe('logro de racha de entrada (independiente de la racha de uso)', () => {
+  it('se desbloquea a los 7 días seguidos entrando, sin necesidad de completar tareas', () => {
+    for (let d = 0; d < 7; d++) registrarEntradaDeHoy(new Date(2026, 8, 21 + d, 10));
+    const ctx = contextoLogros({ ahora: new Date(2026, 8, 27, 10) });
+    const l = Object.fromEntries(evaluarLogros(ctx).map((x) => [x.id, x]));
+    expect(l['entrada-7'].logrado).toBe(true);
+    expect(l['entrada-30'].logrado).toBe(false);
+    // y no depende de la racha de uso (tareas/pomodoros), que sigue en 0
+    expect(l['racha-3'].logrado).toBe(false);
   });
 });

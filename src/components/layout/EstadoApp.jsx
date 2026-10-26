@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { WifiOff, RefreshCw, CloudUpload, Download, X, CheckCircle2, AlertTriangle, Share } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { useSyncEstado } from '../../hooks/useSyncEstado';
 import { vaciarCola } from '../../offline/sync';
 import { copiarSqlActualizacion, enlaceSqlEditor } from '../../lib/sqlActualizacion';
@@ -40,6 +41,7 @@ function Barra({ color, icono: Icono, children, accion, onCerrar }) {
 const botonAccion = 'shrink-0 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-extrabold text-textPrimary';
 
 export default function EstadoApp() {
+  const { perfil } = useAuth();
   const sync = useSyncEstado();
   const pwa = useSyncExternalStore(suscribirPwa, obtenerEstadoPwa);
   const [avisoIosCerrado, setAvisoIosCerrado] = useState(() => {
@@ -109,7 +111,7 @@ export default function EstadoApp() {
           color="#E5484D"
           icono={AlertTriangle}
           accion={
-            sync.esquema && (
+            sync.esquema && perfil?.es_admin && (
               <span className="flex shrink-0 flex-col gap-1.5">
                 <button onClick={() => copiarSqlActualizacion().catch(() => {})} className={botonAccion}>Copiar SQL</button>
                 <a href={enlaceSqlEditor()} target="_blank" rel="noreferrer" className={`${botonAccion} text-center`}>Abrir Supabase</a>
@@ -117,7 +119,7 @@ export default function EstadoApp() {
             )
           }
         >
-          {sync.ultimoError}
+          {sync.ultimoError}{sync.esquema && !perfil?.es_admin ? ' Avísale a quien administra la app.' : ''}
         </Barra>
       )}
 

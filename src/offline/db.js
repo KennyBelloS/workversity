@@ -39,7 +39,16 @@ function abrir() {
       if (!db.objectStoreNames.contains('cola')) db.createObjectStore('cola', { keyPath: 'id', autoIncrement: true });
       if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
     };
-    req.onsuccess = () => resolve(req.result);
+    req.onsuccess = () => {
+      const db = req.result;
+      // Safari (sobre todo en iPhone) a veces cierra la conexión sola tras un rato
+      // de inactividad. Sin esto, las siguientes operaciones fallarían contra una
+      // conexión muerta ("the database connection is closing"). Al detectarlo,
+      // se olvida la promesa guardada para que la próxima llamada abra una nueva.
+      db.onclose = () => { promesaBd = null; };
+      db.onversionchange = () => { db.close(); promesaBd = null; };
+      resolve(db);
+    };
     req.onerror = () => {
       usarMemoria = true;
       resolve(null);
@@ -59,10 +68,21 @@ function envolver(request) {
   });
 }
 
-async function operar(store, modo, fn) {
+async function operar(store, modo, fn, reintentar = true) {
   const db = await abrir();
   if (!db) return undefined;
-  const tx = db.transaction(store, modo);
+  let tx;
+  try {
+    tx = db.transaction(store, modo);
+  } catch (err) {
+    // La conexión se cerró justo antes de poder usarla (pasa en Safari/iPhone tras
+    // un rato inactivo). Se descarta y se reintenta una vez con una conexión nueva.
+    if (reintentar && /closing|closed/i.test(err?.message || '')) {
+      promesaBd = null;
+      return operar(store, modo, fn, false);
+    }
+    throw err;
+  }
   const resultado = await fn(tx.objectStore(store));
   await new Promise((resolve, reject) => {
     tx.oncomplete = resolve;

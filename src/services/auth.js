@@ -115,3 +115,8 @@ export async function actualizarPassword(nuevaPassword) {
   const { error } = await supabase.auth.updateUser({ password: nuevaPassword });
   if (error) throw error;
 }
+
+/** Cuenta una entrada más para el usuario actual (lo ve el panel de administrador). */
+export async function registrarIngreso() {
+  try { await supabase.rpc('registrar_ingreso'); } catch (err) { console.warn('[ingreso] No se pudo registrar:', err?.message || err); }
+}

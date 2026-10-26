@@ -7,7 +7,7 @@ import { minutosAHora } from '../../lib/dateUtils';
 
 export function MateriaCard({ materia, onClick }) {
   const vp = propsPreview('clase', materia.id);
-  const prioridad = PRIORITIES[materia.prioridad];
+  const prioridad = PRIORITIES[materia.prioridad] || PRIORITIES.media;
   return (
     <button
       onClick={onClick}

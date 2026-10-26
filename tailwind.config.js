@@ -8,6 +8,13 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"Plus Jakarta Sans Variable"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+        display: ['"Fraunces Variable"', 'ui-serif', 'Georgia', 'serif'],
+      },
+      keyframes: {
+        apareceSuave: { '0%': { opacity: 0, transform: 'translateY(10px)' }, '100%': { opacity: 1, transform: 'translateY(0)' } },
+      },
+      animation: {
+        'aparece-suave': 'apareceSuave .5s cubic-bezier(.22,1,.36,1) both',
       },
       colors: {
         primary: v('primary'),

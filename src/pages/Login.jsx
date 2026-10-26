@@ -15,7 +15,6 @@ export default function Login() {
   const [error, setError] = useState('');
   const [mensaje, setMensaje] = useState('');
   const [enviando, setEnviando] = useState(false);
-  const [detalle, setDetalle] = useState('');
   const [diagnostico, setDiagnostico] = useState('');
 
   if (!cargando && autenticado) return <Navigate to="/" replace />;
@@ -33,9 +32,11 @@ export default function Login() {
       } catch {
         /* URL inválida */
       }
-      return `Tienes internet, pero no se pudo conectar con ${host}. Revisa que el proyecto de Supabase no esté pausado, que VITE_SUPABASE_URL en .env sea correcta (y reinicia npm run dev) y que ninguna extensión o antivirus bloquee la conexión.`;
+      return `Tienes internet, pero no se pudo conectar con el servidor (${host}). Puede que esté caído temporalmente, o que algo en tu red (una extensión o un antivirus) esté bloqueando la conexión. Intenta de nuevo en un momento.`;
     }
-    return msg || 'Ocurrió un error. Intenta de nuevo.';
+    // No se adivina qué más podría ser "técnico": si no es ninguno de los casos de
+    // arriba, se asume que sí lo es y se muestra algo genérico, nunca el mensaje crudo.
+    return 'Ocurrió un error. Intenta de nuevo.';
   };
 
   // Prueba directa (sin supabase-js) para saber si el navegador alcanza el servidor.
@@ -58,7 +59,6 @@ export default function Login() {
   const enviar = async (e) => {
     e.preventDefault();
     setError('');
-    setDetalle('');
     setMensaje('');
     setEnviando(true);
     try {
@@ -75,7 +75,6 @@ export default function Login() {
       }
     } catch (err) {
       setError(traducirError(err.message));
-      setDetalle(`${err?.name || 'Error'}: ${err?.message || err}${err?.status ? ` (HTTP ${err.status})` : ''}`);
     } finally {
       setEnviando(false);
     }
@@ -125,7 +124,6 @@ export default function Login() {
           )}
 
           {error && <p className="text-xs font-semibold text-danger">{error}</p>}
-          {detalle && <p className="break-words rounded-sm2 bg-bg p-2 text-[11px] text-textSecondary">Detalle técnico: {detalle}</p>}
           {mensaje && <p className="text-xs font-semibold text-success">{mensaje}</p>}
 
           <button

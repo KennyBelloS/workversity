@@ -26,8 +26,8 @@ export default function TaskCard({ task, onClick, onToggle, onDelete, draggable,
   const materias = useContext(MateriasCtx);
   const materia = task.materia_id ? materias.get(task.materia_id) : null;
   const vencida = estaVencida(task);
-  const categoria = CATEGORIES[task.category];
-  const prioridad = PRIORITIES[task.priority];
+  const categoria = CATEGORIES[task.category] || CATEGORIES.universidad;
+  const prioridad = PRIORITIES[task.priority] || PRIORITIES.media;
   const foto = task.photo_paths?.[0];
 
   return (

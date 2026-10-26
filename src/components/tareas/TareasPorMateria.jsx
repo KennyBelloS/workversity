@@ -48,7 +48,7 @@ export default function TareasPorMateria({ tareas, materias, onOpen, onToggle })
               <div className="space-y-1.5 px-3 pb-3">
                 {ordenadas.length === 0 && <p className="rounded-sm2 bg-bg px-3 py-3 text-center text-xs text-textSecondary">Sin tareas activas 🎉</p>}
                 {ordenadas.map((t) => {
-                  const p = PRIORITIES[t.priority];
+                  const p = PRIORITIES[t.priority] || PRIORITIES.media;
                   const v = estaVencida(t);
                   return (
                     <div key={t.id} className="flex items-center gap-2.5 rounded-sm2 bg-bg p-2.5" {...propsPreview('tarea', t.id)}>

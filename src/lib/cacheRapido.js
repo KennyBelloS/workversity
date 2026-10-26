@@ -24,7 +24,7 @@ export function guardarCacheRapida(clave, datos) {
  * Devuelve { datos, deCache, fresco }: `deCache` es true si lo mostrado es lo guardado
  * (no se pudo confirmar con el servidor a tiempo), y `fresco` es true si sí se logró actualizar.
  */
-export async function traerConCacheRapida(clave, pedir, { onRapido, tiempoLimiteMs = 4000 } = {}) {
+export async function traerConCacheRapida(clave, pedir, { onRapido, tiempoLimiteMs = 9000 } = {}) {
   const guardado = leerCacheRapida(clave);
   if (guardado) onRapido?.(guardado);
   try {

@@ -110,7 +110,7 @@ body {
 .num-seq > span:nth-child(3) { animation-delay: 3s; }
 .num-seq > span:nth-child(4) { animation-delay: 4.5s; }
 @media (prefers-reduced-motion: reduce) {
-  [class*='anim-'], .num-seq > span { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
+  [class*='anim-'], [class*='animate-'], .num-seq > span { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; animation-delay: 0s !important; }
   .num-seq > span:last-child { opacity: 1; }
 }
 

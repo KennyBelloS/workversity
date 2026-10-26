@@ -1,6 +1,17 @@
 import Chart from 'react-apexcharts';
+import { CalendarClock } from 'lucide-react';
 
 export default function WorkloadChart({ prediccion, capacidadMaximaHoras }) {
+  const sinDatos = prediccion.every((d) => d.horas === 0);
+  if (sinDatos) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-2 py-16 text-center" style={{ height: 280 }}>
+        <CalendarClock size={26} className="text-textSecondary/50" />
+        <p className="max-w-xs text-sm text-textSecondary">Todavía no tienes tareas con fecha en los próximos 14 días. En cuanto agregues algunas, aquí verás cómo se reparte tu carga día a día.</p>
+      </div>
+    );
+  }
+
   const categorias = prediccion.map((d) =>
     d.fecha.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric' })
   );

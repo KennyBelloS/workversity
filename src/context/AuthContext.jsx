@@ -7,6 +7,7 @@ import {
   obtenerPerfil,
   asegurarPerfil,
   suscribirseACambiosDeSesion,
+  registrarIngreso,
 } from '../services/auth';
 import {
   leerUsuarioLocal,
@@ -57,6 +58,7 @@ export function AuthProvider({ children }) {
       await prepararCopiaLocal(user.id);
       iniciarSync();
       cargarPerfil(user); // en segundo plano: no bloquea la pantalla si la red va lenta
+      if (navigator.onLine !== false) registrarIngreso(); // para el panel de administrador; nunca bloquea ni falla la sesión
     })();
     preparacionRef.current = { id: user.id, promesa };
     return promesa;

@@ -85,17 +85,32 @@ const mayuscInicial = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
  * como "es/tiene/produce…", o con guion). Es la pieza compartida entre las tarjetas de
  * estudio y el mapa conceptual, para que ambos muestren exactamente el mismo conocimiento.
  */
+// Un "término" real de definición es, casi siempre, un concepto corto (1 a 6 palabras):
+// "La mitosis", "El sistema operativo"… Si lo que queda antes del patrón es una frase larga
+// o empieza con una palabra que casi nunca encabeza una definición (nota, ejemplo, ver,
+// página…), probablemente no es una definición sino una oración común que dio la casualidad
+// de contener un verbo o un guion —y generar "¿Qué es [esa frase]?" suena a pregunta inventada.
+const NO_ES_TERMINO = new Set(['nota', 'ejemplo', 'ejemplos', 'ver', 'ojo', 'importante', 'recuerda', 'recuerde', 'tip', 'página', 'pág', 'figura', 'fig', 'paso', 'pasos', 'nota:', 'ejercicio', 'actividad', 'tarea', 'resumen', 'conclusión', 'fuente', 'referencia', 'advertencia', 'aviso', 'esto', 'eso', 'esta', 'este']);
+function terminoValido(termino) {
+  const t = termino.trim();
+  const palabras = t.split(/\s+/);
+  if (palabras.length > 6) return false; // una frase larga no es un "concepto"
+  const primera = palabras[0].toLowerCase().replace(/[^a-záéíóúñ]/g, '');
+  if (NO_ES_TERMINO.has(primera)) return false;
+  return true;
+}
+
 function extraerRelaciones(texto) {
   const relaciones = [];
   const vistos = new Set();
-  const reVerbo = new RegExp(`^(.{3,60}?)\\s+(${VERBOS_DEFINITORIOS})\\s+(.{5,220})$`, 'i');
+  const reVerbo = new RegExp(`^(.{3,45}?)\\s+(${VERBOS_DEFINITORIOS})\\s+(.{5,220})$`, 'i');
   for (const oracion of dividirEnOraciones(texto)) {
-    let m = oracion.match(/^[-•*]?\s*([^:–]{3,60}):\s*(.{3,220})$/);
-    if (m) { relaciones.push({ termino: m[1].trim(), relacion: 'es', definicion: m[2].trim(), oracion }); continue; }
+    let m = oracion.match(/^[-•*]?\s*([^:–]{3,45}):\s*(.{3,220})$/);
+    if (m && terminoValido(m[1])) { relaciones.push({ termino: m[1].trim(), relacion: 'es', definicion: m[2].trim(), oracion }); continue; }
     m = oracion.match(reVerbo);
-    if (m) { relaciones.push({ termino: m[1].trim(), relacion: m[2].toLowerCase(), definicion: m[3].trim(), oracion }); continue; }
-    m = oracion.match(/^(.{3,60}?)\s*[-–]\s*(.{5,220})$/);
-    if (m) { relaciones.push({ termino: m[1].trim(), relacion: 'es', definicion: m[2].trim(), oracion }); continue; }
+    if (m && terminoValido(m[1])) { relaciones.push({ termino: m[1].trim(), relacion: m[2].toLowerCase(), definicion: m[3].trim(), oracion }); continue; }
+    m = oracion.match(/^(.{3,45}?)\s*[-–]\s*(.{5,220})$/);
+    if (m && terminoValido(m[1])) { relaciones.push({ termino: m[1].trim(), relacion: 'es', definicion: m[2].trim(), oracion }); continue; }
   }
   return relaciones.filter((r) => { const k = r.termino.toLowerCase(); if (vistos.has(k)) return false; vistos.add(k); return true; });
 }
@@ -104,8 +119,14 @@ function extraerRelaciones(texto) {
  * Genera tarjetas pregunta/respuesta a partir de texto (apuntes, un PDF, una diapositiva…).
  * Reconoce: "Término: definición", "Término es/son definición", líneas con guion,
  * y como respaldo usa la oración más relevante de cada palabra clave.
+ *
+ * Los verbos de esta lista son, a propósito, solo los que casi siempre introducen una
+ * definición real ("la célula ES la unidad básica…", "esto SIGNIFICA que…"). Verbos más
+ * sueltos como "tiene", "necesita" o "entra por" se quitaron: aparecen tanto en definiciones
+ * como en oraciones narrativas comunes, y usarlos generaba tarjetas de "¿Qué es X?" con X
+ * siendo el sujeto de una frase cualquiera, no un concepto del tema.
  */
-const VERBOS_DEFINITORIOS = 'es|son|significa[n]?|se define como|se refiere a|produce[n]?|contiene[n]?|tiene[n]?|permite[n]?|genera[n]?|reduce[n]?|guarda[n]?|convierte[n]?|incluye[n]?|forma[n]?|compone[n]?|requiere[n]?|necesita[n]?|ayuda[n]? a|sirve[n]? para|consiste[n] en|se encarga[n]? de|representa[n]?|corresponde[n]? a|entra[n]? por|actúa[n]? como|funciona[n]? como';
+const VERBOS_DEFINITORIOS = 'es|son|significa[n]?|se define como|se refiere a|consiste[n] en|se encarga[n]? de|representa[n]?|corresponde[n]? a';
 
 /**
  * Para una oración que no encaja en ningún patrón de definición, se arma una tarjeta de

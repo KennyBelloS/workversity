@@ -1,9 +1,10 @@
-import { Clock, Bell, Repeat, Check, RotateCcw, Pencil, CalendarPlus, Trash2, Play } from 'lucide-react';
+import { Clock, Bell, Repeat, Check, RotateCcw, Pencil, CalendarPlus, Trash2, Play, AlertTriangle, CalendarClock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEscape } from '../../hooks/useEscape';
 import { CATEGORIES, PRIORITIES, STATUS_ORDER, TASK_STATUSES } from '../../lib/constants';
 import { formatearFechaHora } from '../../lib/dateUtils';
 import { estaVencida } from '../../services/tareas';
+import { OPCIONES_REPROGRAMAR, reprogramar } from '../../lib/revision';
 
 function FilaInfo({ icono: Icono, texto, color, destacado }) {
   return (
@@ -31,11 +32,11 @@ function agregarAlCalendario(tarea) {
   window.open(`https://calendar.google.com/calendar/render?${params.toString()}`, '_blank');
 }
 
-export default function TaskDetail({ tarea, onCerrar, onEditar, onToggle, onEliminar, onMover }) {
+export default function TaskDetail({ tarea, onCerrar, onEditar, onToggle, onEliminar, onMover, onReprogramar }) {
   const navigate = useNavigate();
   useEscape(onCerrar);
-  const categoria = CATEGORIES[tarea.category];
-  const prioridad = PRIORITIES[tarea.priority];
+  const categoria = CATEGORIES[tarea.category] || CATEGORIES.universidad;
+  const prioridad = PRIORITIES[tarea.priority] || PRIORITIES.media;
   const vencida = estaVencida(tarea);
 
   return (
@@ -102,6 +103,23 @@ export default function TaskDetail({ tarea, onCerrar, onEditar, onToggle, onElim
             <Pencil size={16} /> Editar
           </button>
         </div>
+
+        {vencida && onReprogramar && (
+          <div className="mt-4 rounded-sm2 bg-dangerSoft p-3">
+            <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold text-danger"><AlertTriangle size={13} /> Esta tarea ya venció. Si la reprogramas, se moverá la fecha y hora de entrega — avisa a quien corresponda si esa fecha era un compromiso con alguien más.</p>
+            <div className="flex flex-wrap gap-1.5">
+              {OPCIONES_REPROGRAMAR.map((o) => (
+                <button
+                  key={o.clave}
+                  onClick={() => { onReprogramar(reprogramar(tarea, o.dias)); onCerrar(); }}
+                  className="flex items-center gap-1 rounded-full border border-danger/30 bg-white px-2.5 py-1.5 text-[11px] font-bold text-danger"
+                >
+                  <CalendarClock size={12} /> {o.etiqueta}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {onMover && (
           <div className="mt-4">
