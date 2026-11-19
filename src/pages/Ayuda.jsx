@@ -9,6 +9,7 @@ import { useSyncEstado } from '../hooks/useSyncEstado';
 import NovedadesLista from '../components/NovedadesLista';
 import { RELEASES } from '../changelog';
 import { VERSION } from '../version';
+import PilaIsometrica from '../components/decoracion/PilaIsometrica';
 
 const FAQ = [
   ['¿Cómo hago mi revisión semanal?', 'Resumen → «Revisión semanal» (o Ctrl + K y escribe «revisión»). Son 4 pasos: tu semana, reprogramar lo vencido, lo que viene y una reflexión. La campana te la recuerda de viernes a domingo.'],
@@ -47,6 +48,14 @@ const GUIA_PARCIALES = [
 
 const ATAJOS = [['Ctrl + K  ó  /', 'Buscar tareas, materias y secciones'], ['← →', 'Cambiar de lámina en el recorrido'], ['Esc', 'Cerrar ventanas y buscador'], ['Barra inferior', 'Cambiar de sección (en el celular, “Más” guarda el resto)']];
 
+const CAPAS = [
+  { id: 'materias', titulo: 'Materias', nota: 'el cimiento', explica: 'Lo primero: nombre, color, salón y horas de clase. De aquí sale el color de todo lo demás.' },
+  { id: 'agenda', titulo: 'Agenda', nota: 'tu semana', explica: 'Las clases caen solas; tú agregas turnos de trabajo y reuniones. Así queda dibujada tu semana real.' },
+  { id: 'tareas', titulo: 'Tareas', nota: 'lo que hay que hacer', explica: 'Cada tarea cuelga de una materia y de una fecha, y se muestra en el tablero que arrastras.' },
+  { id: 'enfoque', titulo: 'Enfoque', nota: 'el tiempo de verdad', explica: 'Pomodoros y hábitos: lo que de verdad le dedicaste a cada cosa, no lo que pensabas dedicarle.' },
+  { id: 'resumen', titulo: 'Resumen', nota: 'lo que salió', explica: 'Con todo lo anterior, la app arma tu semana, tus números y qué conviene hacer ahora.' },
+];
+
 export default function Ayuda() {
   const { version } = useSyncEstado();
   const [hecho, setHecho] = useState({});
@@ -71,15 +80,33 @@ export default function Ayuda() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-extrabold tracking-tight">Cómo se usa Workversity</h2>
-        <p className="text-sm text-textSecondary">Un recorrido animado por cada módulo y por cómo trabajan juntos. Se reproduce solo; pausa o avanza cuando quieras.</p>
-      </div>
+      <section className="ficha">
+        <div className="ficha-cabecera"><span className="rotulo">Cómo se apila todo</span><span className="franja-acc">de abajo hacia arriba</span></div>
+        <div className="grid items-center gap-2 md:grid-cols-[minmax(0,300px)_minmax(0,1fr)]">
+          <PilaIsometrica capas={CAPAS} separacion={32} etiquetas={false} />
+          <ol className="space-y-2.5">
+            {CAPAS.map((c, i) => (
+              <li key={c.id} className="flex gap-3">
+                <span className="mt-1 font-mono text-t-micro text-primary">{String(i + 1).padStart(2, '0')}</span>
+                <span className="min-w-0">
+                  <span className="block text-t-base font-medium">{c.titulo}</span>
+                  <span className="block text-t-pie leading-relaxed text-textSecondary">{c.explica}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
+        <p className="mt-4 border-t border-textPrimary/[.07] pt-3 text-t-pie leading-relaxed text-textSecondary">
+          Cada capa se apoya en la de abajo: sin materias no hay horario, sin horario el asistente no sabe
+          dónde tienes huecos, y sin tareas no hay nada que repartir en esos huecos. Por eso el orden de los
+          seis pasos de aquí abajo es ese y no otro.
+        </p>
+      </section>
 
       <RecorridoAnimado />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section className="rounded-md2 bg-white p-4 shadow-card">
+        <section className="ficha">
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm font-extrabold">Empieza en 6 pasos</p>
             <span className="rounded-full bg-primarySoft px-2.5 py-1 text-xs font-extrabold text-primary">{listos}/{pasos.length}</span>
@@ -97,7 +124,7 @@ export default function Ayuda() {
           </ul>
         </section>
 
-        <section className="rounded-md2 bg-white p-4 shadow-card">
+        <section className="ficha">
           <p className="text-sm font-extrabold">Todo conectado</p>
           <p className="mb-2 text-xs text-textSecondary">Registras una vez y la app reparte la información. Toca un módulo.</p>
           <MapaConjunto interactivo />
@@ -105,26 +132,26 @@ export default function Ayuda() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <GuiaPasoAPaso titulo="Guía paso a paso: Grupo (agenda compartida)" icono={Users2} color="#5B8DEF" pasos={GUIA_GRUPO} />
-        <GuiaPasoAPaso titulo="Guía paso a paso: Parciales" icono={GraduationCap} color="#8B7FD1" pasos={GUIA_PARCIALES} />
+        <GuiaPasoAPaso titulo="Guía paso a paso: Grupo (agenda compartida)" icono={Users2} color="#3B5BA9" pasos={GUIA_GRUPO} />
+        <GuiaPasoAPaso titulo="Guía paso a paso: Parciales" icono={GraduationCap} color="#6B5FA8" pasos={GUIA_PARCIALES} />
       </div>
 
-      <section className="rounded-md2 bg-white p-4 shadow-card">
-        <p className="mb-2 text-sm font-extrabold">Atajos y trucos</p>
+      <section className="ficha">
+        <p className="rotulo mb-3">Atajos y trucos</p>
         <div className="grid gap-2 sm:grid-cols-2">
-          {ATAJOS.map(([k, t]) => (<div key={k} className="flex items-center gap-3 rounded-sm2 bg-bg p-2.5"><kbd className="shrink-0 rounded-md border border-black/10 bg-white px-2 py-1 text-[11px] font-bold shadow-card">{k}</kbd><span className="text-xs text-textSecondary">{t}</span></div>))}
+          {ATAJOS.map(([k, t]) => (<div key={k} className="flex items-center gap-3 rounded-sm2 bg-bg p-2.5"><kbd className="shrink-0 rounded-md border border-black/10 bg-white px-2 py-1 text-t-micro font-bold shadow-card">{k}</kbd><span className="text-xs text-textSecondary">{t}</span></div>))}
         </div>
         <button onClick={() => window.dispatchEvent(new Event('workversity:tour'))} className="mt-3 flex items-center gap-1.5 text-xs font-bold text-primary"><PlayCircle size={15} /> Ver el recorrido de bienvenida en pantalla completa</button>
       </section>
 
-      <section className="rounded-md2 bg-white p-4 shadow-card">
-        <p className="mb-1 text-sm font-extrabold">Historial de versiones</p>
+      <section className="ficha">
+        <p className="rotulo mb-3">Historial de versiones</p>
         <p className="mb-2 text-xs text-textSecondary">Estás usando la versión {VERSION}. Aquí ves qué cambió en cada actualización.</p>
         <NovedadesLista releases={RELEASES} />
       </section>
 
-      <section className="rounded-md2 bg-white p-4 shadow-card">
-        <p className="mb-2 text-sm font-extrabold">Preguntas frecuentes</p>
+      <section className="ficha">
+        <p className="rotulo mb-3">Preguntas frecuentes</p>
         <div className="divide-y divide-black/5">
           {FAQ.map(([q, a]) => (<details key={q} className="group py-2.5"><summary className="cursor-pointer list-none text-sm font-bold marker:hidden">{q}</summary><p className="mt-1.5 text-xs leading-relaxed text-textSecondary">{a}</p></details>))}
         </div>

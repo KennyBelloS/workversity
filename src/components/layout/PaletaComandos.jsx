@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, CornerDownLeft, LayoutDashboard, CalendarClock, KanbanSquare, Wallet, BookOpen, Sparkles, BarChart3, Target, Settings, HelpCircle, Moon, FileText, GraduationCap, CalendarCheck, Trophy, NotebookPen, Users2 } from 'lucide-react';
+import { Search, CornerDownLeft, LayoutDashboard, CalendarClock, KanbanSquare, Wallet, BookOpen, Sparkles, BarChart3, Target, Settings, HelpCircle, Moon, FileText, GraduationCap, CalendarCheck, Trophy, NotebookPen, Users2, RotateCw } from 'lucide-react';
 import { leerTabla } from '../../offline/db';
 import { elegirTema, useTema } from '../../hooks/useTema';
+import { recargarApp } from '../../lib/arranque';
 
 const norm = (s) => (s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 const PAGINAS = [
@@ -68,6 +69,7 @@ export default function PaletaComandos() {
       .forEach((t) => lista.push({ grupo: 'Tareas', titulo: t.title, sub: `${nombresMaterias.get(t.materia_id) || (t.category === 'trabajo' ? 'Trabajo' : 'Universidad')} · ${new Date(t.due_date).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}${t.status === 'hecha' ? ' · hecha' : ''}`, icono: KanbanSquare, accion: () => navigate('/tareas') }));
     [...new Set(datos.materias.map((m) => m.nombre))].filter((nm) => coincide(nm)).slice(0, n ? 4 : 0).forEach((nm) => lista.push({ grupo: 'Materias', titulo: nm, icono: BookOpen, accion: () => navigate('/materias') }));
     if (coincide('modo oscuro claro tema')) lista.push({ grupo: 'Acciones', titulo: oscuro ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro', icono: Moon, accion: () => elegirTema(oscuro ? 'claro' : 'oscuro') });
+    if (coincide('recargar actualizar refrescar version nueva')) lista.push({ grupo: 'Acciones', titulo: 'Recargar la app', sub: 'Busca la versión nueva y vuelve a abrir', icono: RotateCw, accion: () => recargarApp() });
     return lista;
   }, [q, datos, navigate, oscuro]);
 
@@ -88,7 +90,7 @@ export default function PaletaComandos() {
         <div className="flex items-center gap-3 border-b border-black/5 px-4 py-3">
           <Search size={18} className="text-textSecondary" />
           <input ref={input} autoFocus value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={alTeclear} placeholder="Busca una tarea, materia o sección…" className="min-w-0 flex-1 bg-transparent text-sm outline-none" />
-          <kbd className="rounded bg-bg px-1.5 py-0.5 text-[10px] font-bold text-textSecondary">Esc</kbd>
+          <kbd className="rounded bg-bg px-1.5 py-0.5 text-t-nota font-bold text-textSecondary">Esc</kbd>
         </div>
         <div className="max-h-[50vh] overflow-y-auto p-2">
           {items.length === 0 && <p className="py-8 text-center text-sm text-textSecondary">Nada coincide con “{q}”</p>}
@@ -96,17 +98,17 @@ export default function PaletaComandos() {
             const mostrar = it.grupo !== grupoPrevio; grupoPrevio = it.grupo;
             return (
               <div key={`${it.grupo}-${it.titulo}-${i}`}>
-                {mostrar && <p className="px-2 pb-1 pt-2 text-[11px] font-bold text-textSecondary">{it.grupo}</p>}
+                {mostrar && <p className="px-2 pb-1 pt-2 text-t-micro font-bold text-textSecondary">{it.grupo}</p>}
                 <button onClick={() => ejecutar(it)} onMouseEnter={() => setIdx(i)} className={`flex w-full items-center gap-3 rounded-sm2 px-3 py-2 text-left ${i === idx ? 'bg-primarySoft' : ''}`}>
                   <it.icono size={16} className="shrink-0 text-primary" />
-                  <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{it.titulo}</span>{it.sub && <span className="block truncate text-[11px] text-textSecondary">{it.sub}</span>}</span>
+                  <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold">{it.titulo}</span>{it.sub && <span className="block truncate text-t-micro text-textSecondary">{it.sub}</span>}</span>
                   {i === idx && <CornerDownLeft size={14} className="text-textSecondary" />}
                 </button>
               </div>
             );
           })}
         </div>
-        <div className="flex gap-4 border-t border-black/5 px-4 py-2 text-[11px] text-textSecondary"><span>↑↓ moverte</span><span>Enter abrir</span><span className="ml-auto">Ctrl + K o / para abrir</span></div>
+        <div className="flex gap-4 border-t border-black/5 px-4 py-2 text-t-micro text-textSecondary"><span>↑↓ moverte</span><span>Enter abrir</span><span className="ml-auto">Ctrl + K o / para abrir</span></div>
       </div>
     </div>
   );

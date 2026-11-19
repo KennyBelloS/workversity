@@ -74,10 +74,13 @@ export function esErrorDeRed(err) {
   if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
   const msg = String(err.message || err);
   if ([0, 502, 503, 504].includes(err.status)) return true;
+  // Ojo: NO basta con que sea un TypeError. Un fallo de fetch en el navegador siempre trae
+  // además un mensaje reconocible ("Failed to fetch", "NetworkError…", "Load failed"); un
+  // TypeError a secas suele ser un error del propio código, y decirle a la persona que no
+  // tiene internet cuando sí lo tiene la deja sin saber qué hacer.
   return (
-    err.name === 'TypeError' ||
     err.name === 'AbortError' ||
-    /failed to fetch|networkerror|network request|load failed|timeout|timed out|offline|ECONN/i.test(msg)
+    /failed to fetch|networkerror|network request|load failed|timeout|timed out|offline|ECONN|ERR_NETWORK|ERR_INTERNET/i.test(msg)
   );
 }
 

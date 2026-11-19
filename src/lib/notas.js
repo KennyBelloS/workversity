@@ -136,21 +136,21 @@ export function autoajustarPesos(pesos) {
 }
 
 export const ETIQUETA_ESTADO = {
-  'sin-datos': { texto: 'Sin evaluaciones', color: '#6E7180' },
-  aprobada: { texto: 'Aprobada', color: '#17C964' },
-  reprobada: { texto: 'Perdida', color: '#E5484D' },
-  asegurada: { texto: 'Aprobación asegurada', color: '#17C964' },
-  imposible: { texto: 'Ya no alcanza 3.0', color: '#E5484D' },
-  riesgo: { texto: 'En riesgo', color: '#F5A524' },
-  ok: { texto: 'En camino', color: '#3E7BFA' },
+  'sin-datos': { texto: 'Sin evaluaciones', color: '#807F7A' },
+  aprobada: { texto: 'Aprobada', color: '#2F7A55' },
+  reprobada: { texto: 'Perdida', color: '#B04A3E' },
+  asegurada: { texto: 'Aprobación asegurada', color: '#2F7A55' },
+  imposible: { texto: 'Ya no alcanza 3.0', color: '#B04A3E' },
+  riesgo: { texto: 'En riesgo', color: '#A8732A' },
+  ok: { texto: 'En camino', color: '#2E4BF0' },
 };
 
 export const ETIQUETA_CORTE = {
-  'sin-datos': { texto: 'Sin notas', color: '#6E7180' },
-  ganado: { texto: 'Corte ganado', color: '#17C964' },
-  perdido: { texto: 'Corte perdido', color: '#E5484D' },
-  ganando: { texto: 'Vas ganando', color: '#17C964' },
-  perdiendo: { texto: 'Vas perdiendo', color: '#E5484D' },
+  'sin-datos': { texto: 'Sin notas', color: '#807F7A' },
+  ganado: { texto: 'Corte ganado', color: '#2F7A55' },
+  perdido: { texto: 'Corte perdido', color: '#B04A3E' },
+  ganando: { texto: 'Vas ganando', color: '#2F7A55' },
+  perdiendo: { texto: 'Vas perdiendo', color: '#B04A3E' },
 };
 
 /** Une materias, evaluaciones y pesos: una fila por materia (las materias con varios días cuentan una sola vez). */
@@ -176,7 +176,7 @@ export function leerMetaNota() {
 
 /** Etiqueta para una materia: "Vas ganando / Vas perdiendo" mientras no termina; el resultado cuando ya terminó. */
 export function etiquetaMateria(m) {
-  if (m.final == null && m.hayDatos && (m.estado === 'ok' || m.estado === 'riesgo') && m.ritmo === 'perdiendo') return { texto: 'Vas perdiendo', color: '#E5484D' };
-  if (m.final == null && m.hayDatos && m.estado === 'ok' && m.ritmo === 'ganando') return { texto: 'Vas ganando', color: '#17C964' };
+  if (m.final == null && m.hayDatos && (m.estado === 'ok' || m.estado === 'riesgo') && m.ritmo === 'perdiendo') return { texto: 'Vas perdiendo', color: '#B04A3E' };
+  if (m.final == null && m.hayDatos && m.estado === 'ok' && m.ritmo === 'ganando') return { texto: 'Vas ganando', color: '#2F7A55' };
   return ETIQUETA_ESTADO[m.estado];
 }

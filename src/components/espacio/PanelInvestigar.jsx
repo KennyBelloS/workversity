@@ -73,22 +73,22 @@ export default function PanelInvestigar({ tema, onInsertar }) {
   );
 
   return (
-    <div className="flex h-full min-h-[24rem] flex-col gap-3 rounded-md2 bg-white p-4 shadow-card">
+    <div className="flex h-full min-h-[24rem] flex-col gap-3 ficha">
       <div className="flex gap-2">{tab('wiki', 'Wikipedia', BookOpen)}{tab('dic', 'Diccionario', Search)}{tab('web', 'Navegador', Globe)}</div>
 
       {vista === 'wiki' && (
         <>
           <form onSubmit={buscarWiki} className="flex gap-2"><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Busca un tema…" aria-label="Buscar en Wikipedia" className={campo} /><button className="rounded-sm2 bg-primary px-4 text-sm font-bold text-white">Buscar</button></form>
-          {resultados.length > 1 && <div className="flex flex-wrap gap-1.5">{resultados.map((r) => <button key={r.titulo} onClick={() => abrirArticulo(r.titulo)} className="rounded-full bg-bg px-3 py-1 text-[11px] font-bold text-textSecondary hover:text-primary">{r.titulo}</button>)}</div>}
+          {resultados.length > 1 && <div className="flex flex-wrap gap-1.5">{resultados.map((r) => <button key={r.titulo} onClick={() => abrirArticulo(r.titulo)} className="rounded-full bg-bg px-3 py-1 text-t-micro font-bold text-textSecondary hover:text-primary">{r.titulo}</button>)}</div>}
           {articulo && (
             <article className="min-h-0 flex-1 overflow-y-auto rounded-sm2 bg-bg p-3">
               <div className="flex gap-3">
                 {articulo.imagen && <img src={articulo.imagen} alt="" className="h-20 w-20 shrink-0 rounded-sm2 object-cover" />}
-                <div><h3 className="text-base font-extrabold">{articulo.titulo}</h3><p className="mt-1 text-[13px] leading-relaxed">{articulo.extracto}</p></div>
+                <div><h3 className="text-base font-extrabold">{articulo.titulo}</h3><p className="mt-1 text-t-pie leading-relaxed">{articulo.extracto}</p></div>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
-                <button onClick={() => onInsertar(`<h2>${escaparHtml(articulo.titulo)}</h2><p>${escaparHtml(articulo.extracto)}</p><p><i>Fuente: Wikipedia — <a href="${articulo.url}">${escaparHtml(articulo.titulo)}</a></i></p>`)} className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-[11px] font-bold text-white"><Plus size={12} /> Insertar en mi documento (con fuente)</button>
-                <a href={articulo.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-textSecondary shadow-card"><ExternalLink size={12} /> Leer completo</a>
+                <button onClick={() => onInsertar(`<h2>${escaparHtml(articulo.titulo)}</h2><p>${escaparHtml(articulo.extracto)}</p><p><i>Fuente: Wikipedia — <a href="${articulo.url}">${escaparHtml(articulo.titulo)}</a></i></p>`)} className="flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-t-micro font-bold text-white"><Plus size={12} /> Insertar en mi documento (con fuente)</button>
+                <a href={articulo.url} target="_blank" rel="noreferrer" className="flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-t-micro font-bold text-textSecondary shadow-card"><ExternalLink size={12} /> Leer completo</a>
               </div>
             </article>
           )}
@@ -103,8 +103,8 @@ export default function PanelInvestigar({ tema, onInsertar }) {
               <div key={i} className="rounded-sm2 bg-bg p-3">
                 <p className="text-sm font-extrabold">{en.word}{en.phonetic ? <span className="ml-2 text-xs font-medium text-textSecondary">{en.phonetic}</span> : null}</p>
                 {(en.meanings || []).map((m, j) => (
-                  <div key={j} className="mt-1.5"><p className="text-[11px] font-bold text-primary">{m.partOfSpeech}</p>
-                    <ol className="list-decimal space-y-0.5 pl-5 text-[13px]">{(m.definitions || []).slice(0, 4).map((d, k) => <li key={k}>{d.definition}{d.example ? <span className="text-textSecondary"> — «{d.example}»</span> : null}</li>)}</ol></div>
+                  <div key={j} className="mt-1.5"><p className="text-t-micro font-bold text-primary">{m.partOfSpeech}</p>
+                    <ol className="list-decimal space-y-0.5 pl-5 text-t-pie">{(m.definitions || []).slice(0, 4).map((d, k) => <li key={k}>{d.definition}{d.example ? <span className="text-textSecondary"> — «{d.example}»</span> : null}</li>)}</ol></div>
                 ))}
               </div>
             ))}
@@ -115,11 +115,11 @@ export default function PanelInvestigar({ tema, onInsertar }) {
       {vista === 'web' && (
         <>
           <form onSubmit={irA} className="flex gap-2"><input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="Dirección web (https://…) o un tema" aria-label="Dirección web" className={campo} /><button className="rounded-sm2 bg-primary px-4 text-sm font-bold text-white">Ir</button></form>
-          <div className="flex flex-wrap gap-1.5">{SITIOS.map(([n, f]) => <button key={n} onClick={() => abrirVentanaLateral(f(q || tema || ''))} className="rounded-full bg-bg px-3 py-1 text-[11px] font-bold text-textSecondary hover:text-primary" title="Se abre en una ventana al lado">{n} ↗</button>)}</div>
+          <div className="flex flex-wrap gap-1.5">{SITIOS.map(([n, f]) => <button key={n} onClick={() => abrirVentanaLateral(f(q || tema || ''))} className="rounded-full bg-bg px-3 py-1 text-t-micro font-bold text-textSecondary hover:text-primary" title="Se abre en una ventana al lado">{n} ↗</button>)}</div>
           {marco ? (
             <div className="flex min-h-0 flex-1 flex-col gap-1.5">
               <iframe src={marco} title="Navegador" sandbox="allow-scripts allow-forms allow-popups allow-same-origin" referrerPolicy="no-referrer" className="min-h-[18rem] flex-1 rounded-sm2 border border-black/10 bg-white" />
-              <p className="flex flex-wrap items-center gap-2 text-[11px] text-textSecondary">¿Se ve en blanco? Muchas páginas no permiten mostrarse aquí.
+              <p className="flex flex-wrap items-center gap-2 text-t-micro text-textSecondary">¿Se ve en blanco? Muchas páginas no permiten mostrarse aquí.
                 <button onClick={() => abrirVentanaLateral(marco)} className="font-bold text-primary">Abrir en ventana lateral</button><button onClick={() => abrirEnPestana(marco)} className="font-bold text-primary">Abrir en pestaña</button></p>
             </div>
           ) : <p className="rounded-sm2 bg-bg p-4 text-center text-xs text-textSecondary">Escribe una dirección. Si la página no se deja incrustar, usa los botones de arriba para abrirla en una ventana al lado de tu trabajo.</p>}

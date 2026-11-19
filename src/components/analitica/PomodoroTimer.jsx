@@ -104,15 +104,15 @@ export default function PomodoroTimer({ tareas }) {
   const bloqueado = corriendo || !!sesionId;
 
   return (
-    <div className="rounded-md2 bg-white p-4 shadow-card">
-      <p className="mb-3 text-sm font-bold">Enfoque adaptativo (Pomodoro)</p>
+    <div className="ficha">
+      <p className="rotulo mb-3">Enfoque adaptativo (Pomodoro)</p>
 
       <div className="mb-3 grid grid-cols-2 gap-2">
         <button
           onClick={() => !bloqueado && setTipo('mecanica')}
           disabled={bloqueado}
           className="flex items-center justify-center gap-1.5 rounded-sm2 border py-2 text-xs font-bold disabled:opacity-50"
-          style={{ borderColor: tipo === 'mecanica' ? '#F5A524' : 'rgba(0,0,0,0.08)', backgroundColor: tipo === 'mecanica' ? '#FDF3E3' : 'transparent', color: tipo === 'mecanica' ? '#F5A524' : '#6E7180' }}
+          style={{ borderColor: tipo === 'mecanica' ? '#A8732A' : 'rgba(0,0,0,0.08)', backgroundColor: tipo === 'mecanica' ? '#FDF3E3' : 'transparent', color: tipo === 'mecanica' ? '#A8732A' : '#807F7A' }}
         >
           <Zap size={14} /> Mecánica (25 min)
         </button>
@@ -120,7 +120,7 @@ export default function PomodoroTimer({ tareas }) {
           onClick={() => !bloqueado && setTipo('profunda')}
           disabled={bloqueado}
           className="flex items-center justify-center gap-1.5 rounded-sm2 border py-2 text-xs font-bold disabled:opacity-50"
-          style={{ borderColor: tipo === 'profunda' ? '#3E7BFA' : 'rgba(0,0,0,0.08)', backgroundColor: tipo === 'profunda' ? '#EAF1FF' : 'transparent', color: tipo === 'profunda' ? '#3E7BFA' : '#6E7180' }}
+          style={{ borderColor: tipo === 'profunda' ? '#2E4BF0' : 'rgba(0,0,0,0.08)', backgroundColor: tipo === 'profunda' ? '#EAF1FF' : 'transparent', color: tipo === 'profunda' ? '#2E4BF0' : '#807F7A' }}
         >
           <Brain size={14} /> Profunda (50 min)
         </button>
@@ -142,7 +142,7 @@ export default function PomodoroTimer({ tareas }) {
         <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="45" fill="none" stroke="#EAF3FB" strokeWidth="7" />
           <circle
-            cx="50" cy="50" r="45" fill="none" stroke="#6FA8DC" strokeWidth="7" strokeLinecap="round"
+            cx="50" cy="50" r="45" fill="none" stroke="rgb(var(--primary))" strokeWidth="7" strokeLinecap="round"
             strokeDasharray={2 * Math.PI * 45}
             strokeDashoffset={2 * Math.PI * 45 * (1 - progreso)}
             style={{ transition: 'stroke-dashoffset 0.25s linear' }}

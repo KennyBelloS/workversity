@@ -28,6 +28,7 @@ import WorkloadChart from '../components/analitica/WorkloadChart';
 import ConcentrationChart from '../components/analitica/ConcentrationChart';
 import ClearHorizonGauge from '../components/analitica/ClearHorizonGauge';
 import CapacitySettings from '../components/analitica/CapacitySettings';
+import KoiEstanque from '../components/decoracion/KoiEstanque';
 
 export default function Analitica() {
   const { perfil } = useAuth();
@@ -72,16 +73,19 @@ export default function Analitica() {
   return (
     <div>
       <ErrorCarga mensaje={error} />
-      <div className="mb-5 flex items-start gap-3 rounded-md2 bg-gradient-to-r from-primary to-primaryDark p-4 text-white shadow-card">
-        <Sparkles size={20} className="mt-0.5 shrink-0" />
-        <div>
-          <p className="text-sm font-bold">Tu asistente inteligente dice:</p>
-          <p className="text-sm">{mensaje}</p>
+      <div className="relative mb-5 overflow-hidden rounded-[20px] bg-[#141412] text-white">
+        <div className="absolute inset-0 opacity-90"><KoiEstanque cuantos={4} celda={8} tema="oscuro" intensidad={0.55} /></div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#141412] via-[#141412]/45 to-transparent" />
+        <div className="relative flex min-h-[132px] items-end gap-3 p-5 sm:p-6">
+          <div className="max-w-xl">
+            <p className="flex items-center gap-2 font-mono text-t-micro uppercase tracking-[0.14em] text-white/50"><Sparkles size={12} className="text-primary" /> Tu asistente dice</p>
+            <p className="mt-2 text-t-medio font-light leading-snug tracking-[-0.02em] sm:text-t-medio">{mensaje}</p>
+          </div>
         </div>
       </div>
 
       {perfil?.modo_supervivencia && (
-        <div className="mb-5 flex items-center gap-2 rounded-md2 bg-danger px-4 py-3 text-white shadow-card">
+        <div className="mb-5 flex items-center gap-2 rounded-[14px] bg-dangerSoft px-4 py-3 text-danger ring-1 ring-danger/20">
           <AlertTriangle size={18} />
           <p className="text-sm font-bold">Modo Supervivencia activo — el tablero de Tareas solo muestra lo esencial.</p>
         </div>
@@ -93,10 +97,10 @@ export default function Analitica() {
         <span className="text-xs text-textSecondary">— ganas puntos por registrar tu energía y completar Pomodoros</span>
       </div>
 
-      <div className="mb-5 flex gap-1 overflow-x-auto rounded-full bg-white p-1 shadow-card">
+      <div className="seg mb-5 max-w-full overflow-x-auto" role="tablist">
         {[['plan', 'Plan', Target], ['enfoque', 'Enfoque', Timer], ['trabajos', 'Trabajos', FileText], ['notas', 'Notas', GraduationCap], ['habitos', 'Hábitos', Brain]].map(([v, t, Icono]) => (
-          <button key={v} onClick={() => setTab(v)} className={`flex flex-1 shrink-0 items-center justify-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-bold transition ${tab === v ? 'bg-primary text-white' : 'text-textSecondary hover:bg-black/5'}`}>
-            <Icono size={15} /> {t}
+          <button key={v} role="tab" aria-selected={tab === v} onClick={() => setTab(v)} className={`seg-op ${tab === v ? 'activo' : ''}`}>
+            <Icono size={14} strokeWidth={1.8} /> {t}
           </button>
         ))}
       </div>
@@ -109,8 +113,8 @@ export default function Analitica() {
       {tab === 'enfoque' && (
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
-          <div className="rounded-md2 bg-white p-4 shadow-card">
-            <p className="mb-1 text-sm font-bold">Predicción de carga — próximos 14 días</p>
+          <div className="ficha">
+            <p className="rotulo mb-3">Predicción de carga — próximos 14 días</p>
             <p className="mb-3 text-xs text-textSecondary">Comparado contra tu capacidad máxima diaria configurada.</p>
             <WorkloadChart prediccion={prediccion} capacidadMaximaHoras={capacidad} />
           </div>
@@ -129,8 +133,8 @@ export default function Analitica() {
             </div>
           )}
 
-          <div className="rounded-md2 bg-white p-4 shadow-card">
-            <p className="mb-1 text-sm font-bold">Patrones de concentración</p>
+          <div className="ficha">
+            <p className="rotulo mb-3">Patrones de concentración</p>
             <p className="mb-3 text-xs text-textSecondary">
               {mejorFranja
                 ? `Tu mejor rendimiento es entre las ${mejorFranja.hora}:00 y las ${mejorFranja.hora + 1}:00 — agenda ahí tus tareas complejas.`
@@ -143,8 +147,8 @@ export default function Analitica() {
         <div className="space-y-4">
           <EnergyCheckin onReorganizado={cargar} />
           <PomodoroTimer tareas={tareas} />
-          <div className="rounded-md2 bg-white p-4 shadow-card">
-            <p className="mb-1 text-sm font-bold">Despeje de la semana</p>
+          <div className="ficha">
+            <p className="rotulo mb-3">Despeje de la semana</p>
             <ClearHorizonGauge porcentaje={despeje} />
           </div>
           <CapacitySettings />

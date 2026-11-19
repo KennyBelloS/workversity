@@ -44,7 +44,7 @@ export default function RespaldoCard() {
       const a = document.createElement('a');
       a.href = url; a.download = `workversity_respaldo_${new Date().toISOString().slice(0, 10)}.json`; a.click();
       URL.revokeObjectURL(url);
-      setMensaje('✅ Copia descargada. Guárdala en un lugar seguro.');
+      setMensaje('Copia descargada. Guárdala en un lugar seguro.');
     } catch (e) { setError(mensajeAmigable(e, 'generar la copia')); } finally { setTrabajando(false); }
   };
 
@@ -67,18 +67,18 @@ export default function RespaldoCard() {
     try {
       for (const { tabla, fila } of vista.prep.operaciones) await CREAR[tabla](fila, usuario.id);
       await vaciarCola();
-      setMensaje(`✅ Se restauraron ${vista.prep.operaciones.length} registros.`);
+      setMensaje(`Se restauraron ${vista.prep.operaciones.length} registros.`);
       setVista(null);
     } catch (e) { setError(mensajeAmigable(e, 'restaurar la copia')); } finally { setTrabajando(false); }
   };
 
   return (
-    <section className="rounded-md2 bg-white p-4 shadow-card">
-      <p className="mb-2 flex items-center gap-2 text-sm font-bold"><ShieldCheck size={16} /> Copia de seguridad</p>
+    <section className="ficha">
+      <p className="ficha-cabecera !mb-3 !justify-start gap-2 rotulo"><ShieldCheck size={16} /> Copia de seguridad</p>
       <p className="mb-3 text-xs text-textSecondary">Descarga todos tus datos en un archivo, o restáuralos desde una copia (sirve para pasar tus datos a otra cuenta o recuperarlos). Restaurar no borra nada: solo agrega o actualiza.</p>
       <div className="grid gap-2 sm:grid-cols-2">
-        <button onClick={descargar} disabled={trabajando} className="flex items-center justify-center gap-2 rounded-sm2 border border-primary/30 py-2.5 text-sm font-bold text-primary disabled:opacity-60"><Download size={15} /> {trabajando && !vista ? 'Generando…' : 'Descargar copia'}</button>
-        <button onClick={() => entrada.current?.click()} disabled={trabajando} className="flex items-center justify-center gap-2 rounded-sm2 border border-black/10 py-2.5 text-sm font-bold text-textSecondary disabled:opacity-60"><Upload size={15} /> Restaurar copia</button>
+        <button onClick={descargar} disabled={trabajando} className="boton-secundario justify-center"><Download size={15} /> {trabajando && !vista ? 'Generando…' : 'Descargar copia'}</button>
+        <button onClick={() => entrada.current?.click()} disabled={trabajando} className="boton-secundario justify-center !text-textSecondary"><Upload size={15} /> Restaurar copia</button>
         <input ref={entrada} type="file" accept="application/json,.json" className="hidden" onChange={elegirArchivo} aria-label="Archivo de copia" />
       </div>
       {vista && (

@@ -48,8 +48,8 @@ export default function NotificacionesCard() {
   };
 
   return (
-    <section className="rounded-md2 bg-white p-4 shadow-card">
-      <p className="mb-3 flex items-center gap-2 text-sm font-bold">{activa ? <Bell size={16} /> : <BellOff size={16} />} Notificaciones</p>
+    <section className="ficha">
+      <p className="ficha-cabecera !mb-3 !justify-start gap-2 rotulo">{activa ? <Bell size={16} /> : <BellOff size={16} />} Notificaciones</p>
       <p className="mb-3 text-xs text-textSecondary">
         Te aviso antes de que venza una tarea, empiece una clase, reunión o turno de trabajo, y cada mañana te mando un resumen del día.
         Funciona incluso con la app cerrada.
@@ -66,15 +66,15 @@ export default function NotificacionesCard() {
           <div className="flex gap-2">
             {activa ? (
               <>
-                <button onClick={() => notificacionDePrueba().catch((e) => setError(e.message))} className="flex flex-1 items-center justify-center gap-2 rounded-sm2 border border-primary/30 py-2.5 text-sm font-bold text-primary">
+                <button onClick={() => notificacionDePrueba().catch((e) => setError(e.message))} className="boton-secundario flex-1 justify-center">
                   <Send size={14} /> Enviar prueba
                 </button>
-                <button onClick={desactivar} disabled={trabajando} className="rounded-sm2 border border-black/10 px-4 py-2.5 text-sm font-bold text-textSecondary">
+                <button onClick={desactivar} disabled={trabajando} className="boton-secundario !text-textSecondary">
                   Desactivar
                 </button>
               </>
             ) : (
-              <button onClick={activar} disabled={trabajando} className="flex-1 rounded-sm2 bg-primary py-2.5 text-sm font-bold text-white disabled:opacity-60">
+              <button onClick={activar} disabled={trabajando} className="boton-ppal flex-1 justify-center">
                 {trabajando ? 'Activando…' : 'Activar notificaciones'}
               </button>
             )}
@@ -100,7 +100,7 @@ export default function NotificacionesCard() {
                   className="rounded-sm2 bg-primarySoft/60 px-3 py-1.5 text-sm outline-none"
                 />
               </label>
-              <p className="text-[11px] text-textSecondary">Zona horaria: {perfil?.zona_horaria || zonaHoraria()}</p>
+              <p className="text-t-micro text-textSecondary">Zona horaria: {perfil?.zona_horaria || zonaHoraria()}</p>
             </div>
           )}
         </>

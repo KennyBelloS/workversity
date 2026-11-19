@@ -31,6 +31,36 @@ async function deExcel(archivo) {
     return soloUnaHoja ? texto : `Hoja "${nombre}":\n${texto}`;
   }).join('\n\n');
 }
+/**
+ * Arma el texto de UNA página de PDF respetando sus renglones. Antes se unía todo con espacios y
+ * la página quedaba en una sola línea: el índice, los encabezados y los títulos se pegaban a las
+ * oraciones, y de ahí salían tarjetas sin sentido. Aquí se usa la posición de cada trozo de texto
+ * (pdf.js da su "y" en transform[5]) para saber dónde empieza un renglón nuevo.
+ */
+export function textoDeItemsPdf(items) {
+  let texto = '';
+  let anterior = null;
+  for (const it of items) {
+    if (!it.str && !it.hasEOL) continue;
+    const y = it.transform?.[5] ?? 0;
+    const x = it.transform?.[4] ?? 0;
+    const alto = it.height || Math.abs(it.transform?.[3] || 10);
+    if (anterior) {
+      const cambioDeRenglon = Math.abs(y - anterior.y) > alto * 0.5;
+      if (anterior.finDeLinea || cambioDeRenglon) {
+        texto = texto.replace(/[ \t]+$/, '');
+        // Un salto grande entre renglones es un párrafo nuevo (línea en blanco).
+        texto += cambioDeRenglon && Math.abs(y - anterior.y) > alto * 1.9 ? '\n\n' : '\n';
+      } else if (x - anterior.finX > alto * 0.12 && !/\s$/.test(texto) && !/^\s/.test(it.str)) {
+        texto += ' ';
+      }
+    }
+    texto += it.str;
+    anterior = { y, finX: x + (it.width || 0), finDeLinea: Boolean(it.hasEOL) };
+  }
+  return texto.replace(/[ \t]{2,}/g, ' ').trim();
+}
+
 async function dePdf(archivo, onProgreso) {
   const pdfjs = await import('pdfjs-dist');
   pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mjs', import.meta.url).href;
@@ -40,9 +70,11 @@ async function dePdf(archivo, onProgreso) {
     onProgreso?.(i, doc.numPages);
     const pagina = await doc.getPage(i);
     const contenido = await pagina.getTextContent();
-    paginas.push(contenido.items.map((it) => it.str).join(' '));
+    paginas.push(textoDeItemsPdf(contenido.items));
   }
-  return paginas.join('\n\n');
+  // Las páginas se separan con una línea en blanco: así se pueden reconocer los encabezados y
+  // pies que se repiten en cada una.
+  return paginas.join('\n\n\n');
 }
 async function deImagen(archivo, onProgreso) {
   const Tesseract = (await import('tesseract.js')).default;
@@ -61,7 +93,8 @@ export async function extraerTexto(archivo, onProgreso) {
   const tipo = tipoDeArchivo(archivo);
   const texto = await ({ pdf: () => dePdf(archivo, onProgreso), word: deWord, excel: deExcel, imagen: () => deImagen(archivo, onProgreso), texto: deTexto }[tipo]?.(archivo));
   if (texto == null) throw new Error('Ese tipo de archivo no se puede leer todavía. Prueba con PDF, Word (.docx), Excel (.xlsx), una imagen o pegando el texto directamente.');
-  const limpio = texto.replace(/\s+\n/g, '\n').replace(/[ \t]{2,}/g, ' ').trim();
+  // OJO: no se colapsan las líneas en blanco (separan páginas y párrafos; el generador las usa).
+  const limpio = texto.replace(/[ \t]+\n/g, '\n').replace(/[ \t]{2,}/g, ' ').trim();
   if (!limpio) throw new Error('No se encontró texto en ese archivo. Si es una foto borrosa, prueba con más luz o pega el texto a mano.');
   return limpio;
 }

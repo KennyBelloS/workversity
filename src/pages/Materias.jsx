@@ -63,7 +63,7 @@ export default function Materias() {
         <p className="text-sm text-textSecondary">Tus materias de la universidad, con profesor, salón y NRC.</p>
         <button
           onClick={() => { setEditando(null); setModalAbierto(true); }}
-          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primaryDark"
+          className="boton-ppal"
         >
           <Plus size={18} /> Nueva materia
         </button>

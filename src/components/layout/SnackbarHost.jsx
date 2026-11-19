@@ -18,7 +18,7 @@ export default function SnackbarHost() {
   if (!item) return null;
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[7.5rem] z-[46] flex justify-center px-3 sm:bottom-32">
-      <div role="status" className="anim-slide pointer-events-auto flex max-w-md items-center gap-3 rounded-full bg-textPrimary px-4 py-2.5 text-sm font-semibold text-bg shadow-xl">
+      <div role="status" className="anim-slide pointer-events-auto flex min-w-0 max-w-[min(28rem,100%)] items-center gap-3 rounded-full bg-textPrimary px-4 py-2.5 text-t-pie font-medium text-bg shadow-xl">
         <span className="min-w-0 truncate">{item.texto}</span>
         {item.etiqueta && (
           <button onClick={() => { const f = item.onAccion; setItem(null); f?.(); }} className="shrink-0 rounded-full bg-primary px-3 py-1 text-xs font-extrabold text-white">{item.etiqueta}</button>

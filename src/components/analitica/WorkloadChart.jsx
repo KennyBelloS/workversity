@@ -16,7 +16,7 @@ export default function WorkloadChart({ prediccion, capacidadMaximaHoras }) {
     d.fecha.toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric' })
   );
   const horas = prediccion.map((d) => d.horas);
-  const colores = prediccion.map((d) => (d.sobrecargado ? '#E5484D' : '#6FA8DC'));
+  const colores = prediccion.map((d) => (d.sobrecargado ? '#B04A3E' : '#3B6BA5'));
 
   const opciones = {
     chart: { type: 'bar', toolbar: { show: false }, fontFamily: 'inherit' },
@@ -30,10 +30,10 @@ export default function WorkloadChart({ prediccion, capacidadMaximaHoras }) {
       yaxis: [
         {
           y: capacidadMaximaHoras,
-          borderColor: '#E5484D',
+          borderColor: '#B04A3E',
           label: {
             text: `Tu límite: ${capacidadMaximaHoras}h`,
-            style: { color: '#fff', background: '#E5484D', fontSize: '10px' },
+            style: { color: '#fff', background: '#B04A3E', fontSize: '10px' },
           },
         },
       ],

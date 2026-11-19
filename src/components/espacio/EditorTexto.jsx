@@ -46,11 +46,11 @@ export default function EditorTexto({ inicial, onCambio, estado, titulo, registr
         ref={ref} contentEditable suppressContentEditableWarning role="textbox" aria-multiline="true" aria-label="Documento de texto"
         onInput={emitir}
         onPaste={(e) => { e.preventDefault(); document.execCommand('insertText', false, e.clipboardData.getData('text/plain')); }}
-        className="editor-texto min-h-0 flex-1 overflow-y-auto px-5 py-4 text-[15px]"
+        className="editor-texto min-h-0 flex-1 overflow-y-auto px-5 py-4 text-t-base"
         data-placeholder="Empieza a escribir aquí…"
       />
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-black/5 px-3 py-2 text-[11px] text-textSecondary">
+      <div className="flex flex-wrap items-center gap-2 border-t border-black/5 px-3 py-2 text-t-micro text-textSecondary">
         <span>{palabras} palabra{palabras !== 1 ? 's' : ''} · ≈ {Math.max(palabras ? 1 : 0, Math.round(palabras / 200))} min de lectura</span>
         <span className="font-semibold">{ETIQUETA_ESTADO_DOC[estado] || ''}</span>
         <span className="ml-auto flex flex-wrap gap-1">

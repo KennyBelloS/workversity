@@ -87,10 +87,10 @@ export default function Finanzas() {
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-        <p className="text-sm text-textSecondary">Resumen de este mes</p>
+        <p className="rotulo">Este mes</p>
         <button
           onClick={() => { setEditando(null); setModalAbierto(true); }}
-          className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primaryDark"
+          className="boton-ppal"
         >
           <Plus size={18} /> Nuevo movimiento
         </button>
@@ -98,27 +98,28 @@ export default function Finanzas() {
 
       <ErrorCarga mensaje={error} />
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="rounded-md2 bg-white p-4 shadow-card">
-          <div className="flex items-center gap-2 text-success"><TrendingUp size={16} /><span className="text-xs font-bold">Ingresos</span></div>
-          <p className="mt-1 text-xl font-extrabold">{currencyFormat.format(ingresos)}</p>
+      {/* Balance como pieza principal (oscura) y las tres cifras del mes a su lado. */}
+      <div className="grid gap-3 lg:grid-cols-[1.25fr_1fr]">
+        <div className="bento-pieza relative overflow-hidden !rounded-[20px] !bg-[#141412] !p-5 text-white ring-1 ring-white/5 sm:!p-6 !min-h-[220px]" style={{ '--i': 0 }}>
+          <p className="flex items-center gap-2 font-mono text-t-micro uppercase tracking-[0.14em] text-white/50"><span className={`h-1.5 w-1.5 rounded-full ${balance >= 0 ? 'bg-success' : 'bg-danger'}`} /> Balance del mes</p>
+          <p className="font-display mt-6 text-[clamp(2.6rem,7vw,4.4rem)] leading-none">{currencyFormat.format(balance)}</p>
+          <div className="mt-6 flex h-1.5 overflow-hidden rounded-full bg-white/10">
+            {ingresos > 0 && <span className="h-full bg-white/85" style={{ width: `${Math.max(0, Math.min(100, ((ingresos - gastos - ahorros) / ingresos) * 100))}%` }} />}
+            {ingresos > 0 && <span className="h-full bg-primary" style={{ width: `${Math.min(100, (ahorros / ingresos) * 100)}%` }} />}
+          </div>
+          <p className="mt-2 flex gap-4 font-mono text-t-micro text-white/45"><span>disponible</span><span className="text-primary">ahorro</span></p>
         </div>
-        <div className="rounded-md2 bg-white p-4 shadow-card">
-          <div className="flex items-center gap-2 text-danger"><TrendingDown size={16} /><span className="text-xs font-bold">Gastos</span></div>
-          <p className="mt-1 text-xl font-extrabold">{currencyFormat.format(gastos)}</p>
-        </div>
-        <div className="rounded-md2 bg-white p-4 shadow-card">
-          <div className="flex items-center gap-2 text-info"><PiggyBank size={16} /><span className="text-xs font-bold">Ahorro</span></div>
-          <p className="mt-1 text-xl font-extrabold">{currencyFormat.format(ahorros)}</p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-1">
+          {[['Ingresos', ingresos, TrendingUp, 'rgb(var(--success))'], ['Gastos', gastos, TrendingDown, 'rgb(var(--danger))'], ['Ahorro', ahorros, PiggyBank, 'rgb(var(--primary))']].map(([t, v, Icono, c], i) => (
+            <div key={t} className="bento-pieza flex items-center justify-between gap-3 !min-h-0 !rounded-[18px] !px-4 !py-3.5" style={{ '--i': i + 1 }}>
+              <span className="rotulo" style={{ '--punto': c }}>{t}</span>
+              <span className="flex items-center gap-2"><span className="font-display text-[1.6rem] leading-none">{currencyFormat.format(v)}</span><Icono size={14} strokeWidth={1.8} style={{ color: c }} /></span>
+            </div>
+          ))}
         </div>
       </div>
 
-      <div className="mt-3 rounded-md2 bg-white p-4 shadow-card">
-        <p className="text-sm font-bold">Balance del mes</p>
-        <p className={`mt-1 text-2xl font-extrabold ${balance >= 0 ? 'text-success' : 'text-danger'}`}>{currencyFormat.format(balance)}</p>
-      </div>
-
-      <div className="mt-3 rounded-md2 bg-white p-4 shadow-card">
+      <div className="mt-3 ficha">
         <div className="mb-2 flex items-center justify-between">
           <p className="text-sm font-bold">Presupuesto mensual</p>
           <button onClick={() => { setMontoPresupuesto(presupuesto ? String(presupuesto.amount) : ''); setEditandoPresupuesto(true); }} className="text-xs font-bold text-primary">
@@ -152,7 +153,7 @@ export default function Finanzas() {
               if (!e) return null;
               const $ = (n) => currencyFormat.format(Math.round(n));
               return (
-                <p className={`mt-1 text-[11px] font-semibold ${e.nivel === 'excedido' ? 'text-danger' : e.nivel === 'ok' ? 'text-textSecondary' : 'text-warning'}`}>
+                <p className={`mt-1 text-t-micro font-semibold ${e.nivel === 'excedido' ? 'text-danger' : e.nivel === 'ok' ? 'text-textSecondary' : 'text-warning'}`}>
                   {e.nivel === 'excedido' ? `Te pasaste por ${$(-e.restante)}.` : `Te quedan ${$(e.restante)} para ${e.diasRestantes} días (≈ ${$(e.sugeridoPorDia)} por día). A este ritmo cerrarás el mes en ${$(e.proyeccion)}.`}
                 </p>
               );
@@ -163,13 +164,13 @@ export default function Finanzas() {
         )}
       </div>
 
-      <div className="mt-3 rounded-md2 bg-white p-4 shadow-card">
-        <p className="mb-2 text-sm font-bold">Gastos por categoría</p>
+      <div className="mt-3 ficha">
+        <p className="rotulo mb-3">Gastos por categoría</p>
         <GastosDonutChart movimientos={movimientosDelMes} />
       </div>
 
       <div className="mt-3">
-        <p className="mb-2 text-sm font-bold">Movimientos recientes</p>
+        <p className="rotulo mb-3">Movimientos recientes</p>
         {movimientos.length === 0 ? (
           <p className="rounded-md2 bg-white py-10 text-center text-sm text-textSecondary shadow-card">Aún no has registrado movimientos</p>
         ) : (

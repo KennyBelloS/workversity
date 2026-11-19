@@ -6,7 +6,7 @@ const PASO = { páginas: 10, capítulos: 1, libros: 1, horas: 1, minutos: 15, ve
 export const pasoRapido = (unidad) => PASO[unidad] || 1;
 
 export const CATEGORIAS_PROGRESO_BASE = ['Lectura', 'Estudio', 'Salud y deporte', 'Hábitos', 'Proyecto personal', 'Otro'];
-export const COLOR_CATEGORIA_PROGRESO = { Lectura: '#8B7FD1', Estudio: '#5B8DEF', 'Salud y deporte': '#17C964', Hábitos: '#F5A524', 'Proyecto personal': '#E5789C', Otro: '#8B93A7' };
+export const COLOR_CATEGORIA_PROGRESO = { Lectura: '#6B5FA8', Estudio: '#3B5BA9', 'Salud y deporte': '#2F7A55', Hábitos: '#A8732A', 'Proyecto personal': '#AD5A77', Otro: '#9A9890' };
 
 export const PLANTILLAS_PROGRESO = [
   { emoji: '📖', titulo: 'Leer un libro', unidad: 'páginas', meta: 300, categoria: 'Lectura' },
@@ -68,11 +68,11 @@ export function estadoProgreso({ meta, avances = [], ahora = new Date() }) {
 }
 
 export const ETIQUETA_PROGRESO = {
-  hecho: { texto: '¡Terminada!', color: '#17C964' },
-  adelantado: { texto: 'Adelantado', color: '#17C964' },
-  'a-tiempo': { texto: 'A tiempo', color: '#3E7BFA' },
-  atrasado: { texto: 'Atrasado', color: '#F5A524' },
-  vencida: { texto: 'Plazo vencido', color: '#E5484D' },
-  'sin-fecha': { texto: 'En marcha', color: '#3E7BFA' },
-  'sin-datos': { texto: 'Sin empezar', color: '#6E7180' },
+  hecho: { texto: '¡Terminada!', color: '#2F7A55' },
+  adelantado: { texto: 'Adelantado', color: '#2F7A55' },
+  'a-tiempo': { texto: 'A tiempo', color: '#2E4BF0' },
+  atrasado: { texto: 'Atrasado', color: '#A8732A' },
+  vencida: { texto: 'Plazo vencido', color: '#B04A3E' },
+  'sin-fecha': { texto: 'En marcha', color: '#2E4BF0' },
+  'sin-datos': { texto: 'Sin empezar', color: '#807F7A' },
 };

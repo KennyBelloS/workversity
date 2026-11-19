@@ -104,9 +104,30 @@ export function suscribirseACambiosDeSesion(callback) {
   return data.subscription;
 }
 
+/**
+ * Pide el correo de recuperación. Primero intenta la función propia (/api/recuperar-clave, que
+ * envía el correo con Resend y el diseño de Workversity). Si esa función no existe todavía (por
+ * ejemplo en `npm run dev`, o si aún no se configuró en Vercel), usa el envío de Supabase.
+ */
 export async function solicitarRecuperacionPorCorreo(correo) {
+  try {
+    const r = await fetch('/api/recuperar-clave', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: correo }),
+    });
+    const tipo = r.headers.get('content-type') || '';
+    if (r.ok && tipo.includes('application/json')) return;
+    if (r.status === 400 && tipo.includes('application/json')) {
+      const { error } = await r.json();
+      throw new Error(error || 'Escribe un correo válido.');
+    }
+    // 404 (sin función), 503 (sin configurar) o una respuesta HTML: se usa el respaldo.
+  } catch (err) {
+    if (/correo válido/i.test(err?.message || '')) throw err;
+  }
   const { error } = await supabase.auth.resetPasswordForEmail(correo, {
-    redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/login` : undefined,
+    redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/nueva-clave` : undefined,
   });
   if (error) throw error;
 }
@@ -114,9 +135,4 @@ export async function solicitarRecuperacionPorCorreo(correo) {
 export async function actualizarPassword(nuevaPassword) {
   const { error } = await supabase.auth.updateUser({ password: nuevaPassword });
   if (error) throw error;
-}
-
-/** Cuenta una entrada más para el usuario actual (lo ve el panel de administrador). */
-export async function registrarIngreso() {
-  try { await supabase.rpc('registrar_ingreso'); } catch (err) { console.warn('[ingreso] No se pudo registrar:', err?.message || err); }
 }

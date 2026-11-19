@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Plus, Trash2, Pencil } from 'lucide-react';
+import TextoPregunta from './TextoPregunta';
 
 /** Lista editable de tarjetas: agregar una a mano, editar o borrar las generadas. */
 export default function ListaTarjetas({ tarjetas, onCrear, onActualizar, onEliminar }) {
@@ -34,7 +35,7 @@ export default function ListaTarjetas({ tarjetas, onCrear, onActualizar, onElimi
                 </div>
               ) : (
                 <div className="flex items-start justify-between gap-2">
-                  <div className="min-w-0"><p className="text-sm font-bold leading-snug">{t.pregunta}</p><p className="text-xs leading-snug text-textSecondary">{t.respuesta}</p></div>
+                  <div className="min-w-0"><p className="text-sm font-bold leading-snug [overflow-wrap:anywhere]"><TextoPregunta texto={t.pregunta} /></p><p className="text-xs leading-snug text-textSecondary [overflow-wrap:anywhere]">{t.respuesta}</p></div>
                   <div className="flex shrink-0 gap-1 self-start pt-0.5">
                     <button onClick={() => setEditando(t.id)} aria-label="Editar" className="rounded p-1 text-textSecondary hover:text-primary"><Pencil size={14} /></button>
                     <button onClick={() => onEliminar(t.id)} aria-label="Eliminar" className="rounded p-1 text-textSecondary hover:text-danger"><Trash2 size={14} /></button>

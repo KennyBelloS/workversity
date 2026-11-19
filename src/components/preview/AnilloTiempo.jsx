@@ -1,5 +1,5 @@
 /** Anillo animado: muestra cuánto del tiempo ya pasó (o el avance) con el centro libre para un icono o texto. */
-export default function AnilloTiempo({ fraccion = 0, color = '#3E7BFA', tam = 76, grosor = 7, children }) {
+export default function AnilloTiempo({ fraccion = 0, color = '#2E4BF0', tam = 76, grosor = 7, children }) {
   const r = (tam - grosor) / 2;
   const c = 2 * Math.PI * r;
   return (

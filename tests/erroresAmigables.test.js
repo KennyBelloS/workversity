@@ -21,9 +21,9 @@ describe('mensajes de error amigables (nada de jerga técnica en inglés)', () =
     expect(mensajeAmigable({ message: 'Ese código no existe o ya no es válido.' }, 'unirte')).toBe('Ese código no existe o ya no es válido.');
   });
 
-  it('un error técnico sin traducir (stack de JS) se cambia por algo genérico, nunca se muestra crudo', () => {
+  it('un error técnico sin traducir (stack de JS, en inglés) se cambia por algo genérico, nunca se muestra crudo', () => {
     vi.stubGlobal('navigator', { onLine: true });
-    expect(mensajeAmigable({ message: 'Error: something odd happened' }, 'cargar tus metas')).toBe('No se pudo cargar tus metas. Intenta de nuevo.');
+    expect(mensajeAmigable({ message: 'TypeError: Cannot read properties of undefined' }, 'cargar tus metas')).toBe('No se pudo cargar tus metas. Intenta de nuevo.');
     expect(mensajeAmigable({ message: 'at Object.<anonymous> (file.js:10:5)' })).toBe('No se pudo completar la acción. Intenta de nuevo.');
   });
 

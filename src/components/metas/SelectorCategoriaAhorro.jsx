@@ -59,7 +59,7 @@ export default function SelectorCategoriaAhorro({ value, onChange, cat }) {
           <button type="button" onClick={() => setCreando(true)} className="mt-1.5 flex items-center gap-1 text-xs font-bold text-primary"><Plus size={13} /> Crear categoría nueva</button>
         )
       ) : (
-        <p className="mt-1.5 text-[11px] font-semibold text-warning">Para crear categorías propias falta ejecutar el SQL de categorías (ver el manual).</p>
+        <p className="mt-1.5 text-t-micro font-semibold text-warning">Para crear categorías propias falta ejecutar el SQL de categorías (ver el manual).</p>
       )}
     </div>
   );

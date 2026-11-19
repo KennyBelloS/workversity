@@ -5,7 +5,7 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#6FA8DC" />
+    <meta name="theme-color" content="#0A0C12" />
     <meta name="description" content="Organiza tu vida entre trabajo y universidad." />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -14,7 +14,7 @@
     <title>Workversity</title>
     <script>
       try {
-        var p = localStorage.getItem('workversity:tema') || 'sistema';
+        var p = localStorage.getItem('workversity:tema') || 'oscuro';
         var d = p === 'oscuro' || (p === 'sistema' && matchMedia('(prefers-color-scheme: dark)').matches);
         if (d) document.documentElement.classList.add('dark');
         var t = localStorage.getItem('workversity:texto');
@@ -22,9 +22,107 @@
         else if (t === 'enorme') document.documentElement.style.fontSize = '20px';
       } catch (e) {}
     </script>
+    <!-- Pantalla de arranque: se pinta antes que React, así que aparece al abrir y al recargar.
+         Vive aquí (no en un componente) para que no dependa de que el JS de la app ya esté listo. -->
+    <style>
+      #arranque {
+        position: fixed; inset: 0; z-index: 2147483000; display: flex; flex-direction: column; justify-content: space-between;
+        padding: max(22px, env(safe-area-inset-top)) 22px max(22px, env(safe-area-inset-bottom));
+        background: var(--arr-color, #2e4bf0); color: #fff; overflow: hidden;
+        font-family: 'Geist Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        transition: background-color .45s cubic-bezier(.2,.8,.2,1), opacity .5s ease, visibility .5s;
+      }
+      #arranque[data-fin='1'] { opacity: 0; visibility: hidden; pointer-events: none; }
+      .arr-fila { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+      .arr-marca { font-family: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: .22em; text-transform: uppercase; opacity: .62; }
+      .arr-centro { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+      /* La cifra: enorme, de trazo fino, con el signo % a media altura y más tenue. */
+      .arr-cifra { font-size: clamp(5.5rem, 26vw, 15rem); font-weight: 300; letter-spacing: -.06em; line-height: 1; font-variant-numeric: tabular-nums; display: flex; align-items: flex-start; }
+      .arr-cifra i { font-style: normal; font-size: .42em; opacity: .5; margin-left: .06em; margin-top: .14em; }
+      /* La línea que cruza la pantalla con un pulso en la punta (como un sismógrafo). */
+      .arr-linea { position: absolute; left: 0; right: 0; top: 50%; height: 2px; }
+      .arr-trazo { position: absolute; left: 0; top: 0; height: 2px; background: currentColor; width: 0; }
+      .arr-pulso { position: absolute; top: 50%; left: 0; width: 72px; height: 44px; transform: translate(-50%, -50%); }
+      .arr-pulso path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+      .arr-pie { display: flex; align-items: center; justify-content: space-between; gap: 16px; font-family: 'Geist Mono Variable', ui-monospace, monospace; font-size: 11px; letter-spacing: .06em; opacity: .62; }
+      .arr-barras { display: flex; gap: 4px; align-items: flex-end; height: 12px; }
+      .arr-barras span { width: 3px; background: currentColor; border-radius: 1px; animation: arr-late 1s ease-in-out infinite; }
+      .arr-barras span:nth-child(2) { animation-delay: .12s; } .arr-barras span:nth-child(3) { animation-delay: .24s; }
+      @keyframes arr-late { 0%, 100% { height: 3px; } 50% { height: 12px; } }
+      .arr-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      @media (prefers-reduced-motion: reduce) {
+        #arranque { transition: opacity .2s ease, visibility .2s; }
+        .arr-barras span { animation: none; height: 7px; }
+        .arr-pulso { display: none; }
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+    <div id="arranque" role="status" aria-live="polite">
+      <div class="arr-fila"><span class="arr-marca">Workversity</span><span class="arr-marca" id="arr-ver">v—</span></div>
+      <div class="arr-centro">
+        <div class="arr-cifra"><span id="arr-num">0</span><i>%</i></div>
+      </div>
+      <div class="arr-linea" id="arr-linea">
+        <div class="arr-trazo" id="arr-trazo"></div>
+        <svg class="arr-pulso" id="arr-pulso" viewBox="0 0 72 44" aria-hidden="true"><path d="M0 22 H26 l4 -15 l5 30 l5 -15 H72" /></svg>
+      </div>
+      <div class="arr-pie">
+        <span id="arr-estado">Despertando</span>
+        <span class="arr-barras" aria-hidden="true"><span></span><span></span><span></span></span>
+      </div>
+      <span class="arr-oculto">Cargando Workversity</span>
+    </div>
+    <script>
+      // Arranque: la cifra sube de forma asintótica mientras la app carga y salta a 100 al terminar.
+      (function () {
+        var caja = document.getElementById('arranque');
+        if (!caja) return;
+        var ACENTOS = { cobalto: '#2e4bf0', coral: '#ee5c48', tinta: '#1f3b60', azul: '#6fa8dc', verde: '#34b27b', violeta: '#8b7fd1', rosa: '#e5789c', ambar: '#e69a1e', turquesa: '#2eaeb0' };
+        var TINTA = '#141412';
+        var acento = '#2e4bf0';
+        try { acento = ACENTOS[localStorage.getItem('workversity:acento')] || acento; } catch (e) {}
+        caja.style.setProperty('--arr-color', acento);
+        var num = document.getElementById('arr-num');
+        var trazo = document.getElementById('arr-trazo');
+        var pulso = document.getElementById('arr-pulso');
+        var estado = document.getElementById('arr-estado');
+        var ESTADOS = [[0, 'Despertando'], [28, 'Leyendo tu semana'], [55, 'Ordenando tareas'], [78, 'Casi listo']];
+        var pct = 0, objetivo = 0, pedido = false, inicio = Date.now(), raf = 0, ultimoColor = 0;
+        var MINIMO = 1150; // la pantalla se ve siempre, aunque la app cargue al instante
+        function listoYa() { return pedido && Date.now() - inicio >= MINIMO; }
+        function pinta() {
+          var v = Math.round(pct);
+          num.textContent = v;
+          trazo.style.width = v + '%';
+          pulso.style.left = v + '%';
+          for (var i = ESTADOS.length - 1; i >= 0; i--) if (v >= ESTADOS[i][0]) { if (estado.textContent !== ESTADOS[i][1]) estado.textContent = ESTADOS[i][1]; break; }
+          // El fondo alterna entre el acento y la tinta a medida que avanza: da sensación de etapas.
+          var etapa = v < 34 ? 0 : v < 67 ? 1 : 2;
+          if (etapa !== ultimoColor) { ultimoColor = etapa; caja.style.setProperty('--arr-color', etapa === 1 ? TINTA : acento); }
+        }
+        function paso() {
+          var t = (Date.now() - inicio) / 1000;
+          var fin = listoYa();
+          objetivo = fin ? 100 : 92 * (1 - Math.exp(-t / 1.15)); // nunca llega solo al 100
+          pct += (objetivo - pct) * (fin ? 0.22 : 0.09);
+          pinta();
+          if (fin && pct > 99.4) { pct = 100; pinta(); cierra(); return; }
+          raf = requestAnimationFrame(paso);
+        }
+        function cierra() {
+          cancelAnimationFrame(raf);
+          caja.setAttribute('data-fin', '1');
+          setTimeout(function () { if (caja.parentNode) caja.parentNode.removeChild(caja); }, 600);
+        }
+        raf = requestAnimationFrame(paso);
+        // La app avisa cuando ya tiene con qué pintar; si algo falla, se va igual a los 7 s.
+        window.__wvArranqueListo = function () { pedido = true; };
+        window.__wvArranqueVersion = function (v) { var e = document.getElementById('arr-ver'); if (e) e.textContent = 'v' + v; };
+        setTimeout(function () { pedido = true; }, 7000);
+      })();
+    </script>
     <noscript>Workversity necesita JavaScript para funcionar.</noscript>
     <script type="module" src="/src/main.jsx"></script>
   </body>

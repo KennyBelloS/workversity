@@ -1,7 +1,7 @@
 import Chart from 'react-apexcharts';
 
 export default function ClearHorizonGauge({ porcentaje }) {
-  const color = porcentaje >= 70 ? '#17C964' : porcentaje >= 40 ? '#F5A524' : '#E5484D';
+  const color = porcentaje >= 70 ? '#2F7A55' : porcentaje >= 40 ? '#A8732A' : '#B04A3E';
 
   const opciones = {
     chart: { type: 'radialBar', fontFamily: 'inherit' },

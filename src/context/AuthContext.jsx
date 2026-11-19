@@ -7,7 +7,6 @@ import {
   obtenerPerfil,
   asegurarPerfil,
   suscribirseACambiosDeSesion,
-  registrarIngreso,
 } from '../services/auth';
 import {
   leerUsuarioLocal,
@@ -16,6 +15,7 @@ import {
   borrarCopiaLocal,
 } from '../offline/sesionLocal';
 import { iniciarSync, obtenerEstado, conTimeout } from '../offline/sync';
+import { registrarIngreso } from '../services/admin';
 
 const AuthContext = createContext(null);
 
@@ -58,7 +58,6 @@ export function AuthProvider({ children }) {
       await prepararCopiaLocal(user.id);
       iniciarSync();
       cargarPerfil(user); // en segundo plano: no bloquea la pantalla si la red va lenta
-      if (navigator.onLine !== false) registrarIngreso(); // para el panel de administrador; nunca bloquea ni falla la sesión
     })();
     preparacionRef.current = { id: user.id, promesa };
     return promesa;
@@ -142,7 +141,10 @@ export function AuthProvider({ children }) {
   const login = async (correo, password) => {
     const datos = await iniciarSesion(correo, password);
     // Se prepara la copia local ANTES de entrar a la app, para no mostrar datos de otra cuenta.
-    if (datos?.user) await aplicarUsuario(datos.user);
+    if (datos?.user) {
+      await aplicarUsuario(datos.user);
+      registrarIngreso(); // en segundo plano: solo alimenta las estadísticas del admin
+    }
   };
 
   const signup = async (nombre, correo, password) => {

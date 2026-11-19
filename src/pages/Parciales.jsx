@@ -7,6 +7,7 @@ import { useEscape } from '../hooks/useEscape';
 import { listarParciales, crearParcial, eliminarParcial } from '../services/parciales';
 import { listarMaterias } from '../services/materias';
 import { formatearFechaCorta } from '../lib/dateUtils';
+import EstadoVacio from '../components/ui/EstadoVacio';
 
 function diasPara(fecha) {
   if (!fecha) return null;
@@ -67,23 +68,29 @@ export default function Parciales() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="text-sm text-textSecondary">Sube tus apuntes o un archivo y prepárate con tarjetas, mini tests y una simulación de examen.</p>
-        <button onClick={() => setModal(true)} className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-white"><Plus size={18} /> Nuevo parcial</button>
+      <div className="mb-5 flex items-center justify-end">
+        <button onClick={() => setModal(true)} className="boton-ppal"><Plus size={16} /> Nuevo parcial</button>
       </div>
 
       {parciales.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-md2 bg-white py-16 shadow-card">
-          <GraduationCap size={32} className="text-textSecondary/40" />
-          <p className="text-sm text-textSecondary">Crea tu primer parcial para empezar a estudiar</p>
-        </div>
+        <EstadoVacio
+          titulo="Aquí van tus parciales."
+          texto="Crea uno, súbele tus apuntes y Workversity te arma las tarjetas, el mini test y un plan de repaso hasta el día del examen."
+          accion={{ texto: 'Crear mi primer parcial', onClick: () => setModal(true) }}
+          muestras={[
+            { titulo: 'Cálculo II · Segundo corte', pie: 'en 6 días', icono: '🎓' },
+            { titulo: '24 tarjetas listas', pie: 'de 3 apuntes', icono: '🗂️', tono: 'oscuro' },
+            { titulo: 'Mini test', pie: '8 de 10', icono: '✅' },
+            { titulo: 'Plan de repaso', pie: '4 sesiones', icono: '🍅' },
+          ]}
+        />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {parciales.map((p) => {
             const materia = materias.find((m) => m.id === p.materia_id);
             const dias = diasPara(p.fecha);
             return (
-              <Link key={p.id} to={`/parciales/${p.id}`} className="rounded-md2 bg-white p-4 shadow-card transition hover:shadow-md">
+              <Link key={p.id} to={`/parciales/${p.id}`} className="ficha">
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-bold text-textPrimary">{p.titulo}</p>
                   <button onClick={(e) => borrar(p.id, e)} aria-label="Eliminar" className="shrink-0 text-textSecondary hover:text-danger"><Trash2 size={15} /></button>

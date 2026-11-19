@@ -84,3 +84,11 @@ export function claveMesActual() {
 }
 
 export { DIAS, MESES };
+
+/** Número de semana del año (ISO 8601: la semana 1 es la que tiene el primer jueves). */
+export function semanaDelAno(fecha) {
+  const d = new Date(Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const enero1 = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d - enero1) / 86400000 + 1) / 7);
+}

@@ -15,6 +15,7 @@ import { textoDuracion } from '../../lib/agenda';
 import { formatearFechaHora } from '../../lib/dateUtils';
 import { mostrarSnackbar } from '../../lib/snackbar';
 import { celebrar } from '../../lib/nativo';
+import Glifo from '../Glifo';
 
 const PASOS = ['Tu semana', 'Vencidas', 'Lo que viene', 'Cierre'];
 
@@ -70,10 +71,10 @@ export default function RevisionSemanal() {
       } catch { /* nada */ }
     }
     cerrar(); setReflexion(''); celebrar();
-    mostrarSnackbar({ texto: '🗓️ Revisión semanal hecha. ¡Buena semana!', ms: 5000 });
+    mostrarSnackbar({ texto: 'Revisión semanal hecha. ¡Buena semana!', ms: 5000 });
   };
 
-  const btn = 'rounded-full border border-black/10 px-2.5 py-1 text-[11px] font-bold text-textSecondary hover:border-primary hover:text-primary';
+  const btn = 'rounded-full border border-black/10 px-2.5 py-1 text-t-micro font-bold text-textSecondary hover:border-primary hover:text-primary';
   return (
     <Cascaron onCerrar={cerrar} paso={paso} setPaso={setPaso}>
       {paso === 0 && resumen && (
@@ -81,31 +82,31 @@ export default function RevisionSemanal() {
           <p className="text-sm text-textSecondary">Así te fue esta semana ({resumen.hechas} tareas completadas).</p>
           <div className="grid grid-cols-2 gap-2">
             {[['✅', 'Completadas', resumen.hechas], ['🎯', 'Cumplimiento', resumen.cumplimiento != null ? `${resumen.cumplimiento}%` : '—'], ['⏱️', 'Enfoque', resumen.minutosEnfoque >= 60 ? `${(resumen.minutosEnfoque / 60).toFixed(1)} h` : `${resumen.minutosEnfoque} min`], ['🔥', 'Racha', `${racha} d`]].map(([e, t, v]) => (
-              <div key={t} className="rounded-sm2 bg-bg p-3"><p className="text-lg">{e}</p><p className="text-xl font-extrabold">{v}</p><p className="text-[11px] text-textSecondary">{t}</p></div>
+              <div key={t} className="rounded-sm2 bg-bg p-3"><p className="text-textSecondary"><Glifo e={e} size={15} /></p><p className="font-display mt-1 text-2xl">{v}</p><p className="text-t-micro text-textSecondary">{t}</p></div>
             ))}
           </div>
-          <ul className="space-y-1.5 rounded-sm2 bg-primarySoft/50 p-3 text-[13px]">{resumen.insights.slice(0, 4).map((f) => <li key={f}>{f}</li>)}</ul>
+          <ul className="space-y-1.5 rounded-sm2 bg-primarySoft/50 p-3 text-t-pie">{resumen.insights.slice(0, 4).map((f) => <li key={f} className="flex gap-2.5"><span className="mt-[9px] h-px w-3 shrink-0 bg-primary" />{f}</li>)}</ul>
         </div>
       )}
 
       {paso === 1 && (
         <div className="space-y-3">
           {vencidas.length === 0 ? (
-            <p className="rounded-sm2 bg-successSoft py-10 text-center text-sm font-bold text-success">🎉 No tienes tareas vencidas</p>
+            <p className="rounded-sm2 bg-successSoft py-10 text-center text-sm font-bold text-success">No tienes tareas vencidas</p>
           ) : (
             <>
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <p className="text-sm font-semibold">{vencidas.length} vencida{vencidas.length > 1 ? 's' : ''}: reprograma, ciérrala o elimínala.</p>
-                <button onClick={() => moverTodas(1)} className="rounded-full bg-primary px-3 py-1.5 text-[11px] font-bold text-white">Todas para mañana</button>
+                <button onClick={() => moverTodas(1)} className="rounded-full bg-primary px-3 py-1.5 text-t-micro font-bold text-white">Todas para mañana</button>
               </div>
               <div className="space-y-2">
                 {vencidas.map((t) => (
                   <div key={t.id} className="rounded-sm2 bg-bg p-3">
                     <p className="text-sm font-bold">{t.title}</p>
-                    <p className="mb-2 text-[11px] text-danger">Venció hace {textoDuracion(ahora - new Date(t.due_date))}{materia(t) ? ` · ${materia(t)}` : ''}</p>
+                    <p className="mb-2 text-t-micro text-danger">Venció hace {textoDuracion(ahora - new Date(t.due_date))}{materia(t) ? ` · ${materia(t)}` : ''}</p>
                     <div className="flex flex-wrap items-center gap-1.5">
                       {OPCIONES_REPROGRAMAR.map((o) => <button key={o.clave} onClick={() => mover(t, o.dias)} className={btn}>{o.etiqueta}</button>)}
-                      <button onClick={() => hecha(t)} className="flex items-center gap-1 rounded-full border border-success/40 px-2.5 py-1 text-[11px] font-bold text-success"><Check size={11} /> Hecha</button>
+                      <button onClick={() => hecha(t)} className="flex items-center gap-1 rounded-full border border-success/40 px-2.5 py-1 text-t-micro font-bold text-success"><Check size={11} /> Hecha</button>
                       <button onClick={() => borrar(t)} aria-label="Eliminar" className="ml-auto text-textSecondary hover:text-danger"><Trash2 size={14} /></button>
                     </div>
                   </div>
@@ -122,14 +123,14 @@ export default function RevisionSemanal() {
           {foco.length > 0 && (
             <div className="rounded-sm2 bg-primarySoft/50 p-3">
               <p className="mb-1 text-xs font-extrabold text-primary">Empieza por</p>
-              {foco.map(({ tarea, razones }, i) => <p key={tarea.id} className="text-[13px]"><b>{i + 1}. {tarea.title}</b> <span className="text-[11px] text-textSecondary">— {razones[0] || 'próxima'}</span></p>)}
+              {foco.map(({ tarea, razones }, i) => <p key={tarea.id} className="text-t-pie"><b>{i + 1}. {tarea.title}</b> <span className="text-t-micro text-textSecondary">— {razones[0] || 'próxima'}</span></p>)}
             </div>
           )}
           <div className="space-y-1.5">
             {proximas.slice(0, 8).map((t) => (
               <div key={t.id} className="flex items-center justify-between gap-2 rounded-sm2 bg-bg p-2.5">
-                <span className="min-w-0"><span className="block truncate text-sm font-semibold">{t.title}</span><span className="text-[11px] text-textSecondary">{materia(t) || (t.category === 'trabajo' ? 'Trabajo' : 'Universidad')}</span></span>
-                <span className="shrink-0 text-[11px] font-bold text-textSecondary">{formatearFechaHora(t.due_date)}</span>
+                <span className="min-w-0"><span className="block truncate text-sm font-semibold">{t.title}</span><span className="text-t-micro text-textSecondary">{materia(t) || (t.category === 'trabajo' ? 'Trabajo' : 'Universidad')}</span></span>
+                <span className="shrink-0 text-t-micro font-bold text-textSecondary">{formatearFechaHora(t.due_date)}</span>
               </div>
             ))}
           </div>
@@ -157,7 +158,7 @@ function Cascaron({ children, onCerrar, paso = 0, setPaso }) {
     <div className="fixed inset-0 z-[62] flex items-end justify-center bg-black/50 p-3 sm:items-center" role="dialog" aria-label="Revisión semanal" onClick={onCerrar}>
       <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-lg2 bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-3">
-          <div><p className="text-lg font-extrabold">🗓️ Revisión semanal</p><p className="text-xs text-textSecondary">Paso {paso + 1} de {PASOS.length}: {PASOS[paso]}</p></div>
+          <div><p className="text-lg font-extrabold">Revisión semanal</p><p className="text-xs text-textSecondary">Paso {paso + 1} de {PASOS.length}: {PASOS[paso]}</p></div>
           <button onClick={onCerrar} aria-label="Cerrar" className="rounded-full p-1.5 hover:bg-black/5"><X size={18} /></button>
         </div>
         <div className="my-3 flex gap-1">{PASOS.map((p, i) => <button key={p} onClick={() => setPaso?.(i)} aria-label={p} className={`h-1.5 flex-1 rounded-full ${i <= paso ? 'bg-primary' : 'bg-black/10'}`} />)}</div>

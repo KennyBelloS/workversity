@@ -59,9 +59,9 @@ export default function WidgetGrid({ piezas }) {
         </button>
       </div>
       {editando && (
-        <p className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-sm2 bg-primarySoft/60 p-2.5 text-[11px] font-semibold text-primary">
+        <p className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-sm2 bg-primarySoft/60 p-2.5 text-t-micro font-semibold text-primary">
           <span>Arrastra <GripVertical size={12} className="inline" /> para reordenar (funciona con el dedo también), o usa ↑ ↓. El ojo oculta un widget.</span>
-          <button onClick={() => setLayout(layoutPorDefecto())} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-[11px] font-bold text-textSecondary"><RotateCcw size={11} /> Restablecer</button>
+          <button onClick={() => setLayout(layoutPorDefecto())} className="flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-t-micro font-bold text-textSecondary"><RotateCcw size={11} /> Restablecer</button>
         </p>
       )}
       <div className={editando ? 'space-y-3' : 'columns-1 gap-4 lg:columns-2 [&>*]:mb-4 [&>*]:break-inside-avoid'}>

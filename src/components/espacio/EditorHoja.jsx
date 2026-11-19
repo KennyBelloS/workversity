@@ -52,23 +52,23 @@ export default function EditorHoja({ inicial, onCambio, estado, titulo }) {
     if (c < sel.col - 1) poner(ref, `=SUMA(${nombreCelda(c + 1, sel.fila)}:${nombreCelda(sel.col - 1, sel.fila)})`);
   };
   const nombre = nombreSeguro(titulo);
-  const boton = 'flex items-center gap-1 rounded-full bg-bg px-2.5 py-1.5 text-[11px] font-bold text-textSecondary hover:text-primary';
+  const boton = 'flex items-center gap-1 rounded-full bg-bg px-2.5 py-1.5 text-t-micro font-bold text-textSecondary hover:text-primary';
 
   return (
     <div className="flex h-full min-h-[24rem] flex-col rounded-md2 bg-white shadow-card">
       <div className="flex flex-wrap items-center gap-1.5 border-b border-black/5 px-3 py-2">
         <button onClick={sumaAutomatica} className={boton} title="Suma lo de arriba (o de la izquierda)"><Sigma size={13} /> Suma automática</button>
-        <select aria-label="Insertar función" value="" onChange={(e) => { if (e.target.value) { empezar(`=${e.target.value}(`); } }} className="rounded-full bg-bg px-2.5 py-1.5 text-[11px] font-bold text-textSecondary outline-none">
+        <select aria-label="Insertar función" value="" onChange={(e) => { if (e.target.value) { empezar(`=${e.target.value}(`); } }} className="rounded-full bg-bg px-2.5 py-1.5 text-t-micro font-bold text-textSecondary outline-none">
           <option value="">ƒx Funciones</option>{FUNCIONES.map((f) => <option key={f} value={f}>{f}</option>)}
         </select>
         <button onClick={() => guardar({ ...hoja, filas: Math.min(MAX_FILAS, hoja.filas + 5) })} className={boton}><Plus size={13} /> 5 filas</button>
         <button onClick={() => guardar({ ...hoja, columnas: Math.min(MAX_COLUMNAS, hoja.columnas + 1) })} className={boton}><Plus size={13} /> Columna</button>
         <button onClick={() => poner(ref, '')} className={boton}><Eraser size={13} /> Borrar celda</button>
-        <span className="ml-auto text-[11px] font-semibold text-textSecondary">{ETIQUETA_ESTADO_DOC[estado] || ''}</span>
+        <span className="ml-auto text-t-micro font-semibold text-textSecondary">{ETIQUETA_ESTADO_DOC[estado] || ''}</span>
       </div>
 
       <div className="flex items-center gap-2 border-b border-black/5 px-3 py-1.5">
-        <span className="w-10 shrink-0 rounded bg-bg px-1.5 py-1 text-center text-[11px] font-extrabold">{ref}</span>
+        <span className="w-10 shrink-0 rounded bg-bg px-1.5 py-1 text-center text-t-micro font-extrabold">{ref}</span>
         <span className="text-sm font-bold text-textSecondary">ƒx</span>
         <input
           value={edicion ?? crudo} aria-label="Barra de fórmulas"
@@ -85,13 +85,13 @@ export default function EditorHoja({ inicial, onCambio, estado, titulo }) {
           <thead>
             <tr>
               <th className="sticky left-0 top-0 z-20 h-7 w-10 border-b border-r border-black/10 bg-bg" />
-              {Array.from({ length: hoja.columnas }, (_, c) => <th key={c} className={`sticky top-0 z-10 h-7 min-w-[6.5rem] border-b border-r border-black/10 bg-bg text-[11px] font-extrabold ${c === sel.col ? 'text-primary' : 'text-textSecondary'}`}>{colNombre(c)}</th>)}
+              {Array.from({ length: hoja.columnas }, (_, c) => <th key={c} className={`sticky top-0 z-10 h-7 min-w-[6.5rem] border-b border-r border-black/10 bg-bg text-t-micro font-extrabold ${c === sel.col ? 'text-primary' : 'text-textSecondary'}`}>{colNombre(c)}</th>)}
             </tr>
           </thead>
           <tbody>
             {Array.from({ length: hoja.filas }, (_, f) => (
               <tr key={f}>
-                <th className={`sticky left-0 z-10 h-7 border-b border-r border-black/10 bg-bg text-[11px] font-extrabold ${f === sel.fila ? 'text-primary' : 'text-textSecondary'}`}>{f + 1}</th>
+                <th className={`sticky left-0 z-10 h-7 border-b border-r border-black/10 bg-bg text-t-micro font-extrabold ${f === sel.fila ? 'text-primary' : 'text-textSecondary'}`}>{f + 1}</th>
                 {Array.from({ length: hoja.columnas }, (_, c) => {
                   const r = nombreCelda(c, f);
                   const v = ev.valor(r);
@@ -113,7 +113,7 @@ export default function EditorHoja({ inicial, onCambio, estado, titulo }) {
         </table>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-black/5 px-3 py-2 text-[11px] text-textSecondary">
+      <div className="flex flex-wrap items-center gap-2 border-t border-black/5 px-3 py-2 text-t-micro text-textSecondary">
         <span>Escribe sobre una celda · Enter/Tab para moverte · pega desde Excel</span>
         <span className="ml-auto flex gap-1">
           <button onClick={() => descargarArchivo(`${nombre}.csv`, `\ufeff${aCSV(hoja.celdas, hoja.filas, hoja.columnas)}`, 'text/csv')} className={boton}><Download size={12} /> CSV</button>

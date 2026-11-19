@@ -15,9 +15,9 @@ export default function NotasResumen() {
   const filas = useMemo(() => agruparNotas({ ...d, meta: leerMetaNota() }).filter((f) => f.m.hayDatos), [d]);
 
   return (
-    <div className="rounded-md2 bg-white p-4 shadow-card">
+    <div className="ficha">
       <div className="mb-3 flex items-center justify-between">
-        <p className="flex items-center gap-2 text-sm font-bold"><GraduationCap size={15} className="text-primary" /> Tus notas</p>
+        <p className="flex items-center gap-2 rotulo"><GraduationCap size={13} /> Tus notas</p>
         <Link to="/analitica?tab=notas" className="text-xs font-bold text-primary">Calcular</Link>
       </div>
       {filas.length === 0 ? (
@@ -31,7 +31,7 @@ export default function NotasResumen() {
                 <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: materia.color_value }} />
                 <span className="min-w-0 flex-1 truncate text-xs font-bold">{materia.nombre}</span>
                 <span className="text-xs font-extrabold" style={{ color: e.color }}>{(m.final ?? m.proyectada ?? m.acumulado).toFixed(2)}</span>
-                <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: `${e.color}1F`, color: e.color }}>{e.texto}</span>
+                <span className="rounded-full px-2 py-0.5 text-t-nota font-bold" style={{ backgroundColor: `${e.color}1F`, color: e.color }}>{e.texto}</span>
               </Link>
             );
           })}

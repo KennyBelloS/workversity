@@ -16,7 +16,7 @@ export default function GastosDonutChart({ movimientos }) {
   const opciones = {
     chart: { type: 'donut', fontFamily: 'inherit' },
     labels: categorias,
-    colors: ['#5B8DEF', '#8B7FD1', '#F5A524', '#E5484D', '#17C964', '#3E7BFA', '#7FD1C3', '#E5789C'],
+    colors: ['#3B5BA9', '#6B5FA8', '#A8732A', '#B04A3E', '#2F7A55', '#2E4BF0', '#3E7E7C', '#AD5A77'],
     legend: { position: 'bottom', fontSize: '12px' },
     dataLabels: { enabled: false },
     tooltip: { y: { formatter: (v) => `$${v.toLocaleString('es-CO')}` } },

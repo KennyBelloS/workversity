@@ -119,7 +119,7 @@ export async function desactivarNotificaciones() {
 // Notificación de prueba local (no pasa por el servidor): sirve para comprobar permisos.
 export async function notificacionDePrueba() {
   const reg = await swListo();
-  await reg.showNotification('🎉 ¡Las notificaciones funcionan!', {
+  await reg.showNotification('¡Las notificaciones funcionan!', {
     body: 'Así te avisaré antes de tus tareas, clases y reuniones.',
     icon: '/icon-192.png',
     badge: '/icon-192.png',

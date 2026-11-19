@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useEscape } from '../../hooks/useEscape';
-import { X, Download, Copy, Check, RefreshCw, CalendarPlus, Smartphone, Share2, ChevronDown, CheckCircle2, Loader2, CalendarDays, MousePointerClick } from 'lucide-react';
+import { X, Download, Copy, Check, RefreshCw, CalendarPlus, Smartphone, Share2, ChevronDown, CheckCircle2, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { leerTabla } from '../../offline/db';
 import { actualizarPerfil } from '../../services/auth';
@@ -51,14 +51,14 @@ export default function CalendarioModal({ onCerrar }) {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 8000);
-    setMensaje(`✅ Se generó workversity.ics con ${datos.materias.length + datos.bloques.length} eventos semanales y ${datos.tareas.length} tareas. Búscalo en tu carpeta de Descargas y ábrelo con tu calendario.`);
+    setMensaje(`Se generó workversity.ics con ${datos.materias.length + datos.bloques.length} eventos semanales y ${datos.tareas.length} tareas. Búscalo en tu carpeta de Descargas y ábrelo con tu calendario.`);
   };
   const compartir = async () => {
     const archivo = new File([construir()], 'workversity.ics', { type: 'text/calendar' });
     if (navigator.canShare?.({ files: [archivo] })) {
       try {
         await navigator.share({ files: [archivo], title: 'Mi agenda de Workversity' });
-        setMensaje('✅ Elige “Calendario” (iPhone) o “Google Calendar” (Android) en el menú para importarlo.');
+        setMensaje('Elige “Calendario” (iPhone) o “Google Calendar” (Android) en el menú para importarlo.');
       } catch (e) {
         if (e?.name !== 'AbortError') descargar();
       }
@@ -80,6 +80,12 @@ export default function CalendarioModal({ onCerrar }) {
     return () => { vivo = false; };
   }, [enlace]);
 
+  // La sección de "Suscribirte" solo tiene sentido mostrarla si la función del servidor
+  // de verdad está entregando la agenda. Si no, no debe aparecer nada: ni un botón que no
+  // funciona ni texto interno (comandos, nombres de funciones) que no le sirve a quien usa
+  // la app — eso es para quien la mantiene, no para el usuario final.
+  const suscripcionDisponible = Boolean(token) && funcion === 'activa';
+
   const copiar = async (texto, clave) => {
     try { await navigator.clipboard.writeText(texto); setCopiado(clave); setTimeout(() => setCopiado(''), 2000); } catch { /* nada */ }
   };
@@ -93,49 +99,30 @@ export default function CalendarioModal({ onCerrar }) {
   const items = useMemo(() => {
     const semanal = (titulo, dow, ini, fin, lugar, detalle) => { const i = proxima(dow, ini); const f = proxima(dow, fin); return { titulo, inicio: i, fin: f, lugar, detalle, semanas: 16, rotulo: 'Cada semana' }; };
     return [
-      ...datos.materias.map((m) => semanal(`📚 ${m.nombre}`, m.day_of_week, m.start_minutes, m.end_minutes, m.es_virtual ? 'Virtual' : m.salon, [m.profesor && `Profesor: ${m.profesor}`, m.enlace_virtual].filter(Boolean).join('\n'))),
-      ...datos.bloques.map((b) => semanal(`${b.type === 'reunion' ? '🤝' : b.type === 'trabajo' ? '💼' : '📌'} ${b.title}`, b.day_of_week, b.start_minutes, b.end_minutes, b.location, '')),
-      ...[...datos.tareas].sort((a, b) => new Date(a.due_date) - new Date(b.due_date)).slice(0, 15).map((t) => ({ titulo: `📝 ${t.title}`, inicio: new Date(t.due_date), fin: new Date(new Date(t.due_date).getTime() + 30 * 60000), lugar: '', detalle: t.description || '', semanas: 0, rotulo: new Date(t.due_date).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) })),
+      ...datos.materias.map((m) => semanal(`${m.nombre}`, m.day_of_week, m.start_minutes, m.end_minutes, m.es_virtual ? 'Virtual' : m.salon, [m.profesor && `Profesor: ${m.profesor}`, m.enlace_virtual].filter(Boolean).join('\n'))),
+      ...datos.bloques.map((b) => semanal(b.title, b.day_of_week, b.start_minutes, b.end_minutes, b.location, '')),
+      ...[...datos.tareas].sort((a, b) => new Date(a.due_date) - new Date(b.due_date)).slice(0, 15).map((t) => ({ titulo: `${t.title}`, inicio: new Date(t.due_date), fin: new Date(new Date(t.due_date).getTime() + 30 * 60000), lugar: '', detalle: t.description || '', semanas: 0, rotulo: new Date(t.due_date).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) })),
     ];
   }, [datos]);
 
-  const boton = 'flex items-center justify-center gap-2 rounded-sm2 px-4 py-2.5 text-sm font-bold transition';
-  // La suscripción automática (opción "se actualiza sola") solo se muestra cuando de
-  // verdad funciona. Si todavía no está lista, mejor no mostrarla en absoluto: las
-  // otras dos formas ya cubren por completo llevar la agenda al calendario.
-  const suscripcionDisponible = Boolean(token) && funcion === 'activa';
+  const boton = 'flex items-center justify-center gap-2 rounded-sm2 px-4 py-2.5 text-sm font-bold';
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center" onClick={onCerrar}>
       <div className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-lg2 bg-bg sm:rounded-lg2" onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-bg px-5 py-4">
-          <div>
-            <h2 className="text-lg font-extrabold">Tu agenda en tu calendario</h2>
-            <p className="text-xs text-textSecondary">Clases, bloques y tareas, en Google Calendar, Apple Calendar u Outlook</p>
-          </div>
-          <button onClick={onCerrar} aria-label="Cerrar" className="shrink-0 rounded-full p-1.5 hover:bg-black/5"><X size={20} /></button>
+        <div className="sticky top-0 z-10 flex items-center justify-between bg-bg px-5 py-4">
+          <h2 className="flex items-center gap-2 text-lg font-extrabold"><CalendarPlus size={20} /> Llevar tu agenda al calendario</h2>
+          <button onClick={onCerrar} className="rounded-full p-1.5 hover:bg-black/5"><X size={20} /></button>
         </div>
 
-        <div className="space-y-3 px-5 py-5">
-          {total === 0 && (
-            <div className="flex items-start gap-2.5 rounded-md2 bg-warningSoft p-3.5 text-xs font-semibold text-warning">
-              <CalendarDays size={16} className="mt-0.5 shrink-0" />
-              Aún no hay nada que llevar al calendario. Registra alguna materia, bloque o tarea y vuelve aquí.
-            </div>
-          )}
-
-          {/* Opción principal: archivo .ics */}
-          <section className="space-y-3 rounded-md2 bg-white p-4 shadow-card">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primarySoft text-primary"><Download size={17} /></span>
-              <div>
-                <p className="text-sm font-extrabold">Descargar e importar</p>
-                <p className="text-xs text-textSecondary">La forma más directa: un archivo que abres con tu calendario</p>
-              </div>
-            </div>
-            {total > 0 && (
+        <div className="space-y-4 px-5 pb-8">
+          <section className="space-y-3 ficha">
+            <p className="text-sm font-extrabold">1. Archivo de calendario (.ics)</p>
+            {total === 0 ? (
+              <p className="rounded-sm2 bg-warningSoft p-3 text-xs font-semibold text-warning">Aún no hay nada que exportar. Registra materias, bloques o tareas y vuelve aquí.</p>
+            ) : (
               <p className="text-xs text-textSecondary">
-                Incluye <b className="text-textPrimary">{datos.materias.length} clases</b>, <b className="text-textPrimary">{datos.bloques.length} bloques</b> y <b className="text-textPrimary">{datos.tareas.length} tareas pendientes</b>, cada uno con su alarma.
+                Se exportará: <b className="text-textPrimary">{datos.materias.length} clases</b>, <b className="text-textPrimary">{datos.bloques.length} bloques</b> (trabajo, reuniones…) y <b className="text-textPrimary">{datos.tareas.length} tareas pendientes</b>, cada uno con su alarma.
               </p>
             )}
             <label className="flex items-center justify-between text-sm font-semibold">
@@ -145,39 +132,32 @@ export default function CalendarioModal({ onCerrar }) {
               </select>
             </label>
             <div className="grid gap-2 sm:grid-cols-2">
-              <button onClick={descargar} disabled={total === 0} className={`${boton} bg-primary text-white hover:bg-primaryDark disabled:opacity-50`}><Download size={16} /> Descargar archivo</button>
-              <button onClick={compartir} disabled={total === 0} className={`${boton} border border-primary/40 text-primary disabled:opacity-50`}><Share2 size={16} /> Compartir / abrir</button>
+              <button onClick={descargar} disabled={total === 0} className={`${boton} bg-primary text-white disabled:opacity-50`}><Download size={16} /> Descargar .ics</button>
+              <button onClick={compartir} disabled={total === 0} className={`${boton} border border-primary/40 text-primary disabled:opacity-50`}><Share2 size={16} /> Compartir / abrir en mi calendario</button>
             </div>
-            {esIos() && <button onClick={abrirDirecto} disabled={total === 0} className={`${boton} w-full border border-black/10 disabled:opacity-50`}><Smartphone size={16} /> Abrir directo en Calendario</button>}
-            {mensaje && <p className="flex items-center gap-1.5 rounded-sm2 bg-successSoft p-2.5 text-xs font-semibold text-success"><CheckCircle2 size={14} className="shrink-0" /> {mensaje}</p>}
-
-            <details className="group rounded-sm2 bg-bg px-3 py-2 text-xs text-textSecondary open:pb-3">
-              <summary className="cursor-pointer select-none list-none font-bold text-textPrimary marker:content-none">¿Cómo lo importo según mi calendario?</summary>
-              <div className="mt-2 space-y-1.5">
-                <p><b>Google Calendar (computador):</b> Configuración → Importar y exportar → Importar → elige el archivo.</p>
-                <p><b>iPhone:</b> toca "Compartir / abrir" y elige Calendario, o abre el archivo y pulsa "Añadir todo". <b>Android:</b> "Compartir / abrir" → Google Calendar.</p>
-                <p><b>Mac / Outlook:</b> abre el archivo con doble clic.</p>
-              </div>
-            </details>
+            {esIos() && <button onClick={abrirDirecto} disabled={total === 0} className={`${boton} w-full border border-black/10 disabled:opacity-50`}><Smartphone size={16} /> Abrir directo en Calendario (iPhone)</button>}
+            {mensaje && <p className="rounded-sm2 bg-successSoft p-2.5 text-xs font-semibold text-success">{mensaje}</p>}
+            <div className="space-y-1 rounded-sm2 bg-bg p-3 text-t-micro text-textSecondary">
+              <p><b>Google Calendar (computador):</b> calendar.google.com → Configuración → <i>Importar y exportar</i> → Importar → elige el archivo y el calendario destino → Importar.</p>
+              <p><b>iPhone:</b> toca “Compartir / abrir…” y elige <i>Calendario</i>, o abre el archivo y pulsa “Añadir todo”. <b>Android:</b> “Compartir / abrir…” → Google Calendar.</p>
+              <p><b>Mac / Outlook:</b> abre el .ics con doble clic.</p>
+            </div>
           </section>
 
-          {/* Opción: suscripción automática — solo si de verdad está activa */}
           {token && funcion === 'verificando' && (
-            <section className="flex items-center gap-2.5 rounded-md2 bg-white p-4 text-xs font-semibold text-textSecondary shadow-card">
-              <Loader2 size={15} className="shrink-0 animate-spin" /> Comprobando si la actualización automática está disponible…
+            <section className="flex items-center gap-2 ficha">
+              <Loader2 size={14} className="animate-spin text-textSecondary" />
+              <p className="text-xs font-semibold text-textSecondary">Comprobando si puedes suscribirte a tu agenda…</p>
             </section>
           )}
           {suscripcionDisponible && (
-            <section className="space-y-3 rounded-md2 bg-white p-4 shadow-card">
-              <div className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-successSoft text-success"><RefreshCw size={16} /></span>
-                <div>
-                  <p className="text-sm font-extrabold">Suscribirte</p>
-                  <p className="text-xs text-textSecondary">Se actualiza sola: no hay que volver a exportar nada</p>
-                </div>
+            <section className="space-y-3 ficha">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-extrabold">2. Suscribirte (se actualiza sola)</p>
+                <span className="flex items-center gap-1 rounded-full bg-successSoft px-2 py-0.5 text-t-micro font-bold text-success"><CheckCircle2 size={12} /> Activa</span>
               </div>
               <div className="flex gap-2">
-                <input readOnly value={enlace} onFocus={(e) => e.target.select()} aria-label="Enlace de suscripción" className="min-w-0 flex-1 rounded-sm2 bg-primarySoft/60 px-3 py-2 text-[11px] outline-none" />
+                <input readOnly value={enlace} onFocus={(e) => e.target.select()} className="min-w-0 flex-1 rounded-sm2 bg-primarySoft/60 px-3 py-2 text-t-micro outline-none" />
                 <button onClick={() => copiar(enlace, 'enlace')} className="flex shrink-0 items-center gap-1.5 rounded-sm2 border border-primary/30 px-3 text-xs font-bold text-primary">
                   {copiado === 'enlace' ? <Check size={14} /> : <Copy size={14} />} {copiado === 'enlace' ? 'Copiado' : 'Copiar'}
                 </button>
@@ -186,21 +166,14 @@ export default function CalendarioModal({ onCerrar }) {
                 <a href={`https://calendar.google.com/calendar/r?cid=${encodeURIComponent(webcal)}`} target="_blank" rel="noreferrer" className={`${boton} border border-black/10`}><CalendarPlus size={15} /> Google Calendar</a>
                 <a href={webcal} className={`${boton} border border-black/10`}><Smartphone size={15} /> iPhone / Mac</a>
               </div>
-              <p className="text-[11px] text-textSecondary">Google actualiza los calendarios suscritos cada 12–24 h; iPhone/Mac es más rápido. <b>No compartas este enlace:</b> quien lo tenga puede ver tu agenda.</p>
+              <p className="text-t-micro text-textSecondary">Google actualiza los calendarios suscritos cada 12–24 h; iPhone/Mac es más rápido. <b>No compartas este enlace:</b> quien lo tenga puede ver tu agenda.</p>
               <button onClick={regenerar} disabled={trabajando} className="flex items-center gap-1.5 text-xs font-bold text-textSecondary hover:text-danger"><RefreshCw size={13} className={trabajando ? 'animate-spin' : ''} /> Generar un enlace nuevo</button>
             </section>
           )}
 
-          {/* Opción: uno por uno */}
-          <section className="rounded-md2 bg-white p-4 shadow-card">
+          <section className="ficha">
             <button onClick={() => setVerGoogle((v) => !v)} className="flex w-full items-center justify-between text-left">
-              <span className="flex items-center gap-2.5">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primarySoft text-primary"><MousePointerClick size={16} /></span>
-                <span>
-                  <span className="block text-sm font-extrabold">Agregar uno por uno</span>
-                  <span className="text-xs text-textSecondary">Sin archivos: un clic por evento, directo a Google Calendar</span>
-                </span>
-              </span>
+              <span><span className="block text-sm font-extrabold">3. Agregar uno por uno a Google Calendar</span><span className="text-xs text-textSecondary">Sin archivos ni configuración: un clic por evento.</span></span>
               <ChevronDown size={18} className={`shrink-0 transition ${verGoogle ? 'rotate-180' : ''}`} />
             </button>
             {verGoogle && (
@@ -208,11 +181,11 @@ export default function CalendarioModal({ onCerrar }) {
                 {items.length === 0 && <p className="rounded-sm2 bg-bg py-4 text-center text-xs text-textSecondary">Nada para agregar todavía.</p>}
                 {items.map((it, i) => (
                   <div key={i} className="flex items-center gap-2 rounded-sm2 bg-bg p-2">
-                    <span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold">{it.titulo}</span><span className="text-[10px] text-textSecondary">{it.rotulo}</span></span>
-                    <a href={enlaceGoogle(it)} target="_blank" rel="noreferrer" className="shrink-0 rounded-full bg-white px-3 py-1.5 text-[11px] font-bold text-primary shadow-card">Agregar</a>
+                    <span className="min-w-0 flex-1"><span className="block truncate text-xs font-bold">{it.titulo}</span><span className="text-t-nota text-textSecondary">{it.rotulo}</span></span>
+                    <a href={enlaceGoogle(it)} target="_blank" rel="noreferrer" className="shrink-0 rounded-full bg-white px-3 py-1.5 text-t-micro font-bold text-primary shadow-card">Agregar</a>
                   </div>
                 ))}
-                <p className="pt-1 text-[10px] text-textSecondary">Las clases se agregan repetidas cada semana; las tareas, en su fecha (se muestran las 15 más próximas).</p>
+                <p className="pt-1 text-t-nota text-textSecondary">Las clases se agregan repetidas cada semana; las tareas, en su fecha (se muestran las 15 más próximas).</p>
               </div>
             )}
           </section>

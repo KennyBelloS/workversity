@@ -74,18 +74,18 @@ function Corte({ c: cGuardado, evs, color, meta, tareasDisponibles, onCrear, onP
       <div className="mb-2 flex items-start justify-between gap-2">
         <div>
           <p className="text-sm font-extrabold">Corte {c.n} <span className="text-textSecondary">· {c.peso}%</span></p>
-          <span className="mt-0.5 inline-block rounded-full px-2 py-0.5 text-[10px] font-extrabold" style={{ backgroundColor: `${est.color}1F`, color: est.color }}>{est.texto}</span>
+          <span className="mt-0.5 inline-block rounded-full px-2 py-0.5 text-t-nota font-extrabold" style={{ backgroundColor: `${est.color}1F`, color: est.color }}>{est.texto}</span>
         </div>
         <div className="text-right">
           <p className="text-2xl font-extrabold leading-none" style={{ color: est.color }}>{grande != null ? f2(grande) : '—'}</p>
-          <p className="text-[10px] text-textSecondary">{c.completo ? 'nota del corte' : 'promedio actual'}</p>
+          <p className="text-t-nota text-textSecondary">{c.completo ? 'nota del corte' : 'promedio actual'}</p>
         </div>
       </div>
       <div className="mb-1 h-1.5 overflow-hidden rounded-full bg-bg"><div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, c.pctEvaluado)}%`, backgroundColor: color }} /></div>
-      <p className="mb-2 text-[10px] text-textSecondary">{c.pctEvaluado > 0 ? `${f2(c.pctEvaluado).replace(/\.00$/, '')}% calificado · suma ${f2(c.acumulado)} de 5.00 · mínimo para pasar: ${APRUEBA.toFixed(1)}` : 'Aún no hay notas en este corte'}</p>
+      <p className="mb-2 text-t-nota text-textSecondary">{c.pctEvaluado > 0 ? `${f2(c.pctEvaluado).replace(/\.00$/, '')}% calificado · suma ${f2(c.acumulado)} de 5.00 · mínimo para pasar: ${APRUEBA.toFixed(1)}` : 'Aún no hay notas en este corte'}</p>
 
       <div className="space-y-2">
-        {evs.length === 0 && <p className="rounded-sm2 bg-bg py-3 text-center text-[11px] text-textSecondary">Agrega qué vale cada cosa en este corte</p>}
+        {evs.length === 0 && <p className="rounded-sm2 bg-bg py-3 text-center text-t-micro text-textSecondary">Agrega qué vale cada cosa en este corte</p>}
         {evs.map((ev) => {
           const d = ver(ev);
           const tiene = d.items.length > 0;
@@ -115,8 +115,8 @@ function Corte({ c: cGuardado, evs, color, meta, tareasDisponibles, onCrear, onP
                     </div>
                   ))}
                   <div className="flex flex-wrap items-center gap-2 pt-0.5">
-                    <button onClick={() => editar(ev, { items: [...d.items, { n: `${nombreParte(d.nombre)} ${d.items.length + 1}`, nota: '' }] })} className="flex items-center gap-1 text-[11px] font-bold text-primary"><Plus size={11} /> Agregar {nombreParte(d.nombre).toLowerCase()}</button>
-                    <span className="text-[10px] text-textSecondary">{media.calificados}/{media.total} con nota · cada una vale {f2(parte).replace(/\.00$/, '')}% del corte</span>
+                    <button onClick={() => editar(ev, { items: [...d.items, { n: `${nombreParte(d.nombre)} ${d.items.length + 1}`, nota: '' }] })} className="flex items-center gap-1 text-t-micro font-bold text-primary"><Plus size={11} /> Agregar {nombreParte(d.nombre).toLowerCase()}</button>
+                    <span className="text-t-nota text-textSecondary">{media.calificados}/{media.total} con nota · cada una vale {f2(parte).replace(/\.00$/, '')}% del corte</span>
                   </div>
                 </div>
               )}
@@ -126,13 +126,13 @@ function Corte({ c: cGuardado, evs, color, meta, tareasDisponibles, onCrear, onP
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        <button onClick={() => onCrear()} className="flex items-center gap-1 rounded-full bg-primarySoft px-2.5 py-1 text-[11px] font-bold text-primary"><Plus size={12} /> Actividad</button>
-        <select value="" onChange={(e) => e.target.value !== '' && onPlantilla(Number(e.target.value))} className="rounded-full bg-bg px-2 py-1 text-[11px] font-bold outline-none" aria-label="Plantilla">
+        <button onClick={() => onCrear()} className="flex items-center gap-1 rounded-full bg-primarySoft px-2.5 py-1 text-t-micro font-bold text-primary"><Plus size={12} /> Actividad</button>
+        <select value="" onChange={(e) => e.target.value !== '' && onPlantilla(Number(e.target.value))} className="rounded-full bg-bg px-2 py-1 text-t-micro font-bold outline-none" aria-label="Plantilla">
           <option value="">Plantilla…</option>
           {PLANTILLAS.map((p, i) => <option key={p.txt} value={i}>{p.txt}</option>)}
         </select>
         {tareasDisponibles.length > 0 && (
-          <select value="" onChange={(e) => e.target.value && onDesdeTarea(e.target.value)} className="max-w-[9rem] rounded-full bg-bg px-2 py-1 text-[11px] font-bold outline-none" aria-label="Desde tareas">
+          <select value="" onChange={(e) => e.target.value && onDesdeTarea(e.target.value)} className="max-w-[9rem] rounded-full bg-bg px-2 py-1 text-t-micro font-bold outline-none" aria-label="Desde tareas">
             <option value="">Desde mis tareas…</option>
             {tareasDisponibles.map((t) => <option key={t.id} value={t.title}>{t.title}</option>)}
           </select>
@@ -143,15 +143,15 @@ function Corte({ c: cGuardado, evs, color, meta, tareasDisponibles, onCrear, onP
         <button onClick={guardar} disabled={!sucio} className="flex flex-1 items-center justify-center gap-1.5 rounded-sm2 bg-primary py-2 text-xs font-bold text-white disabled:opacity-40"><Save size={13} /> Guardar corte {c.n}</button>
         {sucio && <button onClick={() => { setBorr({}); setError(''); }} className="flex items-center gap-1 rounded-sm2 border border-black/10 px-3 py-2 text-xs font-bold text-textSecondary"><Undo2 size={13} /> Descartar</button>}
       </div>
-      {sucio && !error && <p className="mt-1.5 text-[11px] font-semibold text-warning">● Cambios sin guardar: los números de arriba ya los incluyen. Pulsa «Guardar corte {c.n}» (o Enter)</p>}
-      {guardado && <p className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-success"><Check size={13} /> Guardado</p>}
-      {error && <p className="mt-1.5 text-[11px] font-semibold text-danger">{error}</p>}
+      {sucio && !error && <p className="mt-1.5 text-t-micro font-semibold text-warning">● Cambios sin guardar: los números de arriba ya los incluyen. Pulsa «Guardar corte {c.n}» (o Enter)</p>}
+      {guardado && <p className="mt-1.5 flex items-center gap-1 text-t-micro font-bold text-success"><Check size={13} /> Guardado</p>}
+      {error && <p className="mt-1.5 text-t-micro font-semibold text-danger">{error}</p>}
 
       {(c.excede || c.sinDefinir > 0) && evs.length > 0 && (
-        <p className="mt-2 flex items-start gap-1 text-[11px] font-semibold text-warning"><AlertTriangle size={12} className="mt-0.5 shrink-0" />{c.excede ? `Las actividades suman ${c.pctTotal}% (más del 100% del corte).` : `Falta definir el ${c.sinDefinir}% del corte.`}</p>
+        <p className="mt-2 flex items-start gap-1 text-t-micro font-semibold text-warning"><AlertTriangle size={12} className="mt-0.5 shrink-0" />{c.excede ? `Las actividades suman ${c.pctTotal}% (más del 100% del corte).` : `Falta definir el ${c.sinDefinir}% del corte.`}</p>
       )}
       {!c.completo && c.pctEvaluado > 0 && n != null && (
-        <p className="mt-2 rounded-sm2 bg-bg p-2 text-[11px] font-semibold text-textSecondary">
+        <p className="mt-2 rounded-sm2 bg-bg p-2 text-t-micro font-semibold text-textSecondary">
           {n <= 0 ? `Ya aseguraste ${APRUEBA.toFixed(1)} en este corte.` : n > 5 ? `Este corte ya no llega a ${APRUEBA.toFixed(1)}; puedes compensarlo en los otros.` : `Para ganar este corte necesitas ${f2(n)} en el ${f2(c.faltante).replace(/\.00$/, '')}% que falta.`}
           {meta > APRUEBA && c.necesariaEnCorte != null && c.necesariaEnCorte > 0 && c.necesariaEnCorte <= 5 && ` Para tu meta de ${meta.toFixed(1)}: ${f2(c.necesariaEnCorte)}.`}
         </p>
@@ -206,9 +206,9 @@ export default function NotasCard({ materias, tareas = [] }) {
   };
   const guardarCambios = async (mapa) => { for (const [id, cambios] of Object.entries(mapa)) await actualizarEvaluacion(id, cambios); await cargar(); };
   const borrar = async (id) => { await eliminarEvaluacion(id); await cargar(); };
-  const colorCorte = ['#5B8DEF', '#8B7FD1', '#E5789C'];
+  const colorCorte = ['#3B5BA9', '#6B5FA8', '#AD5A77'];
   const pesoInput = (i) => (
-    <label key={i} className="flex items-center gap-1.5 whitespace-nowrap text-[11px] font-bold text-textSecondary">Corte {i + 1}
+    <label key={i} className="flex items-center gap-1.5 whitespace-nowrap text-t-micro font-bold text-textSecondary">Corte {i + 1}
       <input defaultValue={pesos[i]} key={`${g.id}-${i}-${pesos[i]}`} inputMode="decimal" aria-label={`Peso corte ${i + 1}`} className="w-14 rounded-sm2 bg-white px-2 py-1.5 text-center text-xs outline-none focus:ring-2 focus:ring-primary"
         onBlur={(e) => { const v = pctNum(e.target.value); if (v == null || v === pesos[i]) return; const p = [...pesos]; p[i] = v; guardarPesos(p); }} /> %
     </label>
@@ -218,7 +218,7 @@ export default function NotasCard({ materias, tareas = [] }) {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md2 bg-white p-4 shadow-card">
+      <div className="ficha">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="flex items-start gap-3">
             <GraduationCap size={20} className="mt-0.5 shrink-0 text-primary" />
@@ -229,14 +229,14 @@ export default function NotasCard({ materias, tareas = [] }) {
             </div>
           </div>
           <div>
-            <p className="mb-1 flex items-center gap-1 text-[11px] font-bold text-textSecondary"><Target size={12} /> Mi meta (opcional)</p>
+            <p className="mb-1 flex items-center gap-1 text-t-micro font-bold text-textSecondary"><Target size={12} /> Mi meta (opcional)</p>
             <div className="flex items-center gap-1">
               {[3, 3.5, 4, 4.5].map((v) => <button key={v} onClick={() => cambiarMeta(v)} className={`rounded-full px-2.5 py-1 text-xs font-bold ${meta === v ? 'bg-primary text-white' : 'bg-bg text-textSecondary'}`}>{v.toFixed(1)}</button>)}
             </div>
           </div>
         </div>
         {perdiendo.length > 0 && (
-          <p className="mt-3 rounded-sm2 bg-dangerSoft p-2.5 text-xs font-semibold text-danger">⚠️ Vas perdiendo: {perdiendo.map((f) => f.materia.nombre).join(', ')}. Toca la materia para ver cuánto necesitas.</p>
+          <p className="mt-3 rounded-sm2 bg-dangerSoft p-2.5 text-xs font-semibold text-danger">Vas perdiendo: {perdiendo.map((f) => f.materia.nombre).join(', ')}. Toca la materia para ver cuánto necesitas.</p>
         )}
       </div>
       {error && <p className="rounded-sm2 bg-dangerSoft p-3 text-xs font-semibold text-danger">{error} — ¿ejecutaste el SQL de las notas en Supabase?</p>}
@@ -248,35 +248,35 @@ export default function NotasCard({ materias, tareas = [] }) {
           return (
             <button key={f.materia.id} onClick={() => setSel(f.materia.id)} className={`shrink-0 rounded-md2 px-3.5 py-2.5 text-left shadow-card transition ${activo ? 'ring-2' : 'bg-white'}`} style={{ backgroundColor: activo ? `${f.materia.color_value}1F` : undefined, '--tw-ring-color': f.materia.color_value }}>
               <p className="flex items-center gap-1.5 text-xs font-extrabold"><span className="h-2 w-2 rounded-full" style={{ backgroundColor: f.materia.color_value }} />{f.materia.nombre}</p>
-              <p className="text-[11px] font-bold" style={{ color: e.color }}>{f.m.hayDatos ? `${f2(f.m.final ?? f.m.acumulado)}${f.m.final == null && f.m.proyectada != null ? ` → ${f2(f.m.proyectada)}` : ''} · ${e.texto}` : 'Sin evaluaciones'}</p>
+              <p className="text-t-micro font-bold" style={{ color: e.color }}>{f.m.hayDatos ? `${f2(f.m.final ?? f.m.acumulado)}${f.m.final == null && f.m.proyectada != null ? ` → ${f2(f.m.proyectada)}` : ''} · ${e.texto}` : 'Sin evaluaciones'}</p>
             </button>
           );
         })}
       </div>
 
-      <div className="rounded-md2 bg-white p-4 shadow-card" style={{ borderTop: `4px solid ${g.color_value}` }}>
+      <div className="ficha" style={{ borderTop: `4px solid ${g.color_value}` }}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-lg font-extrabold">{g.nombre}</p>
-            <span className="rounded-full px-2.5 py-0.5 text-[11px] font-extrabold" style={{ backgroundColor: `${est.color}1F`, color: est.color }}>{est.texto}</span>
+            <span className="rounded-full px-2.5 py-0.5 text-t-micro font-extrabold" style={{ backgroundColor: `${est.color}1F`, color: est.color }}>{est.texto}</span>
           </div>
           <div className="flex gap-5 text-right">
-            <div><p className="text-3xl font-extrabold leading-none" style={{ color: est.color }}>{m.hayDatos ? f2(m.final ?? m.acumulado) : '—'}</p><p className="text-[10px] text-textSecondary">{m.final != null ? 'definitiva' : 'acumulado'}</p></div>
-            {m.proyectada != null && m.final == null && <div><p className="text-3xl font-extrabold leading-none text-textSecondary">{f2(m.proyectada)}</p><p className="text-[10px] text-textSecondary">proyectada</p></div>}
+            <div><p className="text-3xl font-extrabold leading-none" style={{ color: est.color }}>{m.hayDatos ? f2(m.final ?? m.acumulado) : '—'}</p><p className="text-t-nota text-textSecondary">{m.final != null ? 'definitiva' : 'acumulado'}</p></div>
+            {m.proyectada != null && m.final == null && <div><p className="text-3xl font-extrabold leading-none text-textSecondary">{f2(m.proyectada)}</p><p className="text-t-nota text-textSecondary">proyectada</p></div>}
           </div>
         </div>
 
         {m.hayDatos && (
           <div className="mt-3 space-y-1.5">
             <p className="rounded-sm2 p-3 text-sm font-semibold" style={{ backgroundColor: `${est.color}14`, color: est.color }}>
-              {m.estado === 'aprobada' && `¡Aprobada con ${f2(m.final)}! 🎉`}
+              {m.estado === 'aprobada' && `¡Aprobada con ${f2(m.final)}!`}
               {m.estado === 'reprobada' && `Terminó en ${f2(m.final)}: no llegó a ${APRUEBA.toFixed(1)}, la materia se pierde.`}
-              {m.estado === 'asegurada' && `¡Ya aseguraste la materia! Con ${f2(m.acumulado)} acumulado aprobarás aunque saques 0 en lo que falta. 🎉`}
+              {m.estado === 'asegurada' && `¡Ya aseguraste la materia! Con ${f2(m.acumulado)} acumulado aprobarás aunque saques 0 en lo que falta.`}
               {m.estado === 'imposible' && `Con ${f2(m.acumulado)} acumulado ya no llegas a ${APRUEBA.toFixed(1)}, ni sacando 5.0 en lo que falta (necesitarías ${f2(m.necesariaAprobar)}). Habla con tu profesor sobre opciones.`}
               {(m.estado === 'ok' || m.estado === 'riesgo') && `${ritmoTxt} Para aprobar necesitas promediar ${f2(m.necesariaAprobar)} en el ${Math.round(m.pendiente * 100)}% de la nota que falta.`}
             </p>
-            {meta > APRUEBA && m.necesaria != null && m.necesaria > 0 && m.necesaria <= 5 && <p className="text-xs font-semibold text-textSecondary">🎯 Para tu meta de {meta.toFixed(1)} necesitas promediar {f2(m.necesaria)} en lo que falta.</p>}
-            {meta > APRUEBA && m.necesaria != null && m.necesaria > 5 && <p className="text-xs font-semibold text-textSecondary">🎯 Tu meta de {meta.toFixed(1)} ya no es alcanzable; aprobar con {APRUEBA.toFixed(1)} sí depende de ti.</p>}
+            {meta > APRUEBA && m.necesaria != null && m.necesaria > 0 && m.necesaria <= 5 && <p className="text-xs font-semibold text-textSecondary">Para tu meta de {meta.toFixed(1)} necesitas promediar {f2(m.necesaria)} en lo que falta.</p>}
+            {meta > APRUEBA && m.necesaria != null && m.necesaria > 5 && <p className="text-xs font-semibold text-textSecondary">Tu meta de {meta.toFixed(1)} ya no es alcanzable; aprobar con {APRUEBA.toFixed(1)} sí depende de ti.</p>}
           </div>
         )}
 
@@ -284,8 +284,8 @@ export default function NotasCard({ materias, tareas = [] }) {
           <p className="text-xs font-extrabold">Peso de cada corte</p>
           {[0, 1, 2].map(pesoInput)}
           <span className={`text-xs font-bold ${m.pesosValidos ? 'text-success' : 'text-danger'}`}>= {m.pesosSuman}%</span>
-          {!m.pesosValidos && <button onClick={() => guardarPesos(autoajustarPesos(pesos))} className="rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold text-white">Ajustar al 100%</button>}
-          {(pesos[0] !== 35 || pesos[1] !== 35 || pesos[2] !== 30) && <button onClick={() => guardarPesos(PESOS_POR_DEFECTO)} className="text-[11px] font-bold text-textSecondary underline">Volver a 35 · 35 · 30</button>}
+          {!m.pesosValidos && <button onClick={() => guardarPesos(autoajustarPesos(pesos))} className="rounded-full bg-primary px-2.5 py-1 text-t-micro font-bold text-white">Ajustar al 100%</button>}
+          {(pesos[0] !== 35 || pesos[1] !== 35 || pesos[2] !== 30) && <button onClick={() => guardarPesos(PESOS_POR_DEFECTO)} className="text-t-micro font-bold text-textSecondary underline">Volver a 35 · 35 · 30</button>}
         </div>
 
         <div className="mt-4 grid gap-3 lg:grid-cols-3">
@@ -303,11 +303,11 @@ export default function NotasCard({ materias, tareas = [] }) {
             <div className="flex items-center gap-3">
               <input type="range" min={0} max={5} step={0.1} value={hipotetica} onChange={(e) => setHipotetica(Number(e.target.value))} className="flex-1 accent-primary" aria-label="Nota hipotética" />
               <span className="w-10 text-center text-sm font-extrabold">{hipotetica.toFixed(1)}</span>
-              <span className="text-sm font-bold">→ definitiva <span style={{ color: simular(m, hipotetica) >= APRUEBA ? '#17C964' : '#E5484D' }}>{f2(simular(m, hipotetica))}</span> {simular(m, hipotetica) >= APRUEBA ? '✓' : '✗'}</span>
+              <span className="text-sm font-bold">→ definitiva <span style={{ color: simular(m, hipotetica) >= APRUEBA ? '#2F7A55' : '#B04A3E' }}>{f2(simular(m, hipotetica))}</span> {simular(m, hipotetica) >= APRUEBA ? '✓' : '✗'}</span>
             </div>
           </div>
         )}
-        <p className="mt-3 text-[11px] text-textSecondary">Nota final = Σ (nota de cada corte × peso del corte). Nota de un corte = Σ (nota de cada actividad × su % dentro del corte). Si una actividad tiene partes (talleres, quices…), todas valen lo mismo y su nota es el promedio.</p>
+        <p className="mt-3 text-t-micro text-textSecondary">Nota final = Σ (nota de cada corte × peso del corte). Nota de un corte = Σ (nota de cada actividad × su % dentro del corte). Si una actividad tiene partes (talleres, quices…), todas valen lo mismo y su nota es el promedio.</p>
       </div>
     </div>
   );

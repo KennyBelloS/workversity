@@ -11,7 +11,7 @@ const OPCIONES = [
 
 export function ViewSelector({ value, onChange }) {
   return (
-    <div className="flex gap-1 overflow-x-auto rounded-full bg-white p-1 shadow-card">
+    <div className="seg overflow-x-auto">
       {OPCIONES.map((o) => {
         const Icono = o.icon;
         const sel = value === o.value;
@@ -19,9 +19,7 @@ export function ViewSelector({ value, onChange }) {
           <button
             key={o.value}
             onClick={() => onChange(o.value)}
-            className={`flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-[12.5px] font-bold transition ${
-              sel ? 'bg-primary text-white' : 'text-textSecondary hover:bg-black/5'
-            }`}
+            className={`seg-op ${sel ? 'activo' : ''}`}
           >
             <Icono size={14} />
             {o.label}
@@ -34,29 +32,18 @@ export function ViewSelector({ value, onChange }) {
 
 export function FilterTabs({ value, onChange }) {
   const opciones = [
-    { key: null, label: 'Unidos', color: '#6FA8DC' },
+    { key: null, label: 'Todas', color: null },
     { key: 'universidad', label: CATEGORIES.universidad.label, color: CATEGORIES.universidad.color },
     { key: 'trabajo', label: CATEGORIES.trabajo.label, color: CATEGORIES.trabajo.color },
   ];
   return (
-    <div className="flex gap-2">
-      {opciones.map((o) => {
-        const sel = value === o.key;
-        return (
-          <button
-            key={o.label}
-            onClick={() => onChange(o.key)}
-            className="flex-1 rounded-full border py-2.5 text-xs font-bold transition"
-            style={{
-              backgroundColor: sel ? o.color : 'transparent',
-              borderColor: sel ? o.color : 'rgba(0,0,0,0.08)',
-              color: sel ? 'white' : '#6E7180',
-            }}
-          >
-            {o.label}
-          </button>
-        );
-      })}
+    <div className="seg">
+      {opciones.map((o) => (
+        <button key={o.label} onClick={() => onChange(o.key)} className={`seg-op ${value === o.key ? 'activo' : ''}`}>
+          {o.color && <span className="h-[6px] w-[6px] rounded-full" style={{ backgroundColor: o.color }} />}
+          {o.label}
+        </button>
+      ))}
     </div>
   );
 }

@@ -17,14 +17,14 @@ export function MateriaCard({ materia, onClick }) {
     >
       <div className="flex items-start justify-between gap-2">
         <p className="font-bold text-textPrimary">{materia.nombre}</p>
-        <span className="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: `${prioridad.color}1F`, color: prioridad.color }}>
+        <span className="shrink-0 rounded-full px-2 py-0.5 text-t-nota font-bold" style={{ backgroundColor: `${prioridad.color}1F`, color: prioridad.color }}>
           {prioridad.label}
         </span>
       </div>
       <p className="mt-1 text-xs font-semibold text-textSecondary">
         {DIAS_SEMANA[materia.day_of_week - 1]} · {minutosAHora(materia.start_minutes)} – {minutosAHora(materia.end_minutes)}
       </p>
-      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-textSecondary">
+      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-t-micro text-textSecondary">
         {materia.profesor && <span className="flex items-center gap-1"><User size={12} />{materia.profesor}</span>}
         {materia.es_virtual && <span className="flex items-center gap-1 font-bold text-info"><Video size={12} />Virtual</span>}
         {materia.salon && <span className="flex items-center gap-1"><MapPin size={12} />{materia.salon}</span>}
@@ -164,7 +164,7 @@ export function MateriaModal({ materiaExistente, onGuardar, onEliminar, onCerrar
                   key={key}
                   onClick={() => setPrioridad(key)}
                   className="rounded-sm2 border py-2.5 text-xs font-bold"
-                  style={{ borderColor: prioridad === key ? info.color : 'rgba(0,0,0,0.08)', backgroundColor: prioridad === key ? `${info.color}24` : 'transparent', color: prioridad === key ? info.color : '#6E7180' }}
+                  style={{ borderColor: prioridad === key ? info.color : 'rgba(0,0,0,0.08)', backgroundColor: prioridad === key ? `${info.color}24` : 'transparent', color: prioridad === key ? info.color : '#807F7A' }}
                 >
                   {info.label}
                 </button>

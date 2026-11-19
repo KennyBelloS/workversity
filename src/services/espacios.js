@@ -94,3 +94,55 @@ export async function responderSolicitud(id, estado) {
 export async function eliminarSolicitud(id) {
   await eliminarConfirmando('solicitudes_horario', id, 'eliminar la solicitud');
 }
+
+/** ¿El error viene de que la tabla todavía no existe en la base de datos? (falta correr el SQL) */
+const faltaTabla = (err) => /no está al día|does not exist|could not find the table|schema cache|PGRST205|42P01/i.test(err?.message || '');
+/**
+ * ¿El error es "esa columna no existe"? Pasa cuando la app ya trae una función nueva pero la
+ * base de datos todavía no corrió el SQL. PostgREST lo reporta como PGRST204 o 42703.
+ */
+const faltaColumna = (err, col) => {
+  const txt = `${err?.message || ''} ${err?.details || ''} ${err?.hint || ''}`;
+  if (['PGRST204', '42703'].includes(err?.code)) return true;
+  return /column|columna|schema cache/i.test(txt) && (!col || txt.includes(col));
+};
+
+/**
+ * Horarios que los miembros publicaron en este espacio. Si la base de datos todavía no tiene
+ * la tabla (falta correr supabase/schema.sql), se devuelve `disponible: false` en vez de
+ * romper la pantalla.
+ */
+export async function listarHorariosCompartidos(espacioId) {
+  try {
+    const data = await llamar(supabase.from('horarios_compartidos').select('*').eq('espacio_id', espacioId), 'cargar los horarios del grupo');
+    return { disponible: true, horarios: data || [] };
+  } catch (err) {
+    if (faltaTabla(err)) return { disponible: false, horarios: [] };
+    throw err;
+  }
+}
+
+/**
+ * Publica (o actualiza) mi semana en el espacio. `bloques` ya viene filtrado por el alcance,
+ * así que lo que no se comparte nunca sale del dispositivo. Si la base de datos todavía no
+ * tiene la columna `alcance` (falta correr el SQL nuevo), se guarda sin ella.
+ */
+export async function publicarMiHorario(espacioId, userId, bloques, alcance = 'todo') {
+  const fila = { espacio_id: espacioId, user_id: userId, bloques, actualizado: new Date().toISOString() };
+  const subir = (cuerpo) => supabase.from('horarios_compartidos').upsert(cuerpo, { onConflict: 'espacio_id,user_id' });
+
+  // Primer intento con el alcance. Se mira el error CRUDO (sin traducir), porque si la base de
+  // datos todavía no corrió el SQL nuevo, lo único que dice es que no existe esa columna.
+  const { error } = await subir({ ...fila, alcance });
+  if (!error) return;
+  if (!faltaColumna(error, 'alcance')) throw new Error(mensajeAmigable(error, 'compartir tu horario'));
+
+  // La base de datos es de una versión anterior: se guarda sin alcance (comparte la semana
+  // completa, como antes) para no dejar a la persona bloqueada por una migración pendiente.
+  await llamar(subir(fila), 'compartir tu horario');
+}
+
+/** Retira mi horario del espacio. */
+export async function retirarMiHorario(espacioId, userId) {
+  await llamar(supabase.from('horarios_compartidos').delete().eq('espacio_id', espacioId).eq('user_id', userId), 'dejar de compartir tu horario');
+}

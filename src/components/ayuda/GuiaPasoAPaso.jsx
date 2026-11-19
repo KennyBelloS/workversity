@@ -1,8 +1,8 @@
 /** Guía paso a paso descriptiva (Grupo, Parciales…): cada paso con su número, título y explicación. */
 export default function GuiaPasoAPaso({ titulo, icono: Icono, color, pasos }) {
   return (
-    <section className="rounded-md2 bg-white p-4 shadow-card">
-      <p className="mb-3 flex items-center gap-2 text-sm font-extrabold"><Icono size={16} style={{ color }} /> {titulo}</p>
+    <section className="ficha">
+      <p className="rotulo mb-3 flex items-center gap-1.5"><Icono size={16} style={{ color }} /> {titulo}</p>
       <ol className="space-y-3">
         {pasos.map(([t, d], i) => (
           <li key={t} className="flex gap-3">

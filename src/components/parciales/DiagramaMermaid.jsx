@@ -19,9 +19,8 @@ export default function DiagramaMermaid({ codigo, oscuro }) {
         const { svg } = await mermaid.render(id, codigo);
         if (vivo && contenedor.current) {
           contenedor.current.innerHTML = svg;
-          // Mermaid calcula un tamaño en píxeles fijo para el SVG (a veces muy chico,
-          // sobre todo con pocos nodos). Se quita ese alto fijo y se deja crecer hasta
-          // llenar el ancho disponible, manteniendo la proporción del dibujo original.
+          // Mermaid deja un alto fijo en píxeles (a veces diminuto según cuántos nodos tenga).
+          // Se quita y se fuerza un tamaño responsivo para que el mapa se vea a buen tamaño.
           const svgEl = contenedor.current.querySelector('svg');
           if (svgEl) {
             svgEl.removeAttribute('height');

@@ -31,7 +31,7 @@ export default function SubirFuente({ onExtraido }) {
         <Loader2 size={22} className="animate-spin text-primary" />
         <p className="text-sm font-bold">{progreso.etapa}</p>
         {progreso.pct != null && <div className="h-1.5 w-40 overflow-hidden rounded-full bg-bg"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progreso.pct}%` }} /></div>}
-        <p className="text-[11px] text-textSecondary">Esto pasa en tu propio navegador; nada se sube a internet.</p>
+        <p className="text-t-micro text-textSecondary">Esto pasa en tu propio navegador; nada se sube a internet.</p>
       </div>
     );
   }
@@ -53,7 +53,7 @@ export default function SubirFuente({ onExtraido }) {
         </div>
       )}
       {error && <p className="rounded-sm2 bg-dangerSoft p-2.5 text-xs font-semibold text-danger">{error}</p>}
-      <p className="text-[11px] text-textSecondary">Admite PDF, Word (.docx), Excel (.xlsx/.csv), fotos de apuntes (con buena luz) y texto pegado.</p>
+      <p className="text-t-micro text-textSecondary">Admite PDF, Word (.docx), Excel (.xlsx/.csv), fotos de apuntes (con buena luz) y texto pegado.</p>
     </div>
   );
 }

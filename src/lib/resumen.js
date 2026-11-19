@@ -88,21 +88,21 @@ function generarInsights(r, rango) {
   const puntos = {};
   r.dias.forEach((d) => { const k = d.fecha.getDay(); puntos[k] = (puntos[k] || 0) + d.hechas * 2 + d.minutos / 25; });
   const mejor = Object.entries(puntos).sort((a, b) => b[1] - a[1])[0];
-  if (mejor && mejor[1] > 0) frases.push(`📈 Tu día más productivo fue el ${NOMBRES[mejor[0]]}.`);
+  if (mejor && mejor[1] > 0) frases.push(`Tu día más productivo fue el ${NOMBRES[mejor[0]]}.`);
   if (r.hechasPrevio != null) {
     const dif = r.hechas - r.hechasPrevio;
-    if (dif > 0) frases.push(`🚀 Completaste ${dif} tarea${dif > 1 ? 's' : ''} más que el ${rango.modo === 'mes' ? 'mes' : 'periodo'} anterior.`);
-    else if (dif < 0) frases.push(`📉 Completaste ${-dif} tarea${dif < -1 ? 's' : ''} menos que el periodo anterior: revisa qué te frenó.`);
-    else if (r.hechas > 0) frases.push('⚖️ Mantuviste el mismo ritmo que el periodo anterior.');
+    if (dif > 0) frases.push(`Completaste ${dif} tarea${dif > 1 ? 's' : ''} más que el ${rango.modo === 'mes' ? 'mes' : 'periodo'} anterior.`);
+    else if (dif < 0) frases.push(`Completaste ${-dif} tarea${dif < -1 ? 's' : ''} menos que el periodo anterior: revisa qué te frenó.`);
+    else if (r.hechas > 0) frases.push('Mantuviste el mismo ritmo que el periodo anterior.');
   }
-  if (r.vencidas > 0) frases.push(`⚠️ Tienes ${r.vencidas} tarea${r.vencidas > 1 ? 's' : ''} vencida${r.vencidas > 1 ? 's' : ''} en este periodo. Reprograma o ciérralas.`);
+  if (r.vencidas > 0) frases.push(`Tienes ${r.vencidas} tarea${r.vencidas > 1 ? 's' : ''} vencida${r.vencidas > 1 ? 's' : ''} en este periodo. Reprograma o ciérralas.`);
   const carga = [...r.filas].sort((a, b) => b.activas - a.activas)[0];
-  if (carga && carga.activas > 0) frases.push(`📚 ${carga.nombre} es la materia con más tareas activas (${carga.activas}).`);
-  if (r.minutosEnfoque >= 60) frases.push(`⏱️ Dedicaste ${(r.minutosEnfoque / 60).toFixed(1)} h de enfoque con Pomodoro.`);
-  else if (r.minutosEnfoque > 0) frases.push(`⏱️ Llevas ${r.minutosEnfoque} min de enfoque con Pomodoro: una hora en total ya es un gran logro.`);
-  else frases.push('⏱️ Aún no registras enfoque con Pomodoro: 25 minutos ya cuentan.');
-  if (r.ahorro > 0 && r.ingresos > 0) frases.push(`💰 Ahorraste el ${Math.round((r.ahorro / r.ingresos) * 100)}% de tus ingresos.`);
-  else if (r.gastos > r.ingresos && r.gastos > 0) frases.push('💸 Tus gastos superaron tus ingresos en este periodo.');
+  if (carga && carga.activas > 0) frases.push(`${carga.nombre} es la materia con más tareas activas (${carga.activas}).`);
+  if (r.minutosEnfoque >= 60) frases.push(`Dedicaste ${(r.minutosEnfoque / 60).toFixed(1)} h de enfoque con Pomodoro.`);
+  else if (r.minutosEnfoque > 0) frases.push(`Llevas ${r.minutosEnfoque} min de enfoque con Pomodoro: una hora en total ya es un gran logro.`);
+  else frases.push('Aún no registras enfoque con Pomodoro: 25 minutos ya cuentan.');
+  if (r.ahorro > 0 && r.ingresos > 0) frases.push(`Ahorraste el ${Math.round((r.ahorro / r.ingresos) * 100)}% de tus ingresos.`);
+  else if (r.gastos > r.ingresos && r.gastos > 0) frases.push('Tus gastos superaron tus ingresos en este periodo.');
   return frases;
 }
 

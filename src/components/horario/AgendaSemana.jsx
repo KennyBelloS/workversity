@@ -34,7 +34,7 @@ export default function AgendaSemana({ inicioSemana, eventos, onAbrir }) {
           <div className="h-12" />
           <div className="relative" style={{ height: alto }}>
             {horas.map((h) => (
-              <span key={h} className="absolute -translate-y-1/2 text-[10px] font-semibold text-textSecondary" style={{ top: (h - desde) * PX_HORA }}>
+              <span key={h} className="absolute -translate-y-1/2 text-t-nota font-semibold text-textSecondary" style={{ top: (h - desde) * PX_HORA }}>
                 {minutosAHora(h * 60)}
               </span>
             ))}
@@ -48,7 +48,7 @@ export default function AgendaSemana({ inicioSemana, eventos, onAbrir }) {
           return (
             <div key={nombre} className={`relative min-w-0 flex-1 border-l border-black/5 ${esHoy ? 'bg-primarySoft/40' : ''}`}>
               <div className="flex h-12 flex-col items-center justify-center">
-                <span className="text-[11px] font-bold text-textSecondary">{nombre.slice(0, 3)}</span>
+                <span className="text-t-micro font-bold text-textSecondary">{nombre.slice(0, 3)}</span>
                 <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-extrabold ${esHoy ? 'bg-primary text-white' : 'text-textPrimary'}`}>
                   {fecha.getDate()}
                 </span>
@@ -78,11 +78,11 @@ export default function AgendaSemana({ inicioSemana, eventos, onAbrir }) {
                         borderLeft: `3px ${esTarea ? 'dashed' : 'solid'} ${e.color}`,
                       }}
                     >
-                      <p className="flex items-center gap-1 truncate text-[10.5px] font-bold" style={{ color: e.color }}>
+                      <p className="flex items-center gap-1 truncate text-t-nota font-bold" style={{ color: e.color }}>
                         {esTarea && <Check size={10} />} {e.virtual && <Video size={10} />}
                         <span className={`truncate ${e.hecha ? 'line-through' : ''}`}>{e.titulo}</span>
                       </p>
-                      {h > 36 && <p className="truncate text-[9.5px] text-textSecondary">{minutosAHora(e.inicio.getHours() * 60 + e.inicio.getMinutes())}{e.detalle ? ` · ${e.detalle}` : ''}</p>}
+                      {h > 36 && <p className="truncate text-t-nota text-textSecondary">{minutosAHora(e.inicio.getHours() * 60 + e.inicio.getMinutes())}{e.detalle ? ` · ${e.detalle}` : ''}</p>}
                     </button>
                   );
                 })}

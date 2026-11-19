@@ -14,13 +14,10 @@ export function mensajeAmigable(err, accion) {
       : 'Esto necesita conexión a internet. Cuando la tengas, intenta de nuevo.';
   }
   const msg = String(err?.message || err || '').trim();
-  // No se intenta adivinar qué mensajes técnicos "se ven raros" (esa lista nunca está
-  // completa: justo así se coló antes un error crudo de IndexedDB). En cambio, se
-  // asume lo contrario: un mensaje solo se muestra tal cual si está en español —así
-  // es como escribimos nosotros mismos los avisos pensados para la persona (p. ej.
-  // "Ese código no existe o ya no es válido."). Cualquier otra cosa —en inglés, con
-  // nombres de clases de JavaScript, trazas de pila, jerga de navegador— cae al
-  // mensaje genérico, sin importar qué forma tenga.
+  // Lista blanca, no lista negra: en vez de tratar de reconocer CADA forma de error técnico
+  // (imposible: siempre aparece una nueva, como pasó con el de IndexedDB), solo se muestra el
+  // mensaje tal cual si de verdad parece estar escrito en español. Cualquier otra cosa —clases
+  // de error de JS, mensajes del navegador, stacks— cae siempre al mensaje genérico.
   const pareceEspanol = /[áéíóúñÁÉÍÓÚÑ¿¡]/.test(msg);
   if (!msg || !pareceEspanol) {
     return `No se pudo ${accion || 'completar la acción'}. Intenta de nuevo.`;

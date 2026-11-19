@@ -13,11 +13,11 @@ describe('vista previa dinámica', () => {
     expect(cuentaAtras(-5000).vencida).toBe(true);
   });
   it('color según urgencia', () => {
-    expect(colorUrgencia(1 * H)).toBe('#E5484D');
-    expect(colorUrgencia(10 * H)).toBe('#F5A524');
-    expect(colorUrgencia(48 * H)).toBe('#3E7BFA');
-    expect(colorUrgencia(200 * H)).toBe('#17C964');
-    expect(colorUrgencia(-1, true)).toBe('#17C964');
+    expect(colorUrgencia(1 * H)).toBe('#B04A3E');
+    expect(colorUrgencia(10 * H)).toBe('#A8732A');
+    expect(colorUrgencia(48 * H)).toBe('#2E4BF0');
+    expect(colorUrgencia(200 * H)).toBe('#2F7A55');
+    expect(colorUrgencia(-1, true)).toBe('#2F7A55');
   });
   it('fracción del tiempo transcurrido', () => {
     const t = { created_at: new Date(2026, 8, 20, 9).toISOString(), due_date: new Date(2026, 8, 22, 9).toISOString() };

@@ -33,10 +33,10 @@ export default class ErrorBoundary extends Component {
     return (
       <div className="flex min-h-screen items-center justify-center bg-bg px-4">
         <div className="w-full max-w-sm rounded-lg2 bg-white p-8 text-center shadow-card">
-          <p className="text-3xl">😵</p>
+          <p className="text-3xl"></p>
           <h1 className="mt-2 text-lg font-extrabold text-textPrimary">Algo salió mal</h1>
           <p className="mt-1 text-sm text-textSecondary">La pantalla no pudo cargarse. Tus datos no se perdieron.</p>
-          <p className="mt-3 break-words rounded-sm2 bg-bg p-2 text-[11px] text-textSecondary">
+          <p className="mt-3 break-words rounded-sm2 bg-bg p-2 text-t-micro text-textSecondary">
             {String(this.state.error?.message || this.state.error)}
           </p>
           <button

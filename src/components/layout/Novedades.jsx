@@ -29,7 +29,7 @@ export default function Novedades() {
     if (compararVersiones(VERSION, visto) <= 0) return undefined;
     const nuevas = RELEASES.filter((r) => compararVersiones(r.version, visto) > 0 && compararVersiones(r.version, VERSION) <= 0);
     if (nuevas.length === 0) { try { localStorage.setItem(CLAVE_VISTA, VERSION); } catch { /* nada */ } return undefined; }
-    const t = setTimeout(() => setModal({ tipo: 'actualizado', titulo: `🎉 Workversity se actualizó a la versión ${VERSION}`, releases: nuevas }), 1200);
+    const t = setTimeout(() => setModal({ tipo: 'actualizado', titulo: `Workversity se actualizó a la versión ${VERSION}`, releases: nuevas }), 1200);
     return () => clearTimeout(t);
   }, []);
 
@@ -61,7 +61,7 @@ export default function Novedades() {
         <div className="mt-3 space-y-5">
           {modal.releases.map((r) => (
             <section key={r.version}>
-              <p className="text-sm font-extrabold">Versión {r.version} <span className="text-[11px] font-medium text-textSecondary">· {fechaBonita(r.fecha)}</span></p>
+              <p className="text-sm font-extrabold">Versión {r.version} <span className="text-t-micro font-medium text-textSecondary">· {fechaBonita(r.fecha)}</span></p>
               <p className="mb-2 text-xs text-textSecondary">{r.titulo}</p>
               <CambiosDeVersion release={r} />
             </section>

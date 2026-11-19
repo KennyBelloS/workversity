@@ -6,6 +6,7 @@ import { useSyncEstado } from '../hooks/useSyncEstado';
 import { listarApuntes, crearApunte, actualizarApunte, eliminarApunte } from '../services/apuntes';
 import { listarMaterias } from '../services/materias';
 import { TIPOS_APUNTE, etiquetaTipo, colorTipo } from '../lib/apuntes';
+import EstadoVacio from '../components/ui/EstadoVacio';
 
 const FILTROS = [{ id: 'todos', t: 'Todos' }, ...TIPOS_APUNTE];
 
@@ -37,7 +38,7 @@ export default function Apuntes() {
     <div>
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-sm text-textSecondary">Tu cuaderno digital: apuntes de clase, de tareas o de proyectos, con mapas mentales y conceptuales.</p>
-        <button onClick={crear} className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-white"><Plus size={18} /> Nuevo apunte</button>
+        <button onClick={crear} className="boton-ppal"><Plus size={18} /> Nuevo apunte</button>
       </div>
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -51,18 +52,29 @@ export default function Apuntes() {
       </div>
 
       {filtrados.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-md2 bg-white py-16 shadow-card">
-          <NotebookPen size={32} className="text-textSecondary/40" />
-          <p className="text-sm text-textSecondary">{apuntes.length === 0 ? 'Crea tu primer apunte para empezar' : 'Nada por aquí con ese filtro'}</p>
-        </div>
+        apuntes.length === 0 ? (
+          <EstadoVacio
+            titulo="Tu cuaderno todavía está en blanco."
+            texto="Guarda aquí lo de clase, lo del trabajo y las ideas sueltas. Después un apunte se convierte en tarjetas de estudio en un toque."
+            accion={{ texto: 'Escribir mi primer apunte', onClick: crear }}
+            muestras={[
+              { titulo: 'Clase 4 · Integrales por partes', pie: 'Cálculo II', icono: '📓' },
+              { titulo: 'Reunión con el jefe', pie: 'martes', icono: '🤝', tono: 'oscuro' },
+              { titulo: 'Mapa mental', pie: '7 nodos', icono: '🧭' },
+              { titulo: 'Idea para el proyecto', pie: 'sin materia', icono: '💡' },
+            ]}
+          />
+        ) : (
+          <EstadoVacio tenue titulo="Nada por aquí con ese filtro." texto="Prueba con otra pestaña o limpia la búsqueda." />
+        )
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtrados.map((a) => {
             const materia = materias.find((m) => m.id === a.materia_id);
             return (
-              <Link key={a.id} to={`/apuntes/${a.id}`} className="rounded-md2 bg-white p-4 shadow-card transition hover:shadow-md">
+              <Link key={a.id} to={`/apuntes/${a.id}`} className="ficha">
                 <div className="mb-1.5 flex items-center justify-between gap-2">
-                  <span className="rounded-full px-2 py-0.5 text-[10px] font-extrabold text-white" style={{ backgroundColor: colorTipo(a.tipo) }}>{etiquetaTipo(a.tipo)}</span>
+                  <span className="rounded-full px-2 py-0.5 text-t-nota font-extrabold text-white" style={{ backgroundColor: colorTipo(a.tipo) }}>{etiquetaTipo(a.tipo)}</span>
                   <div className="flex shrink-0 gap-1">
                     <button onClick={(e) => favorito(a, e)} aria-label="Favorito" className={a.favorito ? 'text-warning' : 'text-textSecondary/40 hover:text-warning'}><Star size={15} fill={a.favorito ? 'currentColor' : 'none'} /></button>
                     <button onClick={(e) => borrar(a.id, e)} aria-label="Eliminar" className="text-textSecondary/40 hover:text-danger"><Trash2 size={15} /></button>

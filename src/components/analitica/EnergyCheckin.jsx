@@ -6,11 +6,11 @@ import { tareasAReprogramarPorBajaEnergia } from '../../lib/motorAnalitica';
 import { useAuth } from '../../context/AuthContext';
 
 const NIVELES = [
-  { valor: 1, label: 'Agotado', icon: BatteryLow, color: '#E5484D' },
-  { valor: 2, label: 'Bajo', icon: BatteryLow, color: '#F5A524' },
-  { valor: 3, label: 'Normal', icon: BatteryMedium, color: '#F5A524' },
-  { valor: 4, label: 'Bien', icon: BatteryMedium, color: '#17C964' },
-  { valor: 5, label: 'A tope', icon: BatteryFull, color: '#17C964' },
+  { valor: 1, label: 'Agotado', icon: BatteryLow, color: '#B04A3E' },
+  { valor: 2, label: 'Bajo', icon: BatteryLow, color: '#A8732A' },
+  { valor: 3, label: 'Normal', icon: BatteryMedium, color: '#A8732A' },
+  { valor: 4, label: 'Bien', icon: BatteryMedium, color: '#2F7A55' },
+  { valor: 5, label: 'A tope', icon: BatteryFull, color: '#2F7A55' },
 ];
 
 export default function EnergyCheckin({ onReorganizado }) {
@@ -69,8 +69,8 @@ export default function EnergyCheckin({ onReorganizado }) {
   if (cargando) return null;
 
   return (
-    <div className="rounded-md2 bg-white p-4 shadow-card">
-      <p className="mb-3 text-sm font-bold">¿Cómo está tu energía hoy?</p>
+    <div className="ficha">
+      <p className="rotulo mb-3">¿Cómo está tu energía hoy?</p>
       <div className="flex gap-2">
         {NIVELES.map((n) => {
           const Icono = n.icon;
@@ -86,7 +86,7 @@ export default function EnergyCheckin({ onReorganizado }) {
               }}
             >
               <Icono size={18} color={n.color} />
-              <span className="text-[10px] font-bold" style={{ color: sel ? n.color : '#6E7180' }}>
+              <span className="text-t-nota font-bold" style={{ color: sel ? n.color : '#807F7A' }}>
                 {n.label}
               </span>
             </button>

@@ -48,6 +48,22 @@ Supabase → **Authentication → URL Configuration**:
 
 Sin esto, los correos de "olvidé mi contraseña" o confirmación apuntan a otra dirección.
 
+## 5b. Dejar bonitos los correos que manda Supabase
+Por defecto Supabase manda un correo gris con su propio texto en inglés. En
+`supabase/email-templates/` están las plantillas con el diseño de Workversity.
+
+1. Abre Supabase → **Authentication → Emails → Templates**.
+2. Para cada plantilla de la tabla de `supabase/email-templates/README.md`:
+   abre el archivo `.html`, cópialo **completo** y pégalo en el campo
+   *Message body* (borra lo que haya). Copia también el asunto sugerido.
+3. Guarda y manda un correo de prueba desde la app ("¿Olvidaste tu contraseña?").
+
+> Las plantillas no se editan a mano: se generan con
+> `node supabase/email-templates/generar.mjs` a partir de `api/_plantilla.js`,
+> que es el mismo diseño que usa el correo propio de Resend (`/api/recuperar-clave`).
+> Si quieres que los correos salgan por Resend con tu dominio, mira
+> `.env.correo.example`.
+
 ## 6. Probar
 Abre tu dirección de Vercel, inicia sesión e instala la app (botón "Instalar" del navegador, o en iPhone: Compartir → Añadir a pantalla de inicio).
 

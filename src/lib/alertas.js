@@ -13,7 +13,7 @@ export function calcularAlertas({ ahora = new Date(), tareas = [], materias = []
   const vencidas = pendientes.filter((t) => new Date(t.due_date) < ahora).sort((a, b) => new Date(b.due_date) - new Date(a.due_date));
   // Se muestran TODAS las tareas vencidas, sin límite: pediste que "todas son todas".
   vencidas.forEach((t) =>
-    alertas.push({ id: `v:${t.id}`, tipo: 'vencida', nivel: 'alta', orden: 0, titulo: `Vencida: ${t.title}`, detalle: `Venció hace ${textoDuracion(ahora - new Date(t.due_date))}${nombreMateria(t)}`, url: '/tareas' })
+    alertas.push({ id: `v:${t.id}`, tareaId: t.id, tipo: 'vencida', nivel: 'alta', orden: 0, titulo: `Vencida: ${t.title}`, detalle: `Venció hace ${textoDuracion(ahora - new Date(t.due_date))}${nombreMateria(t)}`, url: '/tareas' })
   );
 
   const enUnDia = pendientes
@@ -22,7 +22,7 @@ export function calcularAlertas({ ahora = new Date(), tareas = [], materias = []
   enUnDia.forEach((t) => {
     const falta = new Date(t.due_date) - ahora;
     const urgente = falta <= 3 * H || t.priority === 'alta';
-    alertas.push({ id: `p:${t.id}:${new Date(t.due_date).getTime()}`, tipo: 'pronto', nivel: urgente ? 'alta' : 'media', orden: urgente ? 1 : 3, titulo: `Vence en ${textoDuracion(falta)}: ${t.title}`, detalle: `Prioridad ${t.priority}${nombreMateria(t)}`, url: '/tareas' });
+    alertas.push({ id: `p:${t.id}:${new Date(t.due_date).getTime()}`, tareaId: t.id, tipo: 'pronto', nivel: urgente ? 'alta' : 'media', orden: urgente ? 1 : 3, titulo: `Vence en ${textoDuracion(falta)}: ${t.title}`, detalle: `Prioridad ${t.priority}${nombreMateria(t)}`, url: '/tareas' });
   });
 
   const inicio = inicioDeSemana(ahora);
@@ -42,7 +42,7 @@ export function calcularAlertas({ ahora = new Date(), tareas = [], materias = []
     pendientes
       .filter((t) => t.status === 'pendiente' && (t.priority === 'alta' || (t.estimated_minutes || 0) >= 90) && new Date(t.due_date) - ahora > 24 * H && new Date(t.due_date) - ahora <= 72 * H)
       .slice(0, 2)
-      .forEach((t) => alertas.push({ id: `h:${t.id}:${new Date(t.due_date).getTime()}`, tipo: 'habito', nivel: 'media', orden: 3, titulo: `Empieza hoy: ${t.title}`, detalle: '🧠 Sueles terminar a última hora; empezar hoy te da margen', url: '/tareas' }));
+      .forEach((t) => alertas.push({ id: `h:${t.id}:${new Date(t.due_date).getTime()}`, tareaId: t.id, tipo: 'habito', nivel: 'media', orden: 3, titulo: `Empieza hoy: ${t.title}`, detalle: 'Sueles terminar a última hora; empezar hoy te da margen', url: '/tareas' }));
   }
   const en48 = pendientes.filter((t) => { const d = new Date(t.due_date) - ahora; return d >= 0 && d <= 48 * H; });
   if (en48.length >= 4) {

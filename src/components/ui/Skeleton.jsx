@@ -12,7 +12,7 @@ export function SkeletonKpis({ cantidad = 4 }) {
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" role="status" aria-label="Cargando tus números">
       {Array.from({ length: cantidad }).map((_, i) => (
-        <div key={i} className="rounded-md2 bg-white p-4 shadow-card">
+        <div key={i} className="ficha">
           <Skeleton className="mb-3 h-3 w-20" />
           <Skeleton className="h-7 w-16" />
         </div>
@@ -24,7 +24,7 @@ export function SkeletonKpis({ cantidad = 4 }) {
 /** Imita una tarjeta de contenido genérica (listas, gráficos) mientras carga. */
 export function SkeletonTarjeta({ lineas = 3, alto = null, className = '' }) {
   return (
-    <div className={`rounded-md2 bg-white p-4 shadow-card ${className}`} role="status" aria-label="Cargando">
+    <div className={`ficha ${className}`} role="status" aria-label="Cargando">
       <Skeleton className="mb-4 h-4 w-32" />
       {alto ? (
         <Skeleton className="w-full" style={{ height: alto }} />

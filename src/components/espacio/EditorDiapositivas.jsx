@@ -63,7 +63,7 @@ export default function EditorDiapositivas({ inicial, onCambio, estado, titulo, 
     else if (tipo === 'pdf') imprimirHtml(titulo, htmlImpresion(pres.diapositivas, pres.tema));
     else { setExportando(true); try { await exportarPptx(pres.diapositivas, pres.tema, titulo, `${nombre}.pptx`); } finally { setExportando(false); } }
   };
-  const boton = 'flex items-center gap-1 rounded-full bg-bg px-2.5 py-1.5 text-[11px] font-bold text-textSecondary hover:text-primary disabled:opacity-40';
+  const boton = 'flex items-center gap-1 rounded-full bg-bg px-2.5 py-1.5 text-t-micro font-bold text-textSecondary hover:text-primary disabled:opacity-40';
 
   return (
     <div className="flex h-full min-h-[24rem] flex-col rounded-md2 bg-white shadow-card">
@@ -73,16 +73,16 @@ export default function EditorDiapositivas({ inicial, onCambio, estado, titulo, 
         <button onClick={() => mover(-1)} disabled={i === 0} aria-label="Subir" className={boton}><ArrowUp size={13} /></button>
         <button onClick={() => mover(1)} disabled={i === pres.diapositivas.length - 1} aria-label="Bajar" className={boton}><ArrowDown size={13} /></button>
         <button onClick={quitar} className={`${boton} hover:!text-danger`}><Trash2 size={13} /></button>
-        <select value={pres.tema} onChange={(e) => guardar({ ...pres, tema: e.target.value })} aria-label="Tema" className="rounded-full bg-bg px-2.5 py-1.5 text-[11px] font-bold text-textSecondary outline-none">{Object.entries(TEMAS).map(([k, t]) => <option key={k} value={k}>{t.nombre}</option>)}</select>
-        <span className="text-[11px] font-semibold text-textSecondary">{ETIQUETA_ESTADO_DOC[estado] || ''}</span>
-        <button onClick={() => setPresentando(true)} className="ml-auto flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-[11px] font-extrabold text-white"><Play size={12} /> Presentar</button>
+        <select value={pres.tema} onChange={(e) => guardar({ ...pres, tema: e.target.value })} aria-label="Tema" className="rounded-full bg-bg px-2.5 py-1.5 text-t-micro font-bold text-textSecondary outline-none">{Object.entries(TEMAS).map(([k, t]) => <option key={k} value={k}>{t.nombre}</option>)}</select>
+        <span className="text-t-micro font-semibold text-textSecondary">{ETIQUETA_ESTADO_DOC[estado] || ''}</span>
+        <button onClick={() => setPresentando(true)} className="ml-auto flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-t-micro font-extrabold text-white"><Play size={12} /> Presentar</button>
       </div>
 
       <div className="grid min-h-0 flex-1 gap-3 overflow-y-auto p-3 md:grid-cols-[9rem_minmax(0,1fr)]">
         <div className="flex gap-2 overflow-x-auto md:flex-col md:overflow-y-auto md:overflow-x-visible">
           {pres.diapositivas.map((d, k) => (
             <button key={k} onClick={() => setI(k)} aria-label={`Diapositiva ${k + 1}`} className={`w-32 shrink-0 rounded-sm2 border-2 p-1 text-left md:w-full ${k === i ? 'border-primary' : 'border-transparent'}`}>
-              <Lamina d={d} tema={pres.tema} /><span className="mt-0.5 block text-[10px] font-bold text-textSecondary">{k + 1}</span>
+              <Lamina d={d} tema={pres.tema} /><span className="mt-0.5 block text-t-nota font-bold text-textSecondary">{k + 1}</span>
             </button>
           ))}
         </div>
@@ -98,7 +98,7 @@ export default function EditorDiapositivas({ inicial, onCambio, estado, titulo, 
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-black/5 px-3 py-2 text-[11px] text-textSecondary">
+      <div className="flex flex-wrap items-center gap-2 border-t border-black/5 px-3 py-2 text-t-micro text-textSecondary">
         <span>{pres.diapositivas.length} diapositiva{pres.diapositivas.length !== 1 ? 's' : ''}</span>
         <span className="ml-auto flex flex-wrap gap-1">
           <button onClick={() => exportar('pptx')} disabled={exportando} className={boton}><Download size={12} /> {exportando ? 'Creando…' : 'PowerPoint (.pptx)'}</button>

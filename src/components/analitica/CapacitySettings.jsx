@@ -28,8 +28,8 @@ export default function CapacitySettings() {
   };
 
   return (
-    <div className="rounded-md2 bg-white p-4 shadow-card">
-      <p className="mb-3 flex items-center gap-2 text-sm font-bold"><Settings2 size={16} /> Tus límites reales</p>
+    <div className="ficha">
+      <p className="rotulo mb-3 flex items-center gap-1.5"><Settings2 size={16} /> Tus límites reales</p>
 
       <label className="mb-1 block text-xs font-semibold text-textSecondary">Capacidad máxima diaria (horas)</label>
       <input
@@ -63,7 +63,7 @@ export default function CapacitySettings() {
           <ShieldAlert size={16} />
           {perfil?.modo_supervivencia ? 'Desactivar Modo Supervivencia' : 'Activar Modo Supervivencia'}
         </button>
-        <p className="mt-1.5 text-[11px] text-textSecondary">
+        <p className="mt-1.5 text-t-micro text-textSecondary">
           Para semanas de parciales o crisis: oculta lo opcional y deja solo lo estrictamente necesario en Tareas.
         </p>
       </div>

@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { PenLine, Share2, Star, Trash2, GraduationCap } from 'lucide-react';
+import { PenLine, Star, Trash2, GraduationCap } from 'lucide-react';
 import { listarApuntes, actualizarApunte, eliminarApunte } from '../services/apuntes';
 import { listarMaterias } from '../services/materias';
 import { TIPOS_APUNTE, colorTipo } from '../lib/apuntes';
 import EditorApunte from '../components/apuntes/EditorApunte';
-import LienzoMental from '../components/apuntes/LienzoMental';
 import UsarParaParcial from '../components/apuntes/UsarParaParcial';
 
 const PESTANAS = [
   { id: 'escribir', t: 'Escribir', icono: PenLine },
-  { id: 'mental', t: 'Mapa mental', icono: Share2 },
 ];
 
 export default function Apunte() {
@@ -65,7 +63,7 @@ export default function Apunte() {
       <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <input value={apunte.titulo} onChange={(e) => guardar({ titulo: e.target.value })} placeholder="Título del apunte" className="min-w-0 flex-1 bg-transparent text-lg font-extrabold outline-none" aria-label="Título del apunte" />
         <div className="flex shrink-0 items-center gap-1.5">
-          <span className="hidden text-[11px] text-textSecondary sm:inline">{guardado ? 'Guardado' : 'Guardando…'}</span>
+          <span className="hidden text-t-micro text-textSecondary sm:inline">{guardado ? 'Guardado' : 'Guardando…'}</span>
           <button onClick={() => guardar({ favorito: !apunte.favorito })} aria-label="Favorito" className={apunte.favorito ? 'text-warning' : 'text-textSecondary/40 hover:text-warning'}><Star size={18} fill={apunte.favorito ? 'currentColor' : 'none'} /></button>
           <button onClick={borrar} aria-label="Eliminar apunte" className="text-textSecondary/40 hover:text-danger"><Trash2 size={18} /></button>
         </div>
@@ -82,16 +80,17 @@ export default function Apunte() {
         <button onClick={() => setModalParcial(true)} className="ml-auto flex items-center gap-1.5 rounded-full bg-primarySoft px-3 py-1.5 text-xs font-bold text-primary"><GraduationCap size={13} /> Usar para un parcial</button>
       </div>
 
-      <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
-        {PESTANAS.map((p) => (
-          <button key={p.id} onClick={() => setParams({ tab: p.id })} className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${tab === p.id ? 'bg-primary text-white' : 'bg-white text-textSecondary shadow-card'}`}>
-            <p.icono size={13} /> {p.t}
-          </button>
-        ))}
-      </div>
+      {PESTANAS.length > 1 && (
+        <div className="mb-4 flex gap-1.5 overflow-x-auto pb-1">
+          {PESTANAS.map((p) => (
+            <button key={p.id} onClick={() => setParams({ tab: p.id })} className={`flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${tab === p.id ? 'bg-primary text-white' : 'bg-white text-textSecondary shadow-card'}`}>
+              <p.icono size={13} /> {p.t}
+            </button>
+          ))}
+        </div>
+      )}
 
       {tab === 'escribir' && <EditorApunte contenido={apunte.contenido} onCambiar={(contenido) => guardar({ contenido })} />}
-      {tab === 'mental' && <LienzoMental nodos={apunte.mapa_mental} onCambiar={(mapa_mental) => guardar({ mapa_mental })} texto={apunte.contenido} titulo={apunte.titulo} />}
 
       {modalParcial && <UsarParaParcial apunte={apunte} onCerrar={() => setModalParcial(false)} />}
     </div>

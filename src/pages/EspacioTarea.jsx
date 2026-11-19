@@ -85,14 +85,14 @@ function Espacio({ datos, recargar }) {
           <button onClick={() => navigate('/tareas')} aria-label="Volver a Tareas" className="rounded-full p-2 text-textSecondary hover:bg-black/5"><ArrowLeft size={18} /></button>
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-base font-extrabold sm:text-lg">{tarea.title}</h1>
-            <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] font-semibold text-textSecondary">
-              <span style={{ color: dif.color }}>{dif.emoji} {dif.label}</span>
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-t-micro font-semibold text-textSecondary">
+              <span className="inline-flex items-center gap-1.5" style={{ color: dif.color }}><span className="h-1.5 w-1.5 rounded-full" style={{ background: dif.color }} />{dif.label}</span>
               <span>· {PRIORITIES[tarea.priority]?.label}</span>
               {materia && <span>· {materia}</span>}
               <span>· Entrega {formatearFechaHora(tarea.due_date)}</span>
             </p>
           </div>
-          <div className="hidden text-right text-[11px] sm:block"><p className="font-extrabold">⏱ {formatoMinutos(real)}</p><p className="text-textSecondary">de ≈ {formatoMinutos(estimado)}</p></div>
+          <div className="hidden text-right text-t-micro sm:block"><p className="font-extrabold">{formatoMinutos(real)}</p><p className="text-textSecondary">de ≈ {formatoMinutos(estimado)}</p></div>
           <button onClick={() => setTerminando(true)} className="flex shrink-0 items-center gap-1.5 rounded-full bg-success px-4 py-2 text-xs font-extrabold text-white"><Flag size={14} /> Terminar</button>
         </div>
       </header>
@@ -104,9 +104,9 @@ function Espacio({ datos, recargar }) {
 
         <div className="order-2 flex min-w-0 flex-col gap-2 lg:col-start-1 lg:row-span-2 lg:row-start-1">
           {!docsDisponible && <p className="rounded-sm2 bg-warningSoft p-3 text-xs font-semibold text-warning">Para guardar tus documentos falta ejecutar el SQL de la base de datos (Ajustes → Base de datos). Lo que escribas se conserva en este dispositivo y se sube después.</p>}
-          <nav className="flex gap-1 overflow-x-auto rounded-full bg-white p-1 shadow-card" aria-label="Herramientas">
+          <nav className="flex gap-1 overflow-x-auto seg" aria-label="Herramientas">
             {TABS.map(([k, t, Icono]) => (
-              <button key={k} onClick={() => irA(k)} aria-pressed={tab === k} className={`flex flex-1 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-full px-3.5 py-2 text-xs font-bold transition ${tab === k ? 'bg-primary text-white' : 'text-textSecondary hover:bg-black/5'}`}><Icono size={14} /> {t}</button>
+              <button key={k} onClick={() => irA(k)} aria-pressed={tab === k} className={`flex flex-1 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[9px] px-3.5 py-2 text-xs font-medium transition ${tab === k ? 'bg-surface text-textPrimary shadow-[0_1px_2px_rgba(0,0,0,.08),0_0_0_1px_rgb(var(--linea)/.06)]' : 'text-textSecondary hover:bg-black/5'}`}><Icono size={14} /> {t}</button>
             ))}
           </nav>
           <div className="h-[72vh] min-h-[26rem] lg:h-[calc(100vh-9.5rem)]">
@@ -120,8 +120,8 @@ function Espacio({ datos, recargar }) {
 
         <div className="order-3 space-y-3 lg:col-start-2 lg:row-start-2">
           <PanelPasos tarea={tarea} pasos={pasos} usuarioId={usuario.id} onCambio={recargar} />
-          <section className="rounded-md2 bg-white p-4 shadow-card">
-            <p className="mb-2 text-sm font-extrabold">Notas rápidas</p>
+          <section className="ficha">
+            <p className="rotulo mb-3">Notas rápidas</p>
             <textarea value={notas} onChange={(e) => { setNotas(e.target.value); docNotas.cambiar(e.target.value); }} rows={5} placeholder="Ideas, dudas, cosas por buscar…" aria-label="Notas rápidas" className="w-full rounded-sm2 bg-primarySoft/60 px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary" />
           </section>
         </div>
@@ -130,10 +130,10 @@ function Espacio({ datos, recargar }) {
       {terminando && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 p-3 sm:items-center" onClick={() => setTerminando(false)}>
           <div className="w-full max-w-sm rounded-lg2 bg-white p-5 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between"><h2 className="text-lg font-extrabold">¿Terminaste? 🎉</h2><button onClick={() => setTerminando(false)} aria-label="Cerrar" className="rounded-full p-1.5 hover:bg-black/5"><X size={16} /></button></div>
+            <div className="flex items-start justify-between"><h2 className="text-lg font-extrabold">¿Terminaste?</h2><button onClick={() => setTerminando(false)} aria-label="Cerrar" className="rounded-full p-1.5 hover:bg-black/5"><X size={16} /></button></div>
             <div className="my-3 grid grid-cols-2 gap-2 text-center">
-              <div className="rounded-sm2 bg-bg p-3"><p className="text-xl font-extrabold">{formatoMinutos(real)}</p><p className="text-[11px] text-textSecondary">tiempo real</p></div>
-              <div className="rounded-sm2 bg-bg p-3"><p className="text-xl font-extrabold">≈ {formatoMinutos(estimado)}</p><p className="text-[11px] text-textSecondary">estimado</p></div>
+              <div className="rounded-sm2 bg-bg p-3"><p className="text-xl font-extrabold">{formatoMinutos(real)}</p><p className="text-t-micro text-textSecondary">tiempo real</p></div>
+              <div className="rounded-sm2 bg-bg p-3"><p className="text-xl font-extrabold">≈ {formatoMinutos(estimado)}</p><p className="text-t-micro text-textSecondary">estimado</p></div>
             </div>
             <p className="mb-4 text-xs text-textSecondary">{real >= 5 ? 'La app usará este tiempo para calcular mejor tus próximas tareas.' : 'Si mides tu tiempo con el temporizador, la app aprende cuánto tardas.'}</p>
             <div className="space-y-2">

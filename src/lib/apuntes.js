@@ -4,7 +4,7 @@ export const TIPOS_APUNTE = [
   { id: 'proyecto', t: 'Proyecto' },
   { id: 'libre', t: 'Libre' },
 ];
-const COLOR_TIPO = { clase: '#5B8DEF', tarea: '#F5A524', proyecto: '#8B7FD1', libre: '#7FD1C3' };
+const COLOR_TIPO = { clase: '#3B5BA9', tarea: '#A8732A', proyecto: '#6B5FA8', libre: '#3E7E7C' };
 
 export const etiquetaTipo = (id) => TIPOS_APUNTE.find((t) => t.id === id)?.t || 'Apunte';
-export const colorTipo = (id) => COLOR_TIPO[id] || '#8B93A7';
+export const colorTipo = (id) => COLOR_TIPO[id] || '#9A9890';

@@ -19,7 +19,7 @@ export default function BottomNav() {
             key={item.to}
             to={item.to}
             end={item.end}
-            className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2 text-[10px] font-bold transition ${isActive ? 'text-primary' : 'text-textSecondary'}`}
+            className={({ isActive }) => `flex flex-col items-center gap-0.5 py-2 text-t-nota font-bold transition ${isActive ? 'text-primary' : 'text-textSecondary'}`}
           >
             {({ isActive }) => (
               <>

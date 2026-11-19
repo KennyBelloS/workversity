@@ -1,9 +1,9 @@
 // Dificultad de las tareas y tiempos que la app va aprendiendo de ti.
 
 export const DIFICULTADES = {
-  facil: { clave: 'facil', label: 'Fácil', emoji: '🟢', color: '#17C964', base: 30 },
-  media: { clave: 'media', label: 'Media', emoji: '🟡', color: '#F5A524', base: 60 },
-  dificil: { clave: 'dificil', label: 'Difícil', emoji: '🔴', color: '#E5484D', base: 120 },
+  facil: { clave: 'facil', label: 'Fácil', emoji: '🟢', color: '#2F7A55', base: 30 },
+  media: { clave: 'media', label: 'Media', emoji: '🟡', color: '#A8732A', base: 60 },
+  dificil: { clave: 'dificil', label: 'Difícil', emoji: '🔴', color: '#B04A3E', base: 120 },
 };
 export const normalizarDificultad = (d) => (d in DIFICULTADES ? d : 'media');
 
@@ -65,7 +65,7 @@ export function precisionDeEstimaciones(tareas, sesiones = [], ahora = new Date(
   const m = muestrasDeTiempo(tareas, sesiones, ahora).filter((x) => x.estimado > 0);
   if (m.length < 2) return null;
   const ratio = m.reduce((s, x) => s + x.minutos / x.estimado, 0) / m.length;
-  return { ratio, muestras: m.length, texto: ratio < 0.9 ? `Sueles terminar ${Math.round((1 - ratio) * 100)}% más rápido de lo que estimas.` : ratio > 1.1 ? `Sueles tardar ${Math.round((ratio - 1) * 100)}% más de lo que estimas: la app lo tendrá en cuenta.` : 'Tus estimaciones son muy acertadas. 🎯' };
+  return { ratio, muestras: m.length, texto: ratio < 0.9 ? `Sueles terminar ${Math.round((1 - ratio) * 100)}% más rápido de lo que estimas.` : ratio > 1.1 ? `Sueles tardar ${Math.round((ratio - 1) * 100)}% más de lo que estimas: la app lo tendrá en cuenta.` : 'Tus estimaciones son muy acertadas.' };
 }
 
 export const formatoMinutos = (min) => {

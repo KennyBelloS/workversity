@@ -32,6 +32,7 @@ export default function Tareas() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [tareaEditando, setTareaEditando] = useState(null);
   const [tareaDetalle, setTareaDetalle] = useState(null);
+  const [nuevaEn, setNuevaEn] = useState(null); // columna/carril desde donde se pidió "Agregar tarjeta"
   const { version } = useSyncEstado();
   const [params, setParams] = useSearchParams();
   // Desde la vista previa: /tareas?ver=ID abre el detalle de esa tarea.
@@ -103,7 +104,9 @@ export default function Tareas() {
       const { id, user_id, created_at, ...cambios } = tareaParcial;
       await actualizarTarea(id, cambios);
     } else {
-      await crearTarea(tareaParcial, usuario.id);
+      const extra = nuevaEn ? { status: nuevaEn.estado, ...(nuevaEn.materiaId && !tareaParcial.materia_id ? { materia_id: nuevaEn.materiaId } : {}) } : {};
+      await crearTarea({ ...tareaParcial, ...extra }, usuario.id);
+      setNuevaEn(null);
     }
     await cargar();
     setModalAbierto(false);
@@ -132,7 +135,7 @@ export default function Tareas() {
     await completarTarea(tarea, usuario.id, nuevoEstado);
     await cargar();
     if (nuevoEstado === 'hecha' && !tarea.is_recurring) {
-      mostrarSnackbar({ texto: 'Tarea completada 🎉', etiqueta: 'Deshacer', onAccion: async () => { await completarTarea(tarea, usuario.id, 'pendiente'); await cargar(); } });
+      mostrarSnackbar({ texto: 'Tarea completada', etiqueta: 'Deshacer', onAccion: async () => { await completarTarea(tarea, usuario.id, 'pendiente'); await cargar(); } });
     }
   };
 
@@ -153,7 +156,7 @@ export default function Tareas() {
         </div>
         <button
           onClick={() => { setTareaEditando(null); setModalAbierto(true); }}
-          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primaryDark"
+          className="boton-ppal"
         >
           <Plus size={18} /> Nueva tarea
         </button>
@@ -177,7 +180,14 @@ export default function Tareas() {
       ) : (
         <>
           {vista === 'tablero' && (
-            <KanbanBoard tasks={tareasFiltradas} onOpen={setTareaDetalle} onToggle={handleToggle} onDelete={handleEliminar} onMove={handleMover} />
+            <KanbanBoard
+              tasks={tareasFiltradas}
+              onOpen={setTareaDetalle}
+              onToggle={handleToggle}
+              onMove={handleMover}
+              onCambiarMateria={async (id, materiaId) => { await actualizarTarea(id, { materia_id: materiaId }); await cargar(); }}
+              onAgregar={(estado, materiaId) => { setNuevaEn({ estado, materiaId }); setTareaEditando(null); setModalAbierto(true); }}
+            />
           )}
           {vista === 'materias' && (
             <TareasPorMateria tareas={tareasFiltradas} materias={materias} onOpen={setTareaDetalle} onToggle={handleToggle} />
@@ -201,7 +211,7 @@ export default function Tareas() {
           tareaExistente={tareaEditando}
           onGuardar={handleGuardar}
           onEliminar={async (t) => { await handleEliminar(t); setModalAbierto(false); setTareaEditando(null); }}
-          onCerrar={() => { setModalAbierto(false); setTareaEditando(null); }}
+          onCerrar={() => { setModalAbierto(false); setTareaEditando(null); setNuevaEn(null); }}
           onDividirEnSubtareas={dividirEnSubtareas}
         />
       )}

@@ -9,9 +9,9 @@ import { OPCIONES_REPROGRAMAR, reprogramar } from '../../lib/revision';
 function FilaInfo({ icono: Icono, texto, color, destacado }) {
   return (
     <div className="flex items-center gap-2.5 py-1.5">
-      <Icono size={17} color={color || '#6E7180'} />
-      <span className="text-[13px] font-semibold" style={{ color: color || 'rgb(var(--textPrimary))' }}>{texto}</span>
-      {destacado && <span className="rounded bg-danger px-1.5 py-0.5 text-[9px] font-extrabold text-white">{destacado}</span>}
+      <Icono size={17} color={color || '#807F7A'} />
+      <span className="text-t-pie font-semibold" style={{ color: color || 'rgb(var(--textPrimary))' }}>{texto}</span>
+      {destacado && <span className="rounded bg-danger px-1.5 py-0.5 text-t-nota font-extrabold text-white">{destacado}</span>}
     </div>
   );
 }
@@ -47,26 +47,26 @@ export default function TaskDetail({ tarea, onCerrar, onEditar, onToggle, onElim
       >
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-black/10" />
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: `${categoria.color}1F`, color: categoria.color }}>
+          <span className="rounded-full px-2.5 py-1 text-t-micro font-bold" style={{ backgroundColor: `${categoria.color}1F`, color: categoria.color }}>
             {categoria.label}
           </span>
-          <span className="rounded-full px-2.5 py-1 text-[11px] font-bold" style={{ backgroundColor: `${prioridad.color}1F`, color: prioridad.color }}>
+          <span className="rounded-full px-2.5 py-1 text-t-micro font-bold" style={{ backgroundColor: `${prioridad.color}1F`, color: prioridad.color }}>
             Prioridad {prioridad.label}
           </span>
           {tarea.is_recurring && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-info/[0.12] px-2.5 py-1 text-[11px] font-bold text-info">
+            <span className="inline-flex items-center gap-1 rounded-full bg-info/[0.12] px-2.5 py-1 text-t-micro font-bold text-info">
               <Repeat size={11} /> Recurrente
             </span>
           )}
         </div>
 
-        <h2 className={`mt-3.5 text-[22px] font-extrabold ${tarea.status === 'hecha' ? 'text-textSecondary line-through' : 'text-textPrimary'}`}>
+        <h2 className={`mt-3.5 text-t-grande font-extrabold ${tarea.status === 'hecha' ? 'text-textSecondary line-through' : 'text-textPrimary'}`}>
           {tarea.title}
         </h2>
         {tarea.description && <p className="mt-2 text-sm leading-relaxed text-textSecondary">{tarea.description}</p>}
 
         <div className="mt-4">
-          <FilaInfo icono={Clock} texto={formatearFechaHora(tarea.due_date)} color={vencida ? '#E5484D' : 'rgb(var(--textPrimary))'} destacado={vencida ? 'VENCIDA' : null} />
+          <FilaInfo icono={Clock} texto={formatearFechaHora(tarea.due_date)} color={vencida ? '#B04A3E' : 'rgb(var(--textPrimary))'} destacado={vencida ? 'VENCIDA' : null} />
           {tarea.has_reminder && (
             <FilaInfo
               icono={Bell}
@@ -106,13 +106,13 @@ export default function TaskDetail({ tarea, onCerrar, onEditar, onToggle, onElim
 
         {vencida && onReprogramar && (
           <div className="mt-4 rounded-sm2 bg-dangerSoft p-3">
-            <p className="mb-2 flex items-center gap-1.5 text-[11px] font-bold text-danger"><AlertTriangle size={13} /> Esta tarea ya venció. Si la reprogramas, se moverá la fecha y hora de entrega — avisa a quien corresponda si esa fecha era un compromiso con alguien más.</p>
+            <p className="mb-2 flex items-center gap-1.5 text-t-micro font-bold text-danger"><AlertTriangle size={13} /> Esta tarea ya venció. Si la reprogramas, se moverá la fecha y hora de entrega — avisa a quien corresponda si esa fecha era un compromiso con alguien más.</p>
             <div className="flex flex-wrap gap-1.5">
               {OPCIONES_REPROGRAMAR.map((o) => (
                 <button
                   key={o.clave}
                   onClick={() => { onReprogramar(reprogramar(tarea, o.dias)); onCerrar(); }}
-                  className="flex items-center gap-1 rounded-full border border-danger/30 bg-white px-2.5 py-1.5 text-[11px] font-bold text-danger"
+                  className="flex items-center gap-1 rounded-full border border-danger/30 bg-white px-2.5 py-1.5 text-t-micro font-bold text-danger"
                 >
                   <CalendarClock size={12} /> {o.etiqueta}
                 </button>
@@ -123,7 +123,7 @@ export default function TaskDetail({ tarea, onCerrar, onEditar, onToggle, onElim
 
         {onMover && (
           <div className="mt-4">
-            <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wide text-textSecondary">Mover a</p>
+            <p className="mb-1.5 text-t-micro font-bold uppercase tracking-wide text-textSecondary">Mover a</p>
             <div className="grid grid-cols-3 gap-2">
               {STATUS_ORDER.map((estado) => {
                 const info = TASK_STATUSES[estado];
@@ -133,11 +133,11 @@ export default function TaskDetail({ tarea, onCerrar, onEditar, onToggle, onElim
                     key={estado}
                     disabled={actual}
                     onClick={() => { onCerrar(); onMover(estado); }}
-                    className="rounded-sm2 border py-2 text-[11px] font-bold transition disabled:cursor-default"
+                    className="rounded-sm2 border py-2 text-t-micro font-bold transition disabled:cursor-default"
                     style={{
                       borderColor: actual ? info.color : 'rgba(0,0,0,0.08)',
                       backgroundColor: actual ? `${info.color}1F` : 'transparent',
-                      color: actual ? info.color : '#6E7180',
+                      color: actual ? info.color : '#807F7A',
                     }}
                   >
                     {info.label}

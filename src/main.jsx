@@ -1,8 +1,8 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import '@fontsource-variable/plus-jakarta-sans';
-import '@fontsource-variable/fraunces'; // fuente de exhibición para títulos grandes
+import '@fontsource-variable/geist'; // tipografía principal
+import '@fontsource-variable/geist-mono'; // etiquetas, horas y cifras pequeñas
 import './index.css';
 import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext.jsx';

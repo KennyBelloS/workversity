@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { Wind } from 'lucide-react';
 
 const FASES = [
-  { nombre: 'Inhala', segundos: 4, color: '#5B8DEF' },
-  { nombre: 'Sostén', segundos: 7, color: '#8B7FD1' },
-  { nombre: 'Exhala', segundos: 8, color: '#7FD1C3' },
+  { nombre: 'Inhala', segundos: 4, color: '#3B5BA9' },
+  { nombre: 'Sostén', segundos: 7, color: '#6B5FA8' },
+  { nombre: 'Exhala', segundos: 8, color: '#3E7E7C' },
 ];
 
 const CICLOS_TOTALES = 3;
@@ -64,7 +64,7 @@ export default function BreathingModal({ onCerrar }) {
           </>
         ) : (
           <>
-            <p className="mb-5 text-sm font-semibold text-success">Listo. Respira mejor, trabaja mejor 🌿</p>
+            <p className="mb-5 text-sm font-semibold text-success">Listo. Respira mejor, trabaja mejor</p>
             <button onClick={onCerrar} className="w-full rounded-sm2 bg-primary py-3 text-sm font-bold text-white hover:bg-primaryDark">
               Continuar
             </button>

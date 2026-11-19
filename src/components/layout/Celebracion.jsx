@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-const COLORES = ['#5B8DEF', '#17C964', '#F5A524', '#E5789C', '#8B7FD1', '#7FD1C3'];
+const COLORES = ['#3B5BA9', '#2F7A55', '#A8732A', '#AD5A77', '#6B5FA8', '#3E7E7C'];
 
 function Rafaga() {
   const [piezas] = useState(() => Array.from({ length: 28 }, (_, i) => ({

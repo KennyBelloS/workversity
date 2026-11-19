@@ -43,7 +43,7 @@ export default function EditorApunte({ contenido, onCambiar }) {
       ) : (
         <textarea ref={areaRef} value={contenido} onChange={(e) => onCambiar(e.target.value)} placeholder="Escribe aquí… usa **negrita**, *cursiva*, # títulos y - listas." rows={14} className="w-full resize-y bg-white px-4 py-3 text-sm leading-relaxed text-textPrimary outline-none" aria-label="Contenido del apunte" />
       )}
-      <p className="border-t border-black/5 px-4 py-1.5 text-right text-[11px] text-textSecondary">{contarPalabras(contenido)} palabras</p>
+      <p className="border-t border-black/5 px-4 py-1.5 text-right text-t-micro text-textSecondary">{contarPalabras(contenido)} palabras</p>
     </div>
   );
 }

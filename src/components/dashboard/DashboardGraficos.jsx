@@ -4,21 +4,33 @@ import { claveMesDe, fechaLocalISO } from '../../lib/dateUtils';
 
 function Tarjeta({ titulo, sub, children }) {
   return (
-    <div className="rounded-md2 bg-white p-4 shadow-card">
-      <p className="text-sm font-bold">{titulo}</p>
-      {sub && <p className="mb-2 text-[11px] text-textSecondary">{sub}</p>}
+    <div className="ficha">
+      <div className="ficha-cabecera !mb-3">
+        <span className="rotulo">{titulo}</span>
+        {sub && <span className="franja-acc">{sub}</span>}
+      </div>
       {children}
     </div>
   );
 }
 
+/** El acento configurado en Ajustes, para que las gráficas usen el mismo color que la app. */
+function acento(porDefecto = '46 75 240') {
+  if (typeof window === 'undefined') return `rgb(${porDefecto.split(' ').join(',')})`;
+  const v = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || porDefecto;
+  return `rgb(${v.split(/\s+/).join(',')})`;
+}
+
 const base = (oscuro) => ({
-  chart: { background: 'transparent', toolbar: { show: false }, fontFamily: 'inherit', foreColor: oscuro ? '#94A0B4' : '#6E7180', animations: { speed: 400 } },
+  chart: { background: 'transparent', toolbar: { show: false }, fontFamily: 'inherit', foreColor: oscuro ? '#8E8C85' : '#7E7D77', animations: { speed: 400 } },
   theme: { mode: oscuro ? 'dark' : 'light' },
-  grid: { borderColor: oscuro ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)', strokeDashArray: 3 },
+  grid: { borderColor: oscuro ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)', strokeDashArray: 2, xaxis: { lines: { show: false } }, padding: { left: 4, right: 4 } },
   tooltip: { theme: oscuro ? 'dark' : 'light' },
   dataLabels: { enabled: false },
-  legend: { position: 'bottom', fontSize: '12px', markers: { radius: 12 } },
+  states: { hover: { filter: { type: 'lighten', value: 0.06 } } },
+  legend: { position: 'bottom', fontSize: '11.5px', itemMargin: { horizontal: 10 }, markers: { width: 7, height: 7, radius: 2, offsetX: -3 } },
+  xaxis: { axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: { fontSize: '10.5px' } } },
+  yaxis: { labels: { style: { fontSize: '10.5px' } } },
 });
 
 const cop = (v) => `$${Math.round(v).toLocaleString('es-CO')}`;
@@ -26,6 +38,7 @@ const cop = (v) => `$${Math.round(v).toLocaleString('es-CO')}`;
 export default function DashboardGraficos({ tareas, movimientos, sesiones, dias }) {
   const { oscuro } = useTema();
   const b = base(oscuro);
+  const A = acento();
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
 
@@ -59,19 +72,19 @@ export default function DashboardGraficos({ tareas, movimientos, sesiones, dias 
         <Chart
           type="bar" height={240}
           series={[{ name: 'Universidad', data: cuenta('universidad') }, { name: 'Trabajo', data: cuenta('trabajo') }]}
-          options={{ ...b, colors: ['#5B8DEF', '#8B7FD1'], chart: { ...b.chart, stacked: true }, plotOptions: { bar: { borderRadius: 4, columnWidth: '60%' } },
-            xaxis: { categories: cats.map(etiqueta), tickAmount: Math.min(dias, 10), labels: { rotate: 0 } }, yaxis: { min: 0, forceNiceScale: true, labels: { formatter: (v) => Math.round(v) } } }}
+          options={{ ...b, colors: [A, oscuro ? '#56544E' : '#C9C6BE'], chart: { ...b.chart, stacked: true }, plotOptions: { bar: { borderRadius: 3, columnWidth: '52%' } },
+            xaxis: { ...b.xaxis, categories: cats.map(etiqueta), tickAmount: Math.min(dias, 10), labels: { ...b.xaxis.labels, rotate: 0 } }, yaxis: { ...b.yaxis, min: 0, forceNiceScale: true, labels: { ...b.yaxis.labels, formatter: (v) => Math.round(v) } } }}
         />
       </Tarjeta>
 
       <Tarjeta titulo="Estado de tus tareas" sub={`${tareas.length} en total`}>
         {tareas.length === 0 ? (
-          <p className="py-16 text-center text-sm text-textSecondary">Aún no hay tareas</p>
+          <p className="py-16 text-center text-t-pie text-textSecondary">Aún no hay tareas</p>
         ) : (
           <Chart
             type="donut" height={240} series={estados}
-            options={{ ...b, labels: ['Por hacer', 'En progreso', 'Hechas'], colors: ['#8B93A7', '#F5A524', '#17C964'], stroke: { width: 0 },
-              plotOptions: { pie: { donut: { size: '68%', labels: { show: true, total: { show: true, label: 'Total', color: oscuro ? '#94A0B4' : '#6E7180' } } } } } }}
+            options={{ ...b, labels: ['Por hacer', 'En progreso', 'Hechas'], colors: [oscuro ? '#56544E' : '#C9C6BE', '#A8732A', A], stroke: { width: 0 },
+              plotOptions: { pie: { donut: { size: '78%', labels: { show: true, value: { fontSize: '26px', fontWeight: 300 }, total: { show: true, label: 'Total', fontSize: '10px', color: oscuro ? '#8E8C85' : '#7E7D77' } } } } } }}
           />
         )}
       </Tarjeta>
@@ -80,9 +93,9 @@ export default function DashboardGraficos({ tareas, movimientos, sesiones, dias 
         <Chart
           type="bar" height={240}
           series={[{ name: 'Ingresos', data: suma('ingreso') }, { name: 'Gastos', data: suma('gasto') }]}
-          options={{ ...b, colors: ['#17C964', '#E5484D'], plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } },
-            xaxis: { categories: meses.map((m) => m.toLocaleDateString('es-CO', { month: 'short' })) },
-            yaxis: { labels: { formatter: (v) => (v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${Math.round(v / 1000)}k` : v) } },
+          options={{ ...b, colors: ['#2F7A55', '#B04A3E'], plotOptions: { bar: { borderRadius: 3, columnWidth: '48%' } },
+            xaxis: { ...b.xaxis, categories: meses.map((m) => m.toLocaleDateString('es-CO', { month: 'short' })) },
+            yaxis: { ...b.yaxis, labels: { ...b.yaxis.labels, formatter: (v) => (v >= 1000000 ? `${(v / 1000000).toFixed(1)}M` : v >= 1000 ? `${Math.round(v / 1000)}k` : v) } },
             tooltip: { ...b.tooltip, y: { formatter: cop } } }}
         />
       </Tarjeta>
@@ -90,9 +103,10 @@ export default function DashboardGraficos({ tareas, movimientos, sesiones, dias 
       <Tarjeta titulo="Minutos de enfoque" sub="Sesiones Pomodoro completadas">
         <Chart
           type="area" height={240} series={[{ name: 'Minutos', data: minutos }]}
-          options={{ ...b, colors: ['#6FA8DC'], stroke: { curve: 'smooth', width: 3 },
-            fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05 } },
-            xaxis: { categories: diasEnfoque.map(etiqueta), tickAmount: Math.min(dias, 10), labels: { rotate: 0 } }, yaxis: { min: 0, forceNiceScale: true, labels: { formatter: (v) => Math.round(v) } } }}
+          options={{ ...b, colors: [A], stroke: { curve: 'smooth', width: 2 },
+            fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.28, opacityTo: 0.02 } },
+            markers: { size: 0, hover: { size: 4 } },
+            xaxis: { ...b.xaxis, categories: diasEnfoque.map(etiqueta), tickAmount: Math.min(dias, 10), labels: { ...b.xaxis.labels, rotate: 0 } }, yaxis: { ...b.yaxis, min: 0, forceNiceScale: true, labels: { ...b.yaxis.labels, formatter: (v) => Math.round(v) } } }}
         />
       </Tarjeta>
     </div>

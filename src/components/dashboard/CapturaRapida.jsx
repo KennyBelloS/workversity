@@ -5,7 +5,7 @@ import { crearTarea } from '../../services/tareas';
 import { interpretarCaptura } from '../../lib/captura';
 import { formatearFechaHora } from '../../lib/dateUtils';
 
-const PRIORIDAD = { alta: ['Alta', '#E5484D'], media: ['Media', '#F5A524'], baja: ['Baja', '#17C964'] };
+const PRIORIDAD = { alta: ['Alta', '#B04A3E'], media: ['Media', '#A8732A'], baja: ['Baja', '#2F7A55'] };
 
 /** Escribe una frase y se crea la tarea: "informe de física mañana 5pm !alta". */
 export default function CapturaRapida({ materias, onCreada }) {
@@ -36,7 +36,7 @@ export default function CapturaRapida({ materias, onCreada }) {
       );
       setTexto('');
       setMateriaSel(null);
-      setAviso('✅ Tarea creada');
+      setAviso('Tarea creada');
       setTimeout(() => setAviso(''), 2500);
       onCreada?.();
     } finally {
@@ -60,11 +60,11 @@ export default function CapturaRapida({ materias, onCreada }) {
       </div>
 
       {p && (
-        <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-black/5 pt-2 text-[11px] font-bold">
+        <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-black/5 pt-2 text-t-micro font-bold">
           <span className="rounded-full bg-primarySoft px-2.5 py-1 text-primary">{p.titulo}</span>
           <span className="flex items-center gap-1 rounded-full bg-infoSoft px-2.5 py-1 text-info"><Calendar size={11} /> {formatearFechaHora(p.due.toISOString())}{p.fechaInferida && ' (sin fecha: pongo mañana)'}</span>
           <span className="flex items-center gap-1 rounded-full px-2.5 py-1" style={{ backgroundColor: `${PRIORIDAD[p.prioridad][1]}1F`, color: PRIORIDAD[p.prioridad][1] }}><Flag size={11} /> {PRIORIDAD[p.prioridad][0]}</span>
-          <select value={materiaId} onChange={(e) => setMateriaSel(e.target.value)} className="rounded-full bg-bg px-2.5 py-1 text-[11px] font-bold outline-none">
+          <select value={materiaId} onChange={(e) => setMateriaSel(e.target.value)} className="rounded-full bg-bg px-2.5 py-1 text-t-micro font-bold outline-none">
             <option value="">Trabajo / sin materia</option>
             {grupos.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
           </select>

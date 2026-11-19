@@ -41,10 +41,10 @@ function abrir() {
     };
     req.onsuccess = () => {
       const db = req.result;
-      // Safari (sobre todo en iPhone) a veces cierra la conexión sola tras un rato
-      // de inactividad. Sin esto, las siguientes operaciones fallarían contra una
-      // conexión muerta ("the database connection is closing"). Al detectarlo,
-      // se olvida la promesa guardada para que la próxima llamada abra una nueva.
+      // Safari/iOS a veces cierra solo una conexión que lleva un rato sin usarse. Sin esto,
+      // la siguiente operación fallaba con "The database connection is closing" (se veía en
+      // pantalla como un error crudo). Al detectarlo, se olvida la conexión guardada para que
+      // la próxima llamada abra una nueva en vez de seguir usando la que ya se cerró.
       db.onclose = () => { promesaBd = null; };
       db.onversionchange = () => { db.close(); promesaBd = null; };
       resolve(db);
@@ -75,8 +75,9 @@ async function operar(store, modo, fn, reintentar = true) {
   try {
     tx = db.transaction(store, modo);
   } catch (err) {
-    // La conexión se cerró justo antes de poder usarla (pasa en Safari/iPhone tras
-    // un rato inactivo). Se descarta y se reintenta una vez con una conexión nueva.
+    // Si la conexión se cerró justo entre abrir() y crear la transacción (carrera rara pero
+    // posible), se olvida y se reintenta UNA vez con una conexión nueva, en vez de dejar
+    // pasar el error crudo hasta la pantalla.
     if (reintentar && /closing|closed/i.test(err?.message || '')) {
       promesaBd = null;
       return operar(store, modo, fn, false);

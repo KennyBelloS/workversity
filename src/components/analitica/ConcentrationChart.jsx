@@ -14,7 +14,7 @@ export default function ConcentrationChart({ porHora }) {
   const opciones = {
     chart: { type: 'bar', toolbar: { show: false }, fontFamily: 'inherit' },
     plotOptions: { bar: { borderRadius: 4, columnWidth: '60%' } },
-    colors: ['#7FD1C3'],
+    colors: ['#3E7E7C'],
     dataLabels: { enabled: false },
     xaxis: {
       categories: conActividad.map((p) => `${p.hora}:00`),

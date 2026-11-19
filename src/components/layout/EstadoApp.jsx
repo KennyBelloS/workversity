@@ -1,6 +1,5 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import { WifiOff, RefreshCw, CloudUpload, Download, X, CheckCircle2, AlertTriangle, Share } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
 import { useSyncEstado } from '../../hooks/useSyncEstado';
 import { vaciarCola } from '../../offline/sync';
 import { copiarSqlActualizacion, enlaceSqlEditor } from '../../lib/sqlActualizacion';
@@ -38,10 +37,9 @@ function Barra({ color, icono: Icono, children, accion, onCerrar }) {
   );
 }
 
-const botonAccion = 'shrink-0 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-extrabold text-textPrimary';
+const botonAccion = 'shrink-0 rounded-full bg-white/95 px-3 py-1.5 text-t-micro font-extrabold text-textPrimary';
 
 export default function EstadoApp() {
-  const { perfil } = useAuth();
   const sync = useSyncEstado();
   const pwa = useSyncExternalStore(suscribirPwa, obtenerEstadoPwa);
   const [avisoIosCerrado, setAvisoIosCerrado] = useState(() => {
@@ -65,7 +63,7 @@ export default function EstadoApp() {
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[45] flex flex-col items-center gap-2 px-3 pb-24 sm:pb-28">
       {pwa.necesitaActualizar && (
         <Barra
-          color="#3E7BFA"
+          color="#2E4BF0"
           icono={RefreshCw}
           accion={
             <span className="flex shrink-0 gap-1.5">
@@ -81,12 +79,12 @@ export default function EstadoApp() {
       )}
 
       {!sync.enLinea && sync.probableProblemaServidor && (
-        <Barra color="#E5484D" icono={AlertTriangle} accion={<button onClick={() => vaciarCola()} className={botonAccion}>Reintentar</button>}>
+        <Barra color="#B04A3E" icono={AlertTriangle} accion={<button onClick={() => vaciarCola()} className={botonAccion}>Reintentar</button>}>
           Tu internet funciona, pero la app no logra comunicarse con tu base de datos ({sync.pendientes} por subir). Es probable que tu proyecto de Supabase esté pausado, borrado, o que la dirección en tu archivo .env no sea la correcta. Revisa tu panel de Supabase.
         </Barra>
       )}
       {!sync.enLinea && !sync.probableProblemaServidor && (
-        <Barra color="#6E7180" icono={WifiOff}>
+        <Barra color="#807F7A" icono={WifiOff}>
           Sin conexión. Puedes seguir usando la app: tus cambios se guardan en este dispositivo
           {sync.pendientes > 0 ? ` (${sync.pendientes} por subir)` : ''} y se sincronizan solos al volver el internet.
         </Barra>
@@ -94,7 +92,7 @@ export default function EstadoApp() {
 
       {sync.enLinea && sync.pendientes > 0 && (
         <Barra
-          color="#F5A524"
+          color="#A8732A"
           icono={sync.sincronizando ? CloudUpload : AlertTriangle}
           accion={
             !sync.sincronizando && (
@@ -108,10 +106,10 @@ export default function EstadoApp() {
 
       {sync.ultimoError && sync.enLinea && (
         <Barra
-          color="#E5484D"
+          color="#B04A3E"
           icono={AlertTriangle}
           accion={
-            sync.esquema && perfil?.es_admin && (
+            sync.esquema && (
               <span className="flex shrink-0 flex-col gap-1.5">
                 <button onClick={() => copiarSqlActualizacion().catch(() => {})} className={botonAccion}>Copiar SQL</button>
                 <a href={enlaceSqlEditor()} target="_blank" rel="noreferrer" className={`${botonAccion} text-center`}>Abrir Supabase</a>
@@ -119,12 +117,12 @@ export default function EstadoApp() {
             )
           }
         >
-          {sync.ultimoError}{sync.esquema && !perfil?.es_admin ? ' Avísale a quien administra la app.' : ''}
+          {sync.ultimoError}
         </Barra>
       )}
 
       {pwa.listoOffline && (
-        <Barra color="#17C964" icono={CheckCircle2} onCerrar={descartarAvisoOffline}>
+        <Barra color="#2F7A55" icono={CheckCircle2} onCerrar={descartarAvisoOffline}>
           Listo: Workversity ya funciona sin conexión.
         </Barra>
       )}

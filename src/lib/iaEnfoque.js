@@ -10,14 +10,14 @@ export const PROVEEDORES = [
 ];
 
 export const PLANTILLAS_PROMPT = [
-  { id: 'explicar', titulo: '🧠 Explícame el tema', cuerpo: 'Explícame este tema de forma clara y con ejemplos sencillos, como si fuera la primera vez que lo veo. Termina con 3 ideas clave.' },
-  { id: 'esquema', titulo: '🗂️ Hazme un esquema', cuerpo: 'Hazme un esquema con la estructura ideal para este trabajo (apartados y una línea sobre qué va en cada uno).' },
-  { id: 'plan', titulo: '✅ Plan paso a paso', cuerpo: 'Divide esta tarea en pasos concretos y ordenados, con el tiempo aproximado de cada uno. Responde como lista numerada.' },
-  { id: 'revisar', titulo: '📝 Revisa y mejora mi texto', cuerpo: 'Revisa mi texto: ortografía, claridad y coherencia. Dime qué mejorar y ofréceme una versión corregida.' },
-  { id: 'practica', titulo: '🎯 Preguntas de práctica', cuerpo: 'Hazme 8 preguntas de práctica (de fáciles a difíciles) sobre este tema y dame las respuestas al final.' },
-  { id: 'resumir', titulo: '📄 Resume esto', cuerpo: 'Resume el siguiente contenido en 5 puntos, señalando lo más importante para estudiar.' },
-  { id: 'presentacion', titulo: '📊 Ideas para la presentación', cuerpo: 'Propón una presentación de 8 diapositivas: título y 3 viñetas por diapositiva.' },
-  { id: 'ideas', titulo: '💡 Lluvia de ideas', cuerpo: 'Dame 10 ideas originales y viables para abordar esta tarea.' },
+  { id: 'explicar', titulo: 'Explícame el tema', cuerpo: 'Explícame este tema de forma clara y con ejemplos sencillos, como si fuera la primera vez que lo veo. Termina con 3 ideas clave.' },
+  { id: 'esquema', titulo: 'Hazme un esquema', cuerpo: 'Hazme un esquema con la estructura ideal para este trabajo (apartados y una línea sobre qué va en cada uno).' },
+  { id: 'plan', titulo: 'Plan paso a paso', cuerpo: 'Divide esta tarea en pasos concretos y ordenados, con el tiempo aproximado de cada uno. Responde como lista numerada.' },
+  { id: 'revisar', titulo: 'Revisa y mejora mi texto', cuerpo: 'Revisa mi texto: ortografía, claridad y coherencia. Dime qué mejorar y ofréceme una versión corregida.' },
+  { id: 'practica', titulo: 'Preguntas de práctica', cuerpo: 'Hazme 8 preguntas de práctica (de fáciles a difíciles) sobre este tema y dame las respuestas al final.' },
+  { id: 'resumir', titulo: 'Resume esto', cuerpo: 'Resume el siguiente contenido en 5 puntos, señalando lo más importante para estudiar.' },
+  { id: 'presentacion', titulo: 'Ideas para la presentación', cuerpo: 'Propón una presentación de 8 diapositivas: título y 3 viñetas por diapositiva.' },
+  { id: 'ideas', titulo: 'Lluvia de ideas', cuerpo: 'Dame 10 ideas originales y viables para abordar esta tarea.' },
 ];
 
 export const DIFICULTAD_TEXTO = { facil: 'fácil', media: 'de dificultad media', dificil: 'difícil' };

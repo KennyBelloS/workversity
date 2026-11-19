@@ -18,7 +18,7 @@ export default function WeekGrid({ bloques, onOpen }) {
           <div className="h-10" />
           {horas.map((h) => (
             <div key={h} style={{ height: 60 * PX_POR_MINUTO }} className="relative">
-              <span className="absolute -top-2 text-[10px] font-semibold text-textSecondary">{minutosAHora(h)}</span>
+              <span className="absolute -top-2 text-t-nota font-semibold text-textSecondary">{minutosAHora(h)}</span>
             </div>
           ))}
         </div>
@@ -43,8 +43,8 @@ export default function WeekGrid({ bloques, onOpen }) {
                       className="absolute left-0.5 right-0.5 overflow-hidden rounded-md px-1.5 py-1 text-left shadow-sm"
                       style={{ top, height: alto, backgroundColor: `${b.color_value}20`, borderLeft: `3px solid ${b.color_value}` }}
                     >
-                      <p className="truncate text-[10.5px] font-bold" style={{ color: b.color_value }}>{b.title}</p>
-                      {alto > 32 && <p className="truncate text-[9px] text-textSecondary">{b.location}</p>}
+                      <p className="truncate text-t-nota font-bold" style={{ color: b.color_value }}>{b.title}</p>
+                      {alto > 32 && <p className="truncate text-t-nota text-textSecondary">{b.location}</p>}
                     </button>
                   );
                 })}

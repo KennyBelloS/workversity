@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Check, X, RotateCcw, ThumbsUp } from 'lucide-react';
 import { ordenarParaRepasar, dominioGeneral } from '../../lib/parciales';
+import TextoPregunta from './TextoPregunta';
 
 /** Modo estudio: una tarjeta a la vez, "voltear" para ver la respuesta, y marcar si acertaste. */
 export default function EstudiarTarjetas({ tarjetas, progreso, onResultado }) {
@@ -28,8 +29,8 @@ export default function EstudiarTarjetas({ tarjetas, progreso, onResultado }) {
       <div className="mb-2 flex items-center justify-between text-xs font-bold text-textSecondary"><span>Tarjeta {i + 1} de {orden.length}</span><span>Dominio: {dominio}%</span></div>
       <div className="mb-1.5 h-1.5 overflow-hidden rounded-full bg-bg"><div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(i / orden.length) * 100}%` }} /></div>
       <button onClick={() => setVolteada((v) => !v)} className="flex min-h-[220px] w-full flex-col items-center justify-center gap-3 rounded-md2 bg-white p-8 text-center shadow-card">
-        <span className="text-[11px] font-bold uppercase tracking-wide text-textSecondary">{volteada ? 'Respuesta' : 'Pregunta · toca para ver la respuesta'}</span>
-        <p className="text-lg font-bold">{volteada ? t.respuesta : t.pregunta}</p>
+        <span className="text-t-micro font-bold uppercase tracking-wide text-textSecondary">{volteada ? 'Respuesta' : 'Pregunta · toca para ver la respuesta'}</span>
+        <p className="max-w-full text-lg font-bold [overflow-wrap:anywhere]">{volteada ? t.respuesta : <TextoPregunta texto={t.pregunta} />}</p>
       </button>
       {volteada ? (
         <div className="mt-3 grid grid-cols-2 gap-2">

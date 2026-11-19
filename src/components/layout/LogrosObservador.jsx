@@ -16,7 +16,7 @@ export default function LogrosObservador() {
     const nuevos = guardados ? logrados.filter((l) => !guardados.includes(l.id)) : [];
     try { localStorage.setItem(CLAVE, JSON.stringify(logrados.map((l) => l.id))); } catch { /* nada */ }
     if (nuevos.length > 0) {
-      mostrarSnackbar({ texto: `🏆 ${nuevos.length === 1 ? 'Logro desbloqueado' : 'Logros desbloqueados'}: ${nuevos.map((l) => `${l.emoji} ${l.titulo}`).join(', ')}`, ms: 6500 });
+      mostrarSnackbar({ texto: `${nuevos.length === 1 ? 'Logro desbloqueado' : 'Logros desbloqueados'}: ${nuevos.map((l) => l.titulo).join(', ')}`, ms: 6500 });
       celebrar();
     }
   }, [lista]);

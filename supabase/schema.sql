@@ -644,68 +644,130 @@ create policy "tareas_las_ve_el_espacio" on tareas for select
 notify pgrst, 'reload schema';
 
 -- ============================================================================
--- v14: rol de administrador de la app (distinto del admin de un espacio de Grupo)
--- Un admin de la app ve las herramientas de base de datos en Ajustes; un usuario
--- normal no las ve (piensa en cuando compartes la app con tu pareja o tu grupo:
--- ellos no necesitan ni deben ver el SQL de tu proyecto de Supabase).
+-- v14: rol de administrador de la aplicación (distinto del rol "admin" de un espacio)
 -- ============================================================================
 alter table perfiles add column if not exists es_admin boolean not null default false;
 notify pgrst, 'reload schema';
 
 -- ============================================================================
--- v15: nadie puede ascenderse a admin por su cuenta (hueco de seguridad real)
--- La política de "cada quien edita su propia fila" controla qué FILA se puede
--- tocar, pero no qué COLUMNA dentro de ella: sin este bloqueo, cualquier persona
--- podría, desde la consola del navegador, mandar un update directo a la API y
--- ponerse es_admin = true a sí misma. Este disparador lo impide: si el cambio
--- de es_admin viene de una sesión normal de la app (no del SQL Editor), se
--- revierte en silencio, dejando el valor que ya tenía.
+-- v15: nadie puede volverse admin por su cuenta cambiando su propia fila (RLS permite
+-- editar TU fila, pero no decide QUÉ columnas; sin esto, cualquiera podría hacer
+-- "update perfiles set es_admin = true where id = auth.uid()" desde el navegador).
 -- ============================================================================
 create or replace function public.proteger_es_admin()
 returns trigger language plpgsql security definer as $$
 begin
-  if new.es_admin is distinct from old.es_admin and auth.role() in ('authenticated', 'anon') then
-    new.es_admin := old.es_admin;
+  if new.es_admin is distinct from old.es_admin then
+    -- Solo el service_role (usado por las Edge Functions, nunca por el navegador) puede
+    -- cambiar este campo. auth.role() es 'authenticated' o 'anon' para cualquier cliente
+    -- que use la clave pública, sin importar lo que envíe en el cuerpo de la petición.
+    if auth.role() <> 'service_role' then
+      raise exception 'No puedes cambiar tu propio rol de administrador.';
+    end if;
   end if;
   return new;
-end;
-$$;
+end $$;
 
 drop trigger if exists trg_proteger_es_admin on perfiles;
 create trigger trg_proteger_es_admin before update on perfiles
   for each row execute function public.proteger_es_admin();
-
 notify pgrst, 'reload schema';
 
 -- ============================================================================
--- v16: panel de administrador — ver usuarios registrados y sus ingresos
--- El admin ve TODOS los perfiles (nombre, correo, cuándo se registró, cuándo
--- entró por última vez y cuántas veces ha entrado). Deliberadamente NO puede
--- ver las tareas, finanzas ni apuntes de nadie: esto es solo sobre cuentas,
--- no sobre el contenido privado de cada persona.
+-- v16: qué tan seguido entra cada quien (para el panel de administrador) y una forma de
+-- que un administrador vea a TODOS los usuarios, no solo su propia fila.
 -- ============================================================================
 alter table perfiles add column if not exists ultimo_ingreso timestamptz;
 alter table perfiles add column if not exists total_ingresos integer not null default 0;
 
--- Función de apoyo (sin recursión): evita que una política de "perfiles" tenga
--- que leer la propia tabla "perfiles" bajo RLS para saber si eres admin.
 create or replace function public.soy_admin()
 returns boolean language sql security definer stable as $$
   select coalesce((select es_admin from perfiles where id = auth.uid()), false);
 $$;
 
 drop policy if exists "admin_ve_todos_los_perfiles" on perfiles;
-create policy "admin_ve_todos_los_perfiles" on perfiles for select
-  using (soy_admin());
+create policy "admin_ve_todos_los_perfiles" on perfiles for select using (soy_admin());
 
--- Se llama una vez por sesión iniciada (ve AuthContext.jsx). Actualiza SOLO
--- la fila de quien llama, y solo estas dos columnas — no toca es_admin.
+-- Se llama una vez al iniciar sesión (nunca directo desde una tabla: solo afecta TU fila).
 create or replace function public.registrar_ingreso()
 returns void language plpgsql security definer as $$
 begin
-  update perfiles set ultimo_ingreso = now(), total_ingresos = total_ingresos + 1
-  where id = auth.uid();
-end;
-$$;
+  update perfiles set ultimo_ingreso = now(), total_ingresos = total_ingresos + 1 where id = auth.uid();
+end $$;
+notify pgrst, 'reload schema';
+
+-- ============================================================================
+-- v17: cuentas suspendidas por un administrador (además del baneo real en auth.users,
+-- se guarda aquí para poder mostrarlo en la lista sin tener que consultar auth.users).
+-- ============================================================================
+alter table perfiles add column if not exists suspendida boolean not null default false;
+notify pgrst, 'reload schema';
+
+-- ============================================================================
+-- v18: horario compartido del grupo y reuniones.
+-- Cada quien publica una *copia* de su semana (clases y compromisos) en el espacio: así los
+-- demás la ven sin tener acceso a sus tablas, y se nota de quién es cada cosa. La copia se
+-- puede actualizar o retirar cuando el dueño quiera.
+-- ============================================================================
+create table if not exists horarios_compartidos (
+  id uuid primary key default gen_random_uuid(),
+  espacio_id uuid not null references espacios (id) on delete cascade,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  bloques jsonb not null default '[]'::jsonb, -- [{ dia, inicio, fin, titulo, tipo, lugar }]
+  actualizado timestamptz not null default now(),
+  unique (espacio_id, user_id)
+);
+create index if not exists idx_horarios_compartidos_espacio on horarios_compartidos (espacio_id);
+
+alter table horarios_compartidos enable row level security;
+drop policy if exists "horarios_los_ven_los_miembros" on horarios_compartidos;
+create policy "horarios_los_ven_los_miembros" on horarios_compartidos for select
+  using (es_miembro_espacio(espacio_id, (select auth.uid())));
+drop policy if exists "horarios_los_edita_su_dueno" on horarios_compartidos;
+create policy "horarios_los_edita_su_dueno" on horarios_compartidos for all
+  using (user_id = (select auth.uid()) and es_miembro_espacio(espacio_id, (select auth.uid())))
+  with check (user_id = (select auth.uid()) and es_miembro_espacio(espacio_id, (select auth.uid())));
+
+-- Las solicitudes ahora distinguen un plan suelto de una reunión del grupo, y pueden tener lugar.
+alter table solicitudes_horario add column if not exists tipo text not null default 'plan';
+alter table solicitudes_horario add column if not exists lugar text default '';
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'solicitudes_tipo_valido') then
+    alter table solicitudes_horario add constraint solicitudes_tipo_valido check (tipo in ('plan', 'reunion'));
+  end if;
+end $$;
+
+-- v19: cada quien decide QUÉ comparte en el grupo.
+--   citas     = no comparte nada; solo pueden proponerle una reunión
+--   tareas    = solo las fechas de sus entregas
+--   reuniones = solo sus reuniones y eventos
+--   todo      = la semana completa (clases, turnos, reuniones y entregas)
+-- El filtro se aplica ANTES de subir los datos: lo que no se comparte no sale del dispositivo.
+alter table horarios_compartidos add column if not exists alcance text not null default 'todo';
+do $$ begin
+  if not exists (select 1 from pg_constraint where conname = 'horarios_alcance_valido') then
+    alter table horarios_compartidos add constraint horarios_alcance_valido check (alcance in ('citas', 'tareas', 'reuniones', 'todo'));
+  end if;
+end $$;
+
+-- ============================================================================
+-- v20: cerrar semestre. El horario (materias y bloques) se guarda como una foto
+-- completa antes de limpiarlo, para poder consultarlo después o restaurarlo.
+-- Nada se borra solo: borrar un semestre guardado es una acción aparte.
+-- ============================================================================
+create table if not exists semestres_archivados (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  nombre text not null,
+  archivado timestamptz not null default now(),
+  datos jsonb not null default '{}'::jsonb,   -- { materias: [...], bloques: [...] }
+  resumen jsonb not null default '{}'::jsonb  -- { materias: 6, bloques: 4, horas: 21 }
+);
+create index if not exists idx_semestres_user on semestres_archivados (user_id, archivado desc);
+
+alter table semestres_archivados enable row level security;
+drop policy if exists "semestres_son_de_su_dueno" on semestres_archivados;
+create policy "semestres_son_de_su_dueno" on semestres_archivados for all
+  using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 notify pgrst, 'reload schema';

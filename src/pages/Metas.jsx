@@ -17,6 +17,8 @@ import { UNIDADES, PLANTILLAS_PROGRESO, COLOR_CATEGORIA_PROGRESO, ETIQUETA_PROGR
 import { formatearFechaCorta, fechaLocalISO } from '../lib/dateUtils';
 import { mostrarSnackbar } from '../lib/snackbar';
 import { celebrar } from '../lib/nativo';
+import Glifo from '../components/Glifo';
+import EstadoVacio from '../components/ui/EstadoVacio';
 
 const campo = 'w-full rounded-sm2 bg-white px-4 py-3 text-sm shadow-card outline-none';
 const esProgreso = (m) => m.tipo === 'progreso';
@@ -68,11 +70,11 @@ function GoalModal({ metaExistente, metas, catAhorro, catProgreso, soportaProgre
 
         {!metaExistente && (
           <div className="mb-3 grid grid-cols-2 gap-2">
-            {[['ahorro', '💰 Ahorro', 'Dinero para algo'], ['progreso', '📖 Progreso', 'Leer, estudiar, ejercicio…']].map(([k, t, s]) => {
+            {[['ahorro', 'Ahorro', 'Dinero para algo'], ['progreso', 'Progreso', 'Leer, estudiar, ejercicio…']].map(([k, t, s]) => {
               const bloqueado = k === 'progreso' && !soportaProgreso;
               return (
                 <button key={k} type="button" disabled={bloqueado} onClick={() => cambiarTipo(k)} className={`rounded-sm2 border p-3 text-left transition disabled:opacity-50 ${tipo === k ? 'border-primary bg-primarySoft' : 'border-black/10 bg-white'}`}>
-                  <span className="block text-sm font-extrabold">{t}</span><span className="text-[11px] text-textSecondary">{bloqueado ? 'Falta ejecutar el SQL (ver manual)' : s}</span>
+                  <span className="block text-sm font-extrabold">{t}</span><span className="text-t-micro text-textSecondary">{bloqueado ? 'Falta ejecutar el SQL (ver manual)' : s}</span>
                 </button>
               );
             })}
@@ -83,7 +85,7 @@ function GoalModal({ metaExistente, metas, catAhorro, catProgreso, soportaProgre
           {tipo === 'progreso' && !metaExistente && (
             <div>
               <p className="mb-1.5 text-xs font-semibold text-textSecondary">Empieza con una idea</p>
-              <div className="flex flex-wrap gap-1.5">{PLANTILLAS_PROGRESO.map((p) => <button key={p.titulo} type="button" onClick={() => aplicarPlantilla(p)} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold shadow-card">{p.emoji} {p.titulo}</button>)}</div>
+              <div className="flex flex-wrap gap-1.5">{PLANTILLAS_PROGRESO.map((p) => <button key={p.titulo} type="button" onClick={() => aplicarPlantilla(p)} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold shadow-card inline-flex items-center gap-1.5"><Glifo e={p.emoji} size={13} className="text-primary" />{p.titulo}</button>)}</div>
             </div>
           )}
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder={tipo === 'progreso' ? 'Ej: Leer «Cien años de soledad»' : 'Ej: Viaje a Cartagena'} className={campo} aria-label="Título de la meta" />
@@ -107,7 +109,7 @@ function GoalModal({ metaExistente, metas, catAhorro, catProgreso, soportaProgre
           <div>
             <p className="mb-1 text-xs font-semibold text-textSecondary">{tipo === 'progreso' ? 'Categoría' : '¿A qué categoría va el dinero de esta meta?'}</p>
             <SelectorCategoriaAhorro value={categoria} onChange={setCategoria} cat={cat} />
-            {comparte && <p className="mt-1.5 flex items-start gap-1 text-[11px] font-semibold text-warning"><AlertTriangle size={12} className="mt-0.5 shrink-0" /> La meta «{comparte.title}» ya usa esta categoría: el dinero contará para las dos. Crea una categoría nueva si quieres separarlo.</p>}
+            {comparte && <p className="mt-1.5 flex items-start gap-1 text-t-micro font-semibold text-warning"><AlertTriangle size={12} className="mt-0.5 shrink-0" /> La meta «{comparte.title}» ya usa esta categoría: el dinero contará para las dos. Crea una categoría nueva si quieres separarlo.</p>}
           </div>
 
           <div>
@@ -200,7 +202,7 @@ function AvanceModal({ meta, estado, onGuardar, onCerrar }) {
           <input type="number" inputMode="decimal" autoFocus value={cantidad} onChange={(e) => { setCantidad(e.target.value); setError(''); }} placeholder={`¿Cuántas ${meta.unidad}?`} aria-label="Cantidad del avance" className={`${campo} text-lg font-bold`} />
           <div className="flex gap-2">{[paso, paso * 2, paso * 5].map((q) => <button key={q} type="button" onClick={() => setCantidad(String(q))} className="rounded-full bg-white px-3 py-1.5 text-xs font-bold shadow-card">{q}</button>)}</div>
           {error && <p className="text-xs font-semibold text-danger">{error}</p>}
-          {n > 0 && <p className="rounded-sm2 bg-primarySoft/60 p-2.5 text-xs font-semibold text-primary">Quedarás en {fmtNum(Math.min(nuevoTotal, estado.objetivo))} de {fmtNum(estado.objetivo)} ({Math.round(Math.min(nuevoTotal / estado.objetivo, 1) * 100)}%){nuevoTotal >= estado.objetivo ? ' — ¡la terminas! 🎉' : ''}</p>}
+          {n > 0 && <p className="rounded-sm2 bg-primarySoft/60 p-2.5 text-xs font-semibold text-primary">Quedarás en {fmtNum(Math.min(nuevoTotal, estado.objetivo))} de {fmtNum(estado.objetivo)} ({Math.round(Math.min(nuevoTotal / estado.objetivo, 1) * 100)}%){nuevoTotal >= estado.objetivo ? ' — ¡la terminas!' : ''}</p>}
           <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className={campo} aria-label="Fecha" />
           <input value={nota} onChange={(e) => setNota(e.target.value)} placeholder="Nota (opcional): ¿qué leíste, qué aprendiste?" className={campo} />
           <div className="flex gap-3">
@@ -218,7 +220,7 @@ function DestinoDelAhorro({ resumen, cat }) {
   const [creando, setCreando] = useState(false);
   const borrar = async (f) => { if (window.confirm(`¿Eliminar la categoría «${f.nombre}»? No tiene dinero ni metas.`)) await cat.eliminar(f.id); };
   return (
-    <section className="mb-5 rounded-md2 bg-white p-4 shadow-card">
+    <section className="mb-5 ficha">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
           <p className="flex items-center gap-2 text-sm font-extrabold"><Tags size={16} className="text-primary" /> ¿A dónde va tu ahorro?</p>
@@ -240,16 +242,16 @@ function DestinoDelAhorro({ resumen, cat }) {
             <div key={f.nombre} className="flex items-center gap-3 rounded-sm2 bg-bg p-2.5">
               <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: f.color }} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-bold">{f.nombre}{f.propia && <span className="ml-1 text-[10px] text-textSecondary">★ tuya</span>}{f.huerfana && <span className="ml-1 text-[10px] text-textSecondary">(ya no existe)</span>}</span>
-                <span className="block truncate text-[11px] text-textSecondary">{f.metas.length > 0 ? `🎯 ${f.metas.map((m) => m.title).join(' · ')}` : f.total > 0 ? '⚠️ Sin meta vinculada' : 'Aún sin ahorros ni metas'}</span>
+                <span className="block truncate text-sm font-bold">{f.nombre}{f.propia && <span className="ml-1 text-t-nota text-textSecondary">★ tuya</span>}{f.huerfana && <span className="ml-1 text-t-nota text-textSecondary">(ya no existe)</span>}</span>
+                <span className="block truncate text-t-micro text-textSecondary">{f.metas.length > 0 ? `${f.metas.map((m) => m.title).join(' · ')}` : f.total > 0 ? 'Sin meta vinculada' : 'Aún sin ahorros ni metas'}</span>
               </span>
-              <span className="text-right"><span className="block text-sm font-extrabold">{currencyFormat.format(f.total)}</span>{resumen.total > 0 && f.total > 0 && <span className="text-[10px] text-textSecondary">{Math.round((f.total / resumen.total) * 100)}%</span>}</span>
+              <span className="text-right"><span className="block text-sm font-extrabold">{currencyFormat.format(f.total)}</span>{resumen.total > 0 && f.total > 0 && <span className="text-t-nota text-textSecondary">{Math.round((f.total / resumen.total) * 100)}%</span>}</span>
               {f.propia && <button onClick={() => borrar(f)} disabled={!libre} aria-label={`Eliminar ${f.nombre}`} title={libre ? 'Eliminar categoría' : 'Está en uso: tiene ahorros o metas'} className="shrink-0 rounded p-1 text-textSecondary hover:text-danger disabled:opacity-30"><Trash2 size={14} /></button>}
             </div>
           );
         })}
       </div>
-      {resumen.sinMeta.length > 0 && <p className="mt-3 flex items-start gap-1.5 text-[11px] font-semibold text-warning"><AlertTriangle size={13} className="mt-0.5 shrink-0" /> Tienes {currencyFormat.format(resumen.sinMeta.reduce((s, f) => s + f.total, 0))} ahorrados en categorías sin meta ({resumen.sinMeta.map((f) => f.nombre).join(', ')}). Crea una meta para darles un propósito.</p>}
+      {resumen.sinMeta.length > 0 && <p className="mt-3 flex items-start gap-1.5 text-t-micro font-semibold text-warning"><AlertTriangle size={13} className="mt-0.5 shrink-0" /> Tienes {currencyFormat.format(resumen.sinMeta.reduce((s, f) => s + f.total, 0))} ahorrados en categorías sin meta ({resumen.sinMeta.map((f) => f.nombre).join(', ')}). Crea una meta para darles un propósito.</p>}
     </section>
   );
 }
@@ -263,7 +265,7 @@ function PanelProgreso({ cat, metasP, estados }) {
   }).filter((f) => f.metas.length > 0 || f.propia);
   const borrar = async (f) => { if (window.confirm(`¿Eliminar la categoría «${f.nombre}»?`)) await cat.eliminar(f.id); };
   return (
-    <section className="mb-5 rounded-md2 bg-white p-4 shadow-card">
+    <section className="mb-5 ficha">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div><p className="flex items-center gap-2 text-sm font-extrabold"><Sprout size={16} className="text-primary" /> Tus metas de progreso por categoría</p>
           <p className="text-xs text-textSecondary">{metasP.length} meta{metasP.length !== 1 ? 's' : ''} · {metasP.filter((m) => estados.get(m.id)?.hecho).length} terminada{metasP.filter((m) => estados.get(m.id)?.hecho).length !== 1 ? 's' : ''}</p></div>
@@ -276,10 +278,10 @@ function PanelProgreso({ cat, metasP, estados }) {
             <div key={f.nombre} className="flex items-center gap-3 rounded-sm2 bg-bg p-2.5">
               <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: f.color }} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-bold">{f.nombre}{f.propia && <span className="ml-1 text-[10px] text-textSecondary">★ tuya</span>}</span>
-                <span className="block truncate text-[11px] text-textSecondary">{f.metas.length > 0 ? f.metas.map((m) => m.title).join(' · ') : 'Aún sin metas'}</span>
+                <span className="block truncate text-sm font-bold">{f.nombre}{f.propia && <span className="ml-1 text-t-nota text-textSecondary">★ tuya</span>}</span>
+                <span className="block truncate text-t-micro text-textSecondary">{f.metas.length > 0 ? f.metas.map((m) => m.title).join(' · ') : 'Aún sin metas'}</span>
               </span>
-              {f.metas.length > 0 && <span className="w-24 shrink-0"><span className="block h-1.5 overflow-hidden rounded-full bg-white"><span className="block h-full rounded-full" style={{ width: `${f.pct * 100}%`, backgroundColor: f.color }} /></span><span className="text-[10px] text-textSecondary">{Math.round(f.pct * 100)}% · {f.hechas}/{f.metas.length}</span></span>}
+              {f.metas.length > 0 && <span className="w-24 shrink-0"><span className="block h-1.5 overflow-hidden rounded-full bg-white"><span className="block h-full rounded-full" style={{ width: `${f.pct * 100}%`, backgroundColor: f.color }} /></span><span className="text-t-nota text-textSecondary">{Math.round(f.pct * 100)}% · {f.hechas}/{f.metas.length}</span></span>}
               {f.propia && <button onClick={() => borrar(f)} disabled={f.metas.length > 0} aria-label={`Eliminar ${f.nombre}`} title={f.metas.length ? 'Está en uso' : 'Eliminar categoría'} className="shrink-0 rounded p-1 text-textSecondary hover:text-danger disabled:opacity-30"><Trash2 size={14} /></button>}
             </div>
           ))}
@@ -303,27 +305,27 @@ function TarjetaProgreso({ meta, e, categoria, onEditar, onAvance, onRapido }) {
   const et = ETIQUETA_PROGRESO[e.estado];
   const paso = pasoRapido(meta.unidad);
   let linea;
-  if (e.hecho) linea = '🎉 ¡Meta cumplida!';
+  if (e.hecho) linea = '¡Meta cumplida!';
   else if (e.estado === 'vencida') linea = `El plazo terminó; te faltaron ${fmtNum(e.faltante)} ${meta.unidad}.`;
   else if (e.ritmo > 0) linea = `A tu ritmo (≈${fmtNum(e.ritmo)} ${meta.unidad}/día) terminas el ${fechaLarga(e.fechaEstimada)}.`;
   else if (e.necesarioPorDia) linea = `Necesitas ≈${fmtNum(e.necesarioPorDia)} ${meta.unidad}/día para llegar a tiempo.`;
   else linea = 'Registra tu primer avance para calcular tu ritmo.';
   return (
-    <div className="rounded-md2 bg-white p-4 shadow-card transition hover:shadow-md">
+    <div className="ficha">
       <button onClick={onEditar} className="block w-full text-left">
         <div className="flex items-center justify-between gap-2">
           <p className="min-w-0 truncate font-bold text-textPrimary">{meta.title}</p>
           <span className="shrink-0 text-sm font-extrabold" style={{ color: meta.color_value }}>{Math.round(e.pct * 100)}%</span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: `${categoria?.color || '#8B93A7'}22`, color: categoria?.color || '#8B93A7' }}><BookOpen size={10} /> {meta.categoria_vinculada}</span>
-          <span className="rounded-full px-2 py-0.5 text-[10px] font-extrabold" style={{ backgroundColor: `${et.color}1F`, color: et.color }}>{et.texto}</span>
-          {e.racha > 1 && <span className="text-[10px] font-bold text-warning">🔥 {e.racha} días</span>}
+          <span className="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-t-nota font-bold" style={{ backgroundColor: `${categoria?.color || '#9A9890'}22`, color: categoria?.color || '#9A9890' }}><BookOpen size={10} /> {meta.categoria_vinculada}</span>
+          <span className="rounded-full px-2 py-0.5 text-t-nota font-extrabold" style={{ backgroundColor: `${et.color}1F`, color: et.color }}>{et.texto}</span>
+          {e.racha > 1 && <span className="text-t-nota font-bold text-warning">{e.racha} días</span>}
         </div>
-        {meta.fecha_limite && <p className="mt-1 text-[11px] text-textSecondary">Antes del {formatearFechaCorta(meta.fecha_limite)}{e.diasRestantes > 0 ? ` · quedan ${e.diasRestantes} días` : ''}</p>}
+        {meta.fecha_limite && <p className="mt-1 text-t-micro text-textSecondary">Antes del {formatearFechaCorta(meta.fecha_limite)}{e.diasRestantes > 0 ? ` · quedan ${e.diasRestantes} días` : ''}</p>}
         <div className="mt-2.5 h-2.5 overflow-hidden rounded-full bg-black/5"><div className="h-full rounded-full transition-all duration-700" style={{ width: `${e.pct * 100}%`, backgroundColor: meta.color_value }} /></div>
         <p className="mt-1.5 text-xs font-semibold">{fmtNum(e.total)} <span className="font-normal text-textSecondary">de {fmtNum(e.objetivo)} {meta.unidad}</span></p>
-        <p className="mt-1 text-[11px] text-textSecondary">{linea}</p>
+        <p className="mt-1 text-t-micro text-textSecondary">{linea}</p>
         <MiniActividad dias={e.ultimos} color={meta.color_value} />
       </button>
       {!e.hecho && (
@@ -408,7 +410,7 @@ export default function Metas() {
     await cargar();
     setAvanzando(null);
     const termina = antes && !antes.hecho && antes.total + datos.cantidad >= antes.objetivo;
-    if (termina) { celebrar(); mostrarSnackbar({ texto: `🎉 ¡Terminaste «${meta.title}»!`, ms: 6000 }); return; }
+    if (termina) { celebrar(); mostrarSnackbar({ texto: `¡Terminaste «${meta.title}»!`, ms: 6000 }); return; }
     mostrarSnackbar({ texto: `+${fmtNum(datos.cantidad)} ${meta.unidad} en «${meta.title}»`, etiqueta: 'Deshacer', onAccion: async () => { await eliminarAvance(fila.id); await cargar(); } });
   };
   const quitarAvance = async (id) => { await eliminarAvance(id); await cargar(); };
@@ -416,29 +418,41 @@ export default function Metas() {
   if (cargando) return <p className="py-10 text-center text-sm text-textSecondary">Cargando…</p>;
 
   const visibles = metas.filter((m) => filtro === 'todas' || (filtro === 'progreso') === esProgreso(m));
-  const chip = (k, t) => <button key={k} onClick={() => setFiltro(k)} className={`rounded-full px-3.5 py-1.5 text-xs font-bold ${filtro === k ? 'bg-primary text-white' : 'bg-white text-textSecondary shadow-card'}`}>{t}</button>;
+  const chip = (k, t) => <button key={k} onClick={() => setFiltro(k)} className={`seg-op ${filtro === k ? 'activo' : ''}`}>{t}</button>;
 
   return (
     <div>
       <div className="mb-4 flex items-center justify-between gap-3">
         <p className="text-sm text-textSecondary">Ahorra con propósito y avanza en lo que te importa: leer un libro, un curso, ejercicio…</p>
-        <button onClick={() => { setEditando(null); setModalAbierto(true); }} className="flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-white transition hover:bg-primaryDark"><Plus size={18} /> Nueva meta</button>
+        <button onClick={() => { setEditando(null); setModalAbierto(true); }} className="boton-ppal"><Plus size={18} /> Nueva meta</button>
       </div>
 
       <ErrorCarga mensaje={error} />
 
       <div className="mb-4 flex flex-wrap gap-2">
-        {chip('todas', `Todas (${metas.length})`)}{chip('ahorro', `💰 Ahorro (${metasAhorro.length})`)}{chip('progreso', `📖 Progreso (${metasProg.length})`)}
+        <div className="seg">{chip('todas', `Todas · ${metas.length}`)}{chip('ahorro', `Ahorro · ${metasAhorro.length}`)}{chip('progreso', `Progreso · ${metasProg.length}`)}</div>
       </div>
 
       {filtro === 'progreso' ? <PanelProgreso cat={catProgreso} metasP={metasProg} estados={estados} /> : <DestinoDelAhorro resumen={resumen} cat={catAhorro} />}
       {!soportaProgreso && <p className="mb-4 rounded-sm2 bg-warningSoft p-3 text-xs font-semibold text-warning">Para usar metas de progreso (leer, estudiar…) falta ejecutar el SQL nuevo de <code>supabase/schema.sql</code> (ver el manual).</p>}
 
       {visibles.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-md2 bg-white py-16 shadow-card">
-          <Target size={32} className="text-textSecondary/40" />
-          <p className="text-sm text-textSecondary">{filtro === 'progreso' ? 'Crea una meta de progreso: por ejemplo, leer un libro' : 'Crea una meta para empezar con propósito'}</p>
-        </div>
+        <EstadoVacio
+          titulo={filtro === 'progreso' ? 'Ponte una meta que se mida en pasos.' : 'Ponte una meta de ahorro.'}
+          texto={filtro === 'progreso'
+            ? 'Leer un libro, estudiar cierto número de horas, terminar un curso: tú defines la unidad y aquí se ve el avance.'
+            : 'Dices cuánto quieres juntar y para qué; cada vez que ahorres, la meta sube sola.'}
+          accion={{ texto: filtro === 'progreso' ? 'Crear meta de progreso' : 'Crear meta de ahorro', onClick: () => { setEditando(null); setModalAbierto(true); } }}
+          muestras={filtro === 'progreso' ? [
+            { titulo: 'Leer «El infinito en un junco»', pie: '180 de 450 pág.', icono: '📓' },
+            { titulo: '40 horas de estudio', pie: 'este mes', icono: '🍅', tono: 'oscuro' },
+            { titulo: 'Terminar el curso de Excel', pie: '6 de 12 clases', icono: '🎓' },
+          ] : [
+            { titulo: 'Viaje de fin de semestre', pie: '$ 200.000 / $ 900.000', icono: '✈️' },
+            { titulo: 'Portátil nuevo', pie: 'en 7 meses', icono: '💻', tono: 'oscuro' },
+            { titulo: 'Fondo de emergencia', pie: 'cada quincena', icono: '🛟' },
+          ]}
+        />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {visibles.map((meta) => {
@@ -450,11 +464,11 @@ export default function Metas() {
             const porcentaje = Math.min(progreso / Number(meta.target_amount), 1);
             const c = catAhorro.todas.find((x) => x.nombre === meta.categoria_vinculada);
             return (
-              <div key={meta.id} className="rounded-md2 bg-white p-4 shadow-card transition hover:shadow-md">
+              <div key={meta.id} className="ficha">
                 <button onClick={() => { setEditando(meta); setModalAbierto(true); }} className="block w-full text-left">
                   <div className="flex items-center justify-between"><p className="font-bold text-textPrimary">{meta.title}</p><span className="text-sm font-extrabold" style={{ color: meta.color_value }}>{Math.round(porcentaje * 100)}%</span></div>
-                  <span className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: `${c?.color || '#8B93A7'}22`, color: c?.color || '#8B93A7' }}><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: c?.color || '#8B93A7' }} /> {meta.categoria_vinculada}</span>
-                  {meta.fecha_limite && <p className="mt-1 text-[11px] text-textSecondary">Antes del {formatearFechaCorta(meta.fecha_limite)}</p>}
+                  <span className="mt-1 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-t-nota font-bold" style={{ backgroundColor: `${c?.color || '#9A9890'}22`, color: c?.color || '#9A9890' }}><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: c?.color || '#9A9890' }} /> {meta.categoria_vinculada}</span>
+                  {meta.fecha_limite && <p className="mt-1 text-t-micro text-textSecondary">Antes del {formatearFechaCorta(meta.fecha_limite)}</p>}
                   <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-black/5"><div className="h-full rounded-full" style={{ width: `${porcentaje * 100}%`, backgroundColor: meta.color_value }} /></div>
                   <p className="mt-2 text-xs text-textSecondary">{currencyFormat.format(progreso)} de {currencyFormat.format(meta.target_amount)}</p>
                 </button>

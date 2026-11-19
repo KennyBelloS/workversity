@@ -1,7 +1,9 @@
+import Glifo from './Glifo';
+
 const TIPOS = {
-  nuevo: { icono: '✨', etiqueta: 'Nuevo', color: '#3E7BFA' },
-  mejora: { icono: '🔧', etiqueta: 'Mejora', color: '#8B7FD1' },
-  arreglo: { icono: '🐞', etiqueta: 'Arreglo', color: '#17C964' },
+  nuevo: { icono: '✨', etiqueta: 'Nuevo', color: 'rgb(var(--primary))' },
+  mejora: { icono: '🔧', etiqueta: 'Mejora', color: 'rgb(var(--textPrimary))' },
+  arreglo: { icono: '🐞', etiqueta: 'Arreglo', color: 'rgb(var(--success))' },
 };
 
 /** Lista de cambios de una versión, agrupada por tipo. */
@@ -13,9 +15,9 @@ export function CambiosDeVersion({ release }) {
         if (items.length === 0) return null;
         return (
           <div key={tipo}>
-            <p className="mb-1 text-[11px] font-extrabold" style={{ color: info.color }}>{info.icono} {info.etiqueta}</p>
+            <p className="rotulo mb-2 flex items-center gap-1.5" style={{ color: info.color, '--punto': info.color }}><Glifo e={info.icono} size={12} /> {info.etiqueta}</p>
             <ul className="space-y-1.5">
-              {items.map((c) => <li key={c.x} className="flex gap-2 text-[13px] leading-snug"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: info.color }} /><span>{c.x}</span></li>)}
+              {items.map((c) => <li key={c.x} className="flex gap-2 text-t-pie leading-snug"><span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: info.color }} /><span>{c.x}</span></li>)}
             </ul>
           </div>
         );
@@ -38,7 +40,7 @@ export default function NovedadesLista({ releases, abrirPrimera = true }) {
         <details key={r.version} open={abrirPrimera && i === 0} className="py-2.5">
           <summary className="cursor-pointer list-none marker:hidden">
             <span className="text-sm font-extrabold">Versión {r.version}</span>
-            <span className="ml-2 text-[11px] text-textSecondary">{fechaBonita(r.fecha)}</span>
+            <span className="ml-2 text-t-micro text-textSecondary">{fechaBonita(r.fecha)}</span>
             <span className="block text-xs text-textSecondary">{r.titulo}</span>
           </summary>
           <div className="mt-2.5"><CambiosDeVersion release={r} /></div>

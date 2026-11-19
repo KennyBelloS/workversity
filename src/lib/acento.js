@@ -1,5 +1,8 @@
 // Color de acento y tamaño de texto (preferencias guardadas en el dispositivo).
 export const ACENTOS = {
+  cobalto: { nombre: 'Cobalto', claro: { primary: '46 75 240', dark: '30 52 196', soft: '232 235 253' }, oscuro: { primary: '112 132 255', dark: '84 106 245', soft: '30 33 58' } },
+  coral: { nombre: 'Coral', claro: { primary: '238 92 72', dark: '206 66 50', soft: '252 235 231' }, oscuro: { primary: '250 120 100', dark: '230 96 78', soft: '60 30 26' } },
+  tinta: { nombre: 'Tinta', claro: { primary: '31 59 96', dark: '20 41 74', soft: '232 237 245' }, oscuro: { primary: '143 176 226', dark: '104 140 196', soft: '28 40 64' } },
   azul: { nombre: 'Azul', claro: { primary: '111 168 220', dark: '74 127 181', soft: '234 243 251' }, oscuro: { primary: '111 168 220', dark: '88 146 203', soft: '30 46 72' } },
   verde: { nombre: 'Verde', claro: { primary: '52 178 123', dark: '36 143 95', soft: '229 246 238' }, oscuro: { primary: '74 200 143', dark: '52 168 116', soft: '20 52 40' } },
   violeta: { nombre: 'Violeta', claro: { primary: '139 127 209', dark: '112 98 190', soft: '240 237 251' }, oscuro: { primary: '165 155 230', dark: '139 127 209', soft: '38 34 66' } },
@@ -12,12 +15,12 @@ export const CLAVE_ACENTO = 'workversity:acento';
 export const CLAVE_TEXTO = 'workversity:texto';
 
 const leer = (clave, valido, defecto) => { try { const v = localStorage.getItem(clave); return valido(v) ? v : defecto; } catch { return defecto; } };
-export const leerAcento = () => leer(CLAVE_ACENTO, (v) => v in ACENTOS, 'azul');
+export const leerAcento = () => leer(CLAVE_ACENTO, (v) => v in ACENTOS, 'cobalto');
 export const leerTexto = () => leer(CLAVE_TEXTO, (v) => v in TAMANOS_TEXTO, 'normal');
 
 export function aplicarAcento(nombre, oscuro) {
   if (typeof document === 'undefined') return;
-  const v = (ACENTOS[nombre] || ACENTOS.azul)[oscuro ? 'oscuro' : 'claro'];
+  const v = (ACENTOS[nombre] || ACENTOS.cobalto)[oscuro ? 'oscuro' : 'claro'];
   const s = document.documentElement.style;
   s.setProperty('--primary', v.primary);
   s.setProperty('--primaryDark', v.dark);

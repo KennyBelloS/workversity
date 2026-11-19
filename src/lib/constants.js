@@ -1,18 +1,18 @@
 export const CATEGORIES = {
-  universidad: { label: 'Universidad', color: '#5B8DEF' },
-  trabajo: { label: 'Trabajo', color: '#8B7FD1' },
+  universidad: { label: 'Universidad', color: '#3B5BA9' },
+  trabajo: { label: 'Trabajo', color: '#6B5FA8' },
 };
 
 export const PRIORITIES = {
-  baja: { label: 'Baja', color: '#17C964' },
-  media: { label: 'Media', color: '#F5A524' },
-  alta: { label: 'Alta', color: '#E5484D' },
+  baja: { label: 'Baja', color: '#2F7A55' },
+  media: { label: 'Media', color: '#A8732A' },
+  alta: { label: 'Alta', color: '#B04A3E' },
 };
 
 export const TASK_STATUSES = {
-  pendiente: { label: 'Por hacer', color: '#6E7180' },
-  enProgreso: { label: 'En progreso', color: '#F5A524' },
-  hecha: { label: 'Hecha', color: '#17C964' },
+  pendiente: { label: 'Por hacer', color: '#807F7A' },
+  enProgreso: { label: 'En progreso', color: '#A8732A' },
+  hecha: { label: 'Hecha', color: '#2F7A55' },
 };
 
 export const STATUS_ORDER = ['pendiente', 'enProgreso', 'hecha'];
@@ -35,11 +35,11 @@ export const RECURRENCIAS = [
 export const etiquetaRecurrencia = (n) => RECURRENCIAS.find((r) => r.v === Number(n))?.t || `Cada ${n} días`;
 
 export const BLOCK_TYPES = {
-  clase: { label: 'Clase', color: '#5B8DEF' },
-  trabajo: { label: 'Trabajo', color: '#8B7FD1' },
-  reunion: { label: 'Reunión', color: '#E5789C' },
-  almuerzo: { label: 'Almuerzo', color: '#F5A524' },
-  otro: { label: 'Otro', color: '#7FD1C3' },
+  clase: { label: 'Clase', color: '#3B5BA9' },
+  trabajo: { label: 'Trabajo', color: '#6B5FA8' },
+  reunion: { label: 'Reunión', color: '#AD5A77' },
+  almuerzo: { label: 'Almuerzo', color: '#A8732A' },
+  otro: { label: 'Otro', color: '#3E7E7C' },
 };
 
 export const CATEGORIAS_GASTO = [
@@ -49,12 +49,13 @@ export const CATEGORIAS_INGRESO = ['Salario', 'Freelance', 'Regalo', 'Inversión
 export const CATEGORIAS_AHORRO = ['Fondo de emergencia', 'Meta personal', 'Inversión', 'Otro'];
 
 export const TRANSACTION_TYPES = {
-  ingreso: { label: 'Ingreso', color: '#17C964' },
-  gasto: { label: 'Gasto', color: '#E5484D' },
-  ahorro: { label: 'Ahorro', color: '#3E7BFA' },
+  ingreso: { label: 'Ingreso', color: '#2F7A55' },
+  gasto: { label: 'Gasto', color: '#B04A3E' },
+  ahorro: { label: 'Ahorro', color: '#2E4BF0' },
 };
 
-export const COLORES_SUGERIDOS = ['#5B8DEF', '#7FD1C3', '#8B7FD1', '#F5A524', '#E5789C', '#6FA8DC'];
+// Paleta de pigmentos: colores de materia que conviven con el papel cálido y la tinta.
+export const COLORES_SUGERIDOS = ['#3B5BA9', '#B04A3E', '#2F7A55', '#A8732A', '#6B5FA8', '#3E7E7C', '#AD5A77', '#7A6A58'];
 
 export const DIAS_SEMANA = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
 

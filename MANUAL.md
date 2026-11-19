@@ -1,8 +1,7 @@
 # Workversity Web (completa) — Manual paso a paso
 
 Versión **completa** de tu app, en JavaScript (React + Vite), con **Supabase**
-como base de datos y con **login real** (correo y contraseña) — hecha
-siguiendo el mismo patrón que usa tu app de calculadora-costo-tallo
+como base de datos y con **login real** (correo y contraseña)
 (React + Vite + Supabase + Tailwind).
 
 ## Módulos incluidos (todos, ninguno de menos)

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Pause, Play, ArrowRight } from 'lucide-react';
 import { IlusMaterias, IlusAgenda, IlusTareas, IlusAsistente, IlusNotas, IlusNotificaciones, IlusCalendario, IlusResumen, IlusFinanzas, IlusAtajos, IlusConjunto } from './Ilustraciones';
+import Glifo from '../Glifo';
 
 const DURACION = 9; // segundos por lámina
 
@@ -74,13 +75,13 @@ export default function RecorridoAnimado({ compacto = false, onFin }) {
 
       <div key={i} className={`grid gap-4 p-4 ${compacto ? '' : 'lg:grid-cols-2 lg:gap-6 lg:p-6'}`}>
         <div className="flex min-w-0 flex-col">
-          <p className="text-xs font-bold text-primary">{L.emoji} Paso {i + 1} de {LAMINAS.length}</p>
+          <p className="flex items-center gap-1.5 text-xs font-bold text-primary"><Glifo e={L.emoji} size={13} /> Paso {i + 1} de {LAMINAS.length}</p>
           <h3 className={`mt-1 font-extrabold tracking-tight ${compacto ? 'text-lg' : 'text-xl sm:text-2xl'}`}>{L.titulo}</h3>
           <p className="mt-1 text-sm text-textSecondary">{L.resumen}</p>
           <ol className="mt-3 space-y-2">
             {L.pasos.map((p, k) => (
-              <li key={p} className="anim-step flex gap-2.5 text-[13px]" style={{ animationDelay: `${0.4 + k * 1.6}s` }}>
-                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primarySoft text-[10px] font-extrabold text-primary">{k + 1}</span>
+              <li key={p} className="anim-step flex gap-2.5 text-t-pie" style={{ animationDelay: `${0.4 + k * 1.6}s` }}>
+                <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primarySoft text-t-nota font-extrabold text-primary">{k + 1}</span>
                 <span>{p}</span>
               </li>
             ))}

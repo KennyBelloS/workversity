@@ -15,17 +15,17 @@ export default function PanelPasos({ tarea, pasos, usuarioId, onCambio }) {
   const agregar = async () => { const t = nuevo.trim(); if (!t) return; setNuevo(''); await crearTarea(datosPaso(tarea, t), usuarioId); onCambio(); };
 
   return (
-    <section className="rounded-md2 bg-white p-4 shadow-card">
+    <section className="ficha">
       <div className="mb-2 flex items-center justify-between">
         <p className="text-sm font-extrabold">Pasos</p>
-        {pasos.length > 0 && <span className="text-[11px] font-bold text-textSecondary">{hechos}/{pasos.length}</span>}
+        {pasos.length > 0 && <span className="text-t-micro font-bold text-textSecondary">{hechos}/{pasos.length}</span>}
       </div>
       {pasos.length > 0 && <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-bg"><div className="h-full rounded-full bg-success transition-all" style={{ width: `${(hechos / pasos.length) * 100}%` }} /></div>}
       <ul className="space-y-1.5">
         {pasos.map((p) => (
           <li key={p.id} className="flex items-center gap-2 rounded-sm2 bg-bg px-2.5 py-2">
             <button onClick={async () => { await completarTarea(p, usuarioId); onCambio(); }} aria-label={p.status === 'hecha' ? 'Reabrir paso' : 'Completar paso'} className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${p.status === 'hecha' ? 'border-success bg-success' : 'border-textSecondary/40'}`}>{p.status === 'hecha' && <Check size={11} className="text-white" />}</button>
-            <span className={`min-w-0 flex-1 text-[13px] ${p.status === 'hecha' ? 'text-textSecondary line-through' : ''}`}>{p.title}</span>
+            <span className={`min-w-0 flex-1 text-t-pie ${p.status === 'hecha' ? 'text-textSecondary line-through' : ''}`}>{p.title}</span>
             <button onClick={async () => { await eliminarTarea(p.id); onCambio(); }} aria-label="Quitar paso" className="text-textSecondary hover:text-danger"><Trash2 size={13} /></button>
           </li>
         ))}

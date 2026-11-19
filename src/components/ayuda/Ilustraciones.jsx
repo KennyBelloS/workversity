@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Bell, Video, CalendarPlus, Check, Wallet, Sparkles, Smartphone, Command } from 'lucide-react';
+import Glifo from '../Glifo';
 
 const d = (n) => ({ animationDelay: `${n}s` });
 const Caja = ({ children, className = '', style }) => <div className={`rounded-xl bg-white shadow-card ${className}`} style={style}>{children}</div>;
-const COLORES = { clase: '#5B8DEF', fisica: '#E5789C', web: '#7FD1C3', trabajo: '#8B7FD1', reunion: '#E5789C', tarea: '#F5A524' };
+const COLORES = { clase: '#3B5BA9', fisica: '#AD5A77', web: '#3E7E7C', trabajo: '#6B5FA8', reunion: '#AD5A77', tarea: '#A8732A' };
 
 export function IlusMaterias() {
-  const mats = [['Cálculo II', COLORES.clase, 'B-204', 1], ['Física', COLORES.fisica, 'A-101', 3], ['Programación', COLORES.web, '💻 Virtual', 2]];
+  const mats = [['Cálculo II', COLORES.clase, 'B-204', 1], ['Física', COLORES.fisica, 'A-101', 3], ['Programación', COLORES.web, 'Virtual', 2]];
   return (
     <div className="grid h-full grid-cols-2 gap-3 p-3">
       <div className="space-y-2">
@@ -63,7 +64,7 @@ export function IlusTareas() {
         <span className="anim-pop ml-auto rounded-full bg-infoSoft px-1.5 py-0.5 text-[9px] font-bold text-info" style={d(1.6)}>Mañana 5:00 p. m.</span>
       </Caja>
       <div className="relative flex flex-1 gap-2">
-        {col('Por hacer', '#8B93A7')}{col('En progreso', '#F5A524')}{col('Hecha', '#17C964')}
+        {col('Por hacer', '#9A9890')}{col('En progreso', '#A8732A')}{col('Hecha', '#2F7A55')}
         <div className="anim-card absolute left-0 top-6 w-[calc(33.3%-0.35rem)]">
           <Caja className="p-1.5" style={{ borderLeft: `3px solid ${COLORES.clase}` }}>
             <p className="text-[10px] font-extrabold">Informe de Física</p>
@@ -87,10 +88,10 @@ export function IlusAsistente() {
             <span className="min-w-0"><span className="block truncate text-[10px] font-bold">{t}</span><span className="text-[9px] text-primary">{r}</span></span>
           </Caja>
         ))}
-        <Caja className="anim-slide p-1.5 text-[9px]" style={d(3.4)}>🕐 Hueco libre 2:00–3:00 → <b>Parcial</b></Caja>
+        <Caja className="anim-slide p-1.5 text-[9px]" style={d(3.4)}>Hueco libre 2:00–3:00 → <b>Parcial</b></Caja>
       </div>
       <div className="col-span-2 grid grid-cols-2 gap-1">
-        {[['#E5484D', 'Ya'], ['#3E7BFA', 'Planificar'], ['#F5A524', 'Rápido'], ['#8B93A7', 'Esperar']].map(([c, t], i) => (
+        {[['#B04A3E', 'Ya'], ['#2E4BF0', 'Planificar'], ['#A8732A', 'Rápido'], ['#9A9890', 'Esperar']].map(([c, t], i) => (
           <div key={t} className="anim-pop flex items-center justify-center rounded-lg text-[9px] font-extrabold" style={{ backgroundColor: `${c}22`, color: c, ...d(1.2 + i * 0.5) }}>{t}</div>
         ))}
       </div>
@@ -99,7 +100,7 @@ export function IlusAsistente() {
 }
 
 export function IlusNotas() {
-  const cortes = [['Corte 1', 35, '4.15', '#5B8DEF', 0.4], ['Corte 2', 35, '3.00', '#8B7FD1', 1.2], ['Corte 3', 30, '2.00', '#E5789C', 2.0]];
+  const cortes = [['Corte 1', 35, '4.15', '#3B5BA9', 0.4], ['Corte 2', 35, '3.00', '#6B5FA8', 1.2], ['Corte 3', 30, '2.00', '#AD5A77', 2.0]];
   return (
     <div className="flex h-full flex-col justify-center gap-2 p-3">
       {cortes.map(([n, p, nota, c, t]) => (
@@ -123,7 +124,7 @@ export function IlusNotificaciones() {
     <div className="relative flex h-full items-center justify-center gap-6 p-3">
       <div className="anim-float relative"><Bell size={44} className="anim-bell text-primary" /><span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-[10px] font-extrabold text-white">3</span></div>
       <div className="relative h-36 w-24 rounded-2xl border-4 border-textSecondary/40 bg-bg">
-        <div className="anim-toast absolute inset-x-1 top-2 rounded-lg bg-white p-1.5 shadow-card"><p className="text-[8px] font-extrabold">⏰ Faltan 1 h para «Parcial de Cálculo»</p><p className="text-[7px] text-textSecondary">Con la app cerrada</p></div>
+        <div className="anim-toast absolute inset-x-1 top-2 rounded-lg bg-white p-1.5 shadow-card"><p className="text-[8px] font-extrabold">Faltan 1 h para «Parcial de Cálculo»</p><p className="text-[7px] text-textSecondary">Con la app cerrada</p></div>
         <Smartphone size={16} className="absolute bottom-1.5 left-1/2 -translate-x-1/2 text-textSecondary/50" />
       </div>
     </div>
@@ -140,7 +141,7 @@ export function IlusCalendario() {
       </div>
       <div className="rounded-xl bg-bg p-2">
         <p className="mb-1 flex items-center justify-center gap-1 text-[10px] font-bold text-textSecondary"><CalendarPlus size={11} /> Google · iPhone · Outlook</p>
-        <div className="space-y-1">{ev.map(([n, c], i) => <div key={n} className="anim-fly rounded px-1.5 py-1 text-[9px] font-bold" style={{ backgroundColor: `${c}30`, borderLeft: `3px solid ${c}`, color: c, ...d(0.4 + i * 0.6) }}>{n} 🔔</div>)}</div>
+        <div className="space-y-1">{ev.map(([n, c], i) => <div key={n} className="anim-fly rounded px-1.5 py-1 text-[9px] font-bold" style={{ backgroundColor: `${c}30`, borderLeft: `3px solid ${c}`, color: c, ...d(0.4 + i * 0.6) }}>{n}</div>)}</div>
       </div>
     </div>
   );
@@ -154,7 +155,7 @@ export function IlusResumen() {
         {barras.map((h, i) => <span key={i} className="anim-grow flex-1 rounded-t bg-primary/80" style={{ height: `${h}%`, ...d(0.2 + i * 0.15) }} />)}
       </div>
       <div className="col-span-2 flex flex-col justify-center gap-2">
-        <svg viewBox="0 0 36 36" className="mx-auto h-16 w-16 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--bg))" strokeWidth="5" /><circle cx="18" cy="18" r="15" fill="none" stroke="#17C964" strokeWidth="5" strokeLinecap="round" strokeDasharray="94" strokeDashoffset="94" style={{ animation: 'wv-dash-fill 1.6s ease-out 0.6s forwards' }} /></svg>
+        <svg viewBox="0 0 36 36" className="mx-auto h-16 w-16 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="rgb(var(--bg))" strokeWidth="5" /><circle cx="18" cy="18" r="15" fill="none" stroke="#2F7A55" strokeWidth="5" strokeLinecap="round" strokeDasharray="94" strokeDashoffset="94" style={{ animation: 'wv-dash-fill 1.6s ease-out 0.6s forwards' }} /></svg>
         <style>{'@keyframes wv-dash-fill { to { stroke-dashoffset: 24; } }'}</style>
         <p className="text-center text-[10px] font-extrabold text-success">74% cumplido</p>
       </div>
@@ -166,7 +167,7 @@ export function IlusFinanzas() {
   return (
     <div className="flex h-full flex-col justify-center gap-3 p-4">
       <div><div className="mb-1 flex justify-between text-[10px] font-bold"><span>Presupuesto del mes</span><span className="text-textSecondary">$1.200.000</span></div><div className="h-3 overflow-hidden rounded-full bg-bg"><div className="anim-fill h-full rounded-full bg-success" style={{ width: '62%', ...d(0.4) }} /></div></div>
-      <div className="flex gap-2">{[['Comida', '#F5A524', '-$45.000'], ['Transporte', '#3E7BFA', '-$12.000'], ['Ahorro', '#17C964', '+$150.000']].map(([t, c, v], i) => <Caja key={t} className="anim-slide flex-1 p-2 text-center" style={{ borderTop: `3px solid ${c}`, ...d(1 + i * 0.6) }}><Wallet size={12} className="mx-auto" style={{ color: c }} /><p className="text-[9px] font-bold">{t}</p><p className="text-[10px] font-extrabold" style={{ color: c }}>{v}</p></Caja>)}</div>
+      <div className="flex gap-2">{[['Comida', '#A8732A', '-$45.000'], ['Transporte', '#2E4BF0', '-$12.000'], ['Ahorro', '#2F7A55', '+$150.000']].map(([t, c, v], i) => <Caja key={t} className="anim-slide flex-1 p-2 text-center" style={{ borderTop: `3px solid ${c}`, ...d(1 + i * 0.6) }}><Wallet size={12} className="mx-auto" style={{ color: c }} /><p className="text-[9px] font-bold">{t}</p><p className="text-[10px] font-extrabold" style={{ color: c }}>{v}</p></Caja>)}</div>
     </div>
   );
 }
@@ -176,7 +177,7 @@ export function IlusAtajos() {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-4 p-3">
       <div className="flex gap-1.5 rounded-2xl bg-white px-2.5 py-1.5 shadow-card">
-        {iconos.map((e, i) => <span key={e} className="anim-pop flex h-8 w-8 items-center justify-center rounded-full bg-primarySoft text-sm" style={d(0.3 + i * 0.25)}>{e}</span>)}
+        {iconos.map((e, i) => <span key={e} className="anim-pop flex h-8 w-8 items-center justify-center rounded-full bg-primarySoft text-sm text-primary" style={d(0.3 + i * 0.25)}><Glifo e={e} size={14} /></span>)}
       </div>
       <div className="flex items-center gap-1.5 text-[11px] font-bold text-textSecondary">
         <kbd className="anim-key rounded-md border border-black/10 bg-white px-2 py-1 shadow-card">Ctrl</kbd>+<kbd className="anim-key rounded-md border border-black/10 bg-white px-2 py-1 shadow-card" style={d(0.15)}><Command size={11} className="inline" /> K</kbd>
@@ -189,14 +190,14 @@ export function IlusAtajos() {
 
 // ------------------------------------------------------------------ Mapa "en conjunto"
 const NODOS = {
-  materias: { x: 70, y: 170, t: 'Materias', c: '#5B8DEF', e: '📚', txt: 'Es el punto de partida: registras tus materias (día, hora, salón o virtual). De aquí salen tu agenda, la asociación de tareas y el cálculo de notas.' },
-  agenda: { x: 265, y: 55, t: 'Agenda', c: '#7FD1C3', e: '🗓️', txt: 'Junta clases, trabajo, reuniones y tareas en una sola vista. Sirve de base para los huecos libres, los avisos y el calendario externo.' },
-  tareas: { x: 265, y: 170, t: 'Tareas', c: '#F5A524', e: '✅', txt: 'Cada tarea de universidad va ligada a una materia. Alimenta las alertas, el plan del asistente, el resumen y tu racha.' },
-  notas: { x: 265, y: 285, t: 'Notas', c: '#8B7FD1', e: '🎓', txt: 'Tres cortes por materia (35/35/30 por defecto), con actividades y porcentajes. Calcula tu nota y lo que necesitas para tu meta.' },
-  avisos: { x: 470, y: 35, t: 'Avisos', c: '#E5484D', e: '🔔', txt: 'La campana y las notificaciones push te avisan antes de cada tarea, clase o reunión, y si una materia está en riesgo.' },
-  calendario: { x: 470, y: 110, t: 'Calendario', c: '#3E7BFA', e: '📅', txt: 'Exporta tu agenda y tareas (con alarmas) a Google Calendar, iPhone u Outlook, o suscríbete para que se actualice sola.' },
-  asistente: { x: 470, y: 195, t: 'Asistente', c: '#E5789C', e: '✨', txt: 'Te dice qué hacer ahora, dónde hay huecos libres y cómo planificar trabajos grandes, usando tus tareas y tus notas.' },
-  resumen: { x: 470, y: 280, t: 'Resumen', c: '#17C964', e: '📊', txt: 'Semana o mes en un vistazo: tareas, enfoque, dinero, notas y avance por materia. Lo puedes copiar o imprimir.' },
+  materias: { x: 70, y: 170, t: 'Materias', c: '#3B5BA9', e: '📚', txt: 'Es el punto de partida: registras tus materias (día, hora, salón o virtual). De aquí salen tu agenda, la asociación de tareas y el cálculo de notas.' },
+  agenda: { x: 265, y: 55, t: 'Agenda', c: '#3E7E7C', e: '🗓️', txt: 'Junta clases, trabajo, reuniones y tareas en una sola vista. Sirve de base para los huecos libres, los avisos y el calendario externo.' },
+  tareas: { x: 265, y: 170, t: 'Tareas', c: '#A8732A', e: '✅', txt: 'Cada tarea de universidad va ligada a una materia. Alimenta las alertas, el plan del asistente, el resumen y tu racha.' },
+  notas: { x: 265, y: 285, t: 'Notas', c: '#6B5FA8', e: '🎓', txt: 'Tres cortes por materia (35/35/30 por defecto), con actividades y porcentajes. Calcula tu nota y lo que necesitas para tu meta.' },
+  avisos: { x: 470, y: 35, t: 'Avisos', c: '#B04A3E', e: '🔔', txt: 'La campana y las notificaciones push te avisan antes de cada tarea, clase o reunión, y si una materia está en riesgo.' },
+  calendario: { x: 470, y: 110, t: 'Calendario', c: '#2E4BF0', e: '📅', txt: 'Exporta tu agenda y tareas (con alarmas) a Google Calendar, iPhone u Outlook, o suscríbete para que se actualice sola.' },
+  asistente: { x: 470, y: 195, t: 'Asistente', c: '#AD5A77', e: '✨', txt: 'Te dice qué hacer ahora, dónde hay huecos libres y cómo planificar trabajos grandes, usando tus tareas y tus notas.' },
+  resumen: { x: 470, y: 280, t: 'Resumen', c: '#2F7A55', e: '📊', txt: 'Semana o mes en un vistazo: tareas, enfoque, dinero, notas y avance por materia. Lo puedes copiar o imprimir.' },
 };
 const ARISTAS = [['materias', 'agenda'], ['materias', 'tareas'], ['materias', 'notas'], ['agenda', 'avisos'], ['agenda', 'calendario'], ['tareas', 'avisos'], ['tareas', 'calendario'], ['tareas', 'asistente'], ['tareas', 'resumen'], ['notas', 'asistente'], ['notas', 'resumen'], ['notas', 'avisos']];
 
@@ -219,14 +220,14 @@ export function MapaConjunto({ interactivo = false, compacto = false }) {
         {Object.entries(NODOS).map(([k, n]) => (
           <g key={k} transform={`translate(${n.x - 50},${n.y - 20})`} onClick={interactivo ? () => setSel(sel === k ? null : k) : undefined} style={{ cursor: interactivo ? 'pointer' : 'default' }} opacity={!sel || sel === k || ARISTAS.some(([a, b]) => (a === sel && b === k) || (b === sel && a === k)) ? 1 : 0.35}>
             <rect width="100" height="40" rx="12" fill="rgb(var(--surface))" stroke={n.c} strokeWidth={sel === k ? 3 : 1.6} />
-            <text x="14" y="25" fontSize="14">{n.e}</text>
+            <Glifo e={n.e} size={14} x="13" y="13" style={{ color: n.c }} />
             <text x="34" y="25" fontSize={compacto ? 11 : 12} fontWeight="800" fill="rgb(var(--textPrimary))">{n.t}</text>
           </g>
         ))}
       </svg>
       {interactivo && (
         <div className="mt-2 min-h-[3.5rem] rounded-sm2 bg-bg p-3 text-xs">
-          {sel ? (<><p className="font-extrabold" style={{ color: NODOS[sel].c }}>{NODOS[sel].e} {NODOS[sel].t}</p><p className="mt-0.5 text-textSecondary">{NODOS[sel].txt}</p></>) : <p className="text-textSecondary">👆 Toca un módulo para ver qué recibe y qué le da a los demás.</p>}
+          {sel ? (<><p className="flex items-center gap-1.5 font-extrabold" style={{ color: NODOS[sel].c }}><Glifo e={NODOS[sel].e} size={13} /> {NODOS[sel].t}</p><p className="mt-0.5 text-textSecondary">{NODOS[sel].txt}</p></>) : <p className="text-textSecondary">Toca un módulo para ver qué recibe y qué le da a los demás.</p>}
         </div>
       )}
     </div>

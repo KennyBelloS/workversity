@@ -56,7 +56,7 @@ export default function UsarParaParcial({ apunte, onCerrar }) {
             <p className="mb-4 text-xs text-textSecondary">Se agregará el contenido como fuente y se generarán tarjetas de estudio automáticamente.</p>
             <div className="space-y-2.5">
               <select value={elegido} onChange={(e) => setElegido(e.target.value)} className="w-full rounded-sm2 bg-white px-4 py-3 text-sm shadow-card outline-none" aria-label="Parcial destino">
-                <option value="__nuevo__">➕ Crear un parcial nuevo</option>
+                <option value="__nuevo__">Crear un parcial nuevo</option>
                 {parciales?.map((p) => <option key={p.id} value={p.id}>{p.titulo}</option>)}
               </select>
               {elegido === '__nuevo__' && (

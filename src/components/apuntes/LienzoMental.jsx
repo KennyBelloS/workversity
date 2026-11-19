@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 import { Plus, Trash2, Sparkles, RotateCcw } from 'lucide-react';
 import { nodoRaiz, agregarNodo, moverNodo, renombrarNodo, eliminarNodo, aristasDe, generarMapaMental, esVacio } from '../../lib/mapaMental';
 
-const COLORES = ['#5B8DEF', '#8B7FD1', '#17C964', '#F5A524', '#E5789C', '#7FD1C3'];
+const COLORES = ['#3B5BA9', '#6B5FA8', '#2F7A55', '#A8732A', '#AD5A77', '#3E7E7C'];
 const colorDe = (id) => COLORES[[...id].reduce((s, c) => s + c.charCodeAt(0), 0) % COLORES.length];
 
 /** Mapa mental que se arma a mano: agrega nodos, arrástralos, tócalos para renombrarlos. */
@@ -50,7 +50,7 @@ export default function LienzoMental({ nodos, onCambiar, texto, titulo }) {
       <div ref={contenedorRef} className="relative h-[420px] overflow-auto rounded-md2 bg-white shadow-card" style={{ touchAction: seleccionado ? 'none' : 'auto' }}>
         <div className="relative" style={{ width: ancho, height: alto }}>
           <svg width={ancho} height={alto} className="pointer-events-none absolute inset-0">
-            {aristasDe(lienzo).map(({ de, a }) => <line key={a.id} x1={de.x} y1={de.y} x2={a.x} y2={a.y} stroke="#5B8DEF" strokeOpacity="0.4" strokeWidth="2" />)}
+            {aristasDe(lienzo).map(({ de, a }) => <line key={a.id} x1={de.x} y1={de.y} x2={a.x} y2={a.y} stroke="#3B5BA9" strokeOpacity="0.4" strokeWidth="2" />)}
           </svg>
           {lienzo.map((n) => (
             <div
@@ -71,7 +71,7 @@ export default function LienzoMental({ nodos, onCambiar, texto, titulo }) {
           ))}
         </div>
       </div>
-      <p className="mt-2 text-[11px] text-textSecondary">Arrastra un nodo para moverlo, doble toque para renombrarlo. El primer nodo es el tema central.</p>
+      <p className="mt-2 text-t-micro text-textSecondary">Arrastra un nodo para moverlo, doble toque para renombrarlo. El primer nodo es el tema central.</p>
     </div>
   );
 }

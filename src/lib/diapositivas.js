@@ -3,7 +3,7 @@ import { escaparHtml } from './sanitizar';
 
 export const TEMAS = {
   azul: { nombre: 'Azul', bg: '#1E3A8A', fg: '#FFFFFF', acento: '#93C5FD' },
-  claro: { nombre: 'Claro', bg: '#FFFFFF', fg: '#0F172A', acento: '#3E7BFA' },
+  claro: { nombre: 'Claro', bg: '#FFFFFF', fg: '#0F172A', acento: '#2E4BF0' },
   verde: { nombre: 'Verde', bg: '#065F46', fg: '#FFFFFF', acento: '#6EE7B7' },
   noche: { nombre: 'Noche', bg: '#111827', fg: '#F9FAFB', acento: '#A78BFA' },
   atardecer: { nombre: 'Atardecer', bg: '#9A3412', fg: '#FFFFFF', acento: '#FDBA74' },

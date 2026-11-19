@@ -46,11 +46,11 @@ export function cuentaAtras(ms) {
 }
 
 export function colorUrgencia(ms, hecha = false) {
-  if (hecha) return '#17C964';
-  if (ms < 3 * 3600000) return '#E5484D';
-  if (ms < 24 * 3600000) return '#F5A524';
-  if (ms < 72 * 3600000) return '#3E7BFA';
-  return '#17C964';
+  if (hecha) return '#2F7A55';
+  if (ms < 3 * 3600000) return '#B04A3E';
+  if (ms < 24 * 3600000) return '#A8732A';
+  if (ms < 72 * 3600000) return '#2E4BF0';
+  return '#2F7A55';
 }
 
 /** Cuánto del tiempo entre que se creó la tarea y su entrega ya pasó (0–1). */

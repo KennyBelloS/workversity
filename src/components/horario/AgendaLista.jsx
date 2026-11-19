@@ -10,7 +10,7 @@ function Fila({ e, onAbrir, onToggleTarea }) {
   const esTarea = e.origen === 'tarea';
   return (
     <div className="flex items-stretch gap-3 rounded-sm2 bg-bg p-2.5" {...previewDeEvento(e)}>
-      <div className="w-14 shrink-0 text-[11px] font-bold text-textSecondary">
+      <div className="w-14 shrink-0 text-t-micro font-bold text-textSecondary">
         <p>{hora(e.inicio)}</p>
         {!esTarea && <p className="font-medium opacity-70">{hora(e.fin)}</p>}
       </div>
@@ -19,8 +19,8 @@ function Fila({ e, onAbrir, onToggleTarea }) {
         <p className={`flex items-center gap-1.5 truncate text-sm font-bold ${e.hecha ? 'text-textSecondary line-through' : ''}`}>
           {e.virtual && <Video size={13} className="shrink-0 text-info" />} {e.titulo}
         </p>
-        <p className="truncate text-[11px] text-textSecondary">
-          <span style={{ color: e.color }} className="font-bold">{TIPOS_AGENDA[e.tipo].label.replace(/s$/, '')}</span>
+        <p className="truncate text-t-micro text-textSecondary">
+          <span style={{ color: e.color }} className="font-bold">{TIPOS_AGENDA[e.tipo].uno}</span>
           {e.detalle ? ` · ${e.detalle}` : ''}
         </p>
       </button>

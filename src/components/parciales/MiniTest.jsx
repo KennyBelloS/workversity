@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { generarPreguntas, calificarTest } from '../../lib/parciales';
+import TextoPregunta from './TextoPregunta';
 
 /** Test de opción múltiple. `cuantas` más grande + `titulo` distinto se usa también para la simulación de examen. */
 export default function MiniTest({ tarjetas, cuantas, titulo = 'Mini test', cronometro = false, onTerminar }) {
@@ -24,7 +25,7 @@ export default function MiniTest({ tarjetas, cuantas, titulo = 'Mini test', cron
   if (resultado) {
     return (
       <div className="rounded-md2 bg-white p-5 text-center shadow-card">
-        <p className="text-3xl font-extrabold" style={{ color: resultado.porcentaje >= 60 ? '#17C964' : '#E5484D' }}>{resultado.porcentaje}%</p>
+        <p className="text-3xl font-extrabold" style={{ color: resultado.porcentaje >= 60 ? '#2F7A55' : '#B04A3E' }}>{resultado.porcentaje}%</p>
         <p className="mb-4 text-sm text-textSecondary">{resultado.aciertos} de {resultado.total} correctas</p>
         <div className="space-y-2 text-left">
           {preguntasRespondidas.map((p) => {
@@ -32,8 +33,8 @@ export default function MiniTest({ tarjetas, cuantas, titulo = 'Mini test', cron
             if (!d) return null;
             return (
               <div key={p.id} className={`rounded-sm2 p-2.5 text-xs ${d.correcta ? 'bg-successSoft' : 'bg-dangerSoft'}`}>
-                <p className="font-bold">{p.pregunta}</p>
-                <p>{d.correcta ? '✔' : '✘'} {d.elegida || 'Sin responder'}{!d.correcta && ` · era: ${p.correcta}`}</p>
+                <p className="font-bold"><TextoPregunta texto={p.pregunta} /></p>
+                <p className="[overflow-wrap:anywhere]">{d.correcta ? '✔' : '✘'} {d.elegida || 'Sin responder'}{!d.correcta && ` · era: ${p.correcta}`}</p>
               </div>
             );
           })}
@@ -46,11 +47,11 @@ export default function MiniTest({ tarjetas, cuantas, titulo = 'Mini test', cron
     <div className="space-y-3">
       <p className="text-sm font-extrabold">{titulo} · {preguntas.length} preguntas{cronometro && ' · cronometrado'}</p>
       {preguntas.map((p, i) => (
-        <div key={p.id} className="rounded-md2 bg-white p-4 shadow-card">
-          <p className="mb-2 text-sm font-bold">{i + 1}. {p.pregunta}</p>
+        <div key={p.id} className="ficha">
+          <p className="rotulo mb-3">{i + 1}. <TextoPregunta texto={p.pregunta} /></p>
           <div className="space-y-1.5">
             {p.opciones.map((op) => (
-              <label key={op} className={`flex cursor-pointer items-center gap-2 rounded-sm2 border p-2 text-sm ${respuestas[p.id] === op ? 'border-primary bg-primarySoft/60' : 'border-black/10'}`}>
+              <label key={op} className={`flex cursor-pointer items-center gap-2 rounded-sm2 border p-2 text-sm [overflow-wrap:anywhere] ${respuestas[p.id] === op ? 'border-primary bg-primarySoft/60' : 'border-black/10'}`}>
                 <input type="radio" name={p.id} className="accent-primary" checked={respuestas[p.id] === op} onChange={() => setRespuestas((r) => ({ ...r, [p.id]: op }))} /> {op}
               </label>
             ))}

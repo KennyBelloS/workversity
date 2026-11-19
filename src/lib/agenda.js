@@ -1,11 +1,12 @@
 // Junta clases, bloques (trabajo, reuniones…) y tareas en una sola lista de eventos.
 
+// `uno` es el singular escrito a mano: quitarle la "s" al plural daba cosas como "Reunione".
 export const TIPOS_AGENDA = {
-  clase: { label: 'Clases', color: '#5B8DEF' },
-  trabajo: { label: 'Trabajo', color: '#8B7FD1' },
-  reunion: { label: 'Reuniones', color: '#E5789C' },
-  tarea: { label: 'Tareas', color: '#F5A524' },
-  otro: { label: 'Otros', color: '#7FD1C3' },
+  clase: { label: 'Clases', uno: 'Clase', color: '#3B5BA9' },
+  trabajo: { label: 'Trabajo', uno: 'Trabajo', color: '#6B5FA8' },
+  reunion: { label: 'Reuniones', uno: 'Reunión', color: '#AD5A77' },
+  tarea: { label: 'Tareas', uno: 'Tarea', color: '#A8732A' },
+  otro: { label: 'Otros', uno: 'Otro', color: '#3E7E7C' },
 };
 
 export function inicioDeSemana(fecha = new Date()) {
@@ -28,7 +29,7 @@ const conMinutos = (dia, minutos) => {
   return d;
 };
 
-const COLOR_CATEGORIA = { universidad: '#5B8DEF', trabajo: '#8B7FD1' };
+const COLOR_CATEGORIA = { universidad: '#3B5BA9', trabajo: '#6B5FA8' };
 
 /** Eventos de la semana que empieza en `inicio` (lunes). `dia` va de 0 (lunes) a 6 (domingo). */
 export function eventosDeSemana(inicio, { materias = [], bloques = [], tareas = [] }) {
@@ -66,7 +67,7 @@ export function eventosDeSemana(inicio, { materias = [], bloques = [], tareas = 
       id: `tarea-${t.id}`, origen: 'tarea', tipo: 'tarea', titulo: t.title,
       detalle: materia ? materia.nombre : t.category === 'trabajo' ? 'Trabajo' : 'Universidad',
       inicio: due, fin: new Date(due.getTime() + 30 * 60000),
-      dia: (due.getDay() + 6) % 7, color: materia?.color_value || COLOR_CATEGORIA[t.category] || '#F5A524',
+      dia: (due.getDay() + 6) % 7, color: materia?.color_value || COLOR_CATEGORIA[t.category] || '#A8732A',
       hecha: t.status === 'hecha', prioridad: t.priority, ref: t,
     });
   }
@@ -95,6 +96,32 @@ export function textoDuracion(ms) {
   return `${d} día${d > 1 ? 's' : ''}`;
 }
 
+/**
+ * Cuentas de la semana para el panel de escritorio: cuánto tiempo está ocupado, cuántas cosas
+ * hay de cada tipo, el día más cargado y el hueco libre más largo entre 7:00 y 22:00.
+ * Las tareas no ocupan tiempo (son un vencimiento, no un bloque), así que no suman horas.
+ */
+export function resumenDeSemana(eventos) {
+  const porTipo = {};
+  let minutos = 0;
+  const porDia = [0, 0, 0, 0, 0, 0, 0];
+  for (const e of eventos) {
+    porTipo[e.tipo] = (porTipo[e.tipo] || 0) + 1;
+    if (e.origen === 'tarea') continue;
+    const dur = Math.max(0, (e.fin - e.inicio) / 60000);
+    minutos += dur;
+    porDia[e.dia] += dur;
+  }
+  const masCargado = porDia.indexOf(Math.max(...porDia));
+  return {
+    minutos,
+    porTipo,
+    porDia,
+    masCargado: porDia[masCargado] > 0 ? masCargado : null,
+    pendientes: eventos.filter((e) => e.origen === 'tarea' && !e.hecha).length,
+  };
+}
+
 /** Reparte eventos que se cruzan en columnas para dibujarlos lado a lado. */
 export function repartirCarriles(eventosDelDia) {
   const orden = [...eventosDelDia].sort((a, b) => a.inicio - b.inicio || b.fin - a.fin);
@@ -116,4 +143,26 @@ export function repartirCarriles(eventosDelDia) {
   }
   if (grupo.length) cerrar();
   return resultado;
+}
+
+/**
+ * Agrupa eventos que se chocan en el tiempo (no en columnas). Cada grupo que queda con más de
+ * un evento se dibuja como una sola tarjeta "a cuántos" que abre el detalle completo de cada
+ * uno — en vez de partir el ancho en carriles cada vez más angostos cuando hay 2 o más choques.
+ * Cada grupo trae su propio rango de tiempo (el de la unión), no el de un solo evento.
+ */
+export function agruparChoques(eventosDelDia) {
+  const orden = [...eventosDelDia].sort((a, b) => a.inicio - b.inicio || b.fin - a.fin);
+  const grupos = [];
+  let actual = null;
+  for (const e of orden) {
+    if (actual && e.inicio.getTime() < actual.fin.getTime()) {
+      actual.eventos.push(e);
+      if (e.fin > actual.fin) actual.fin = e.fin;
+    } else {
+      actual = { eventos: [e], inicio: e.inicio, fin: e.fin };
+      grupos.push(actual);
+    }
+  }
+  return grupos;
 }

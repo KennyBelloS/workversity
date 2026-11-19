@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { Layers, ListChecks, Timer, Network, Lightbulb, FolderPlus, Trash2, Sparkles } from 'lucide-react';
+import { Layers, ListChecks, Timer, Network, Lightbulb, FolderPlus, Trash2, Sparkles, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { listarParciales, listarFuentes, crearFuente, eliminarFuente, listarTarjetas, crearTarjeta, actualizarTarjeta, eliminarTarjeta, listarResultados, crearResultado } from '../services/parciales';
-import { generarTarjetas, combinarTarjetas, dominioGeneral, ordenarParaRepasar } from '../lib/parciales';
+import { generarTarjetas, combinarTarjetas, dominioGeneral, ordenarParaRepasar, esTarjetaAutomatica } from '../lib/parciales';
+import { mostrarSnackbar } from '../lib/snackbar';
+import { mensajeAmigable } from '../lib/erroresAmigables';
 import SubirFuente from '../components/parciales/SubirFuente';
 import ListaTarjetas from '../components/parciales/ListaTarjetas';
 import EstudiarTarjetas from '../components/parciales/EstudiarTarjetas';
@@ -59,6 +61,41 @@ export default function Parcial() {
   };
   const borrarFuente = async (fid) => { await eliminarFuente(fid); await cargar(); };
 
+  // Vuelve a armar las tarjetas automáticas desde las fuentes guardadas, con el generador
+  // actual. Las que la persona escribió a mano (otro formato de pregunta) se conservan.
+  const [regenerando, setRegenerando] = useState(null); // null | { hecho, total }
+  // Ya se regeneró este parcial con el generador nuevo (por dispositivo): el aviso no vuelve a salir.
+  const claveRegenerado = `parcial-regenerado-v2:${id}`;
+  const [yaRegenerado, setYaRegenerado] = useState(() => { try { return localStorage.getItem(claveRegenerado) === '1'; } catch { return false; } });
+  const regenerarTarjetas = async () => {
+    const automaticas = tarjetas.filter((t) => esTarjetaAutomatica(t.pregunta));
+    const manuales = tarjetas.filter((t) => !esTarjetaAutomatica(t.pregunta));
+    const ok = window.confirm(
+      `Se borrarán ${automaticas.length} tarjeta${automaticas.length === 1 ? '' : 's'} generada${automaticas.length === 1 ? '' : 's'} automáticamente y se volverán a crear desde tus ${fuentes.length} fuente${fuentes.length === 1 ? '' : 's'}, con preguntas más claras.` +
+      (manuales.length ? `\n\nTus ${manuales.length} tarjeta${manuales.length === 1 ? '' : 's'} escrita${manuales.length === 1 ? '' : 's'} a mano no se tocan.` : '') +
+      '\n\nEl progreso de estudio de las tarjetas borradas se pierde. ¿Continuar?'
+    );
+    if (!ok) return;
+    try {
+      const nuevas = combinarTarjetas([manuales.map((t) => ({ pregunta: t.pregunta, respuesta: t.respuesta })), ...fuentes.map((f) => generarTarjetas(f.texto))])
+        .filter((g) => !manuales.some((t) => t.pregunta.toLowerCase() === g.pregunta.toLowerCase()));
+      const total = automaticas.length + nuevas.length;
+      let hecho = 0;
+      setRegenerando({ hecho, total });
+      for (const t of automaticas) { await eliminarTarjeta(t.id); setRegenerando({ hecho: ++hecho, total }); }
+      for (const g of nuevas) { await crearTarjeta({ parcial_id: id, pregunta: g.pregunta, respuesta: g.respuesta }, usuario.id); setRegenerando({ hecho: ++hecho, total }); }
+      await cargar();
+      try { localStorage.setItem(claveRegenerado, '1'); } catch { /* sin almacenamiento: el aviso puede volver a salir */ }
+      setYaRegenerado(true);
+      mostrarSnackbar({ texto: `Listo: ${nuevas.length} tarjeta${nuevas.length === 1 ? '' : 's'} nueva${nuevas.length === 1 ? '' : 's'}.` });
+    } catch (err) {
+      mostrarSnackbar({ texto: mensajeAmigable(err, 'regenerar las tarjetas') });
+      await cargar();
+    } finally {
+      setRegenerando(null);
+    }
+  };
+
   const crearTarjetaManual = async (datos) => { await crearTarjeta({ parcial_id: id, ...datos }, usuario.id); await cargar(); };
   const actualizarTarjetaManual = async (tid, cambios) => { await actualizarTarjeta(tid, cambios); await cargar(); };
   const borrarTarjeta = async (tid) => { await eliminarTarjeta(tid); await cargar(); };
@@ -110,6 +147,15 @@ export default function Parcial() {
               ))}
             </div>
           )}
+        </div>
+      )}
+      {tab === 'tarjetas' && !yaRegenerado && fuentes.length > 0 && tarjetas.some((t) => esTarjetaAutomatica(t.pregunta)) && (
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md2 bg-primarySoft/60 p-3">
+          <p className="text-xs text-textSecondary">¿Tus tarjetas se generaron con una versión anterior? Vuelve a crearlas desde tus fuentes con el generador nuevo.</p>
+          <button onClick={regenerarTarjetas} disabled={!!regenerando} className="flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-3 py-1.5 text-xs font-bold text-white disabled:opacity-70">
+            <RefreshCw size={13} className={regenerando ? 'animate-spin' : ''} />
+            {regenerando ? `Regenerando… ${regenerando.hecho}/${regenerando.total}` : 'Regenerar tarjetas'}
+          </button>
         </div>
       )}
       {tab === 'tarjetas' && <EstudiarTarjetasConLista tarjetas={tarjetas} progreso={progreso} onResultado={marcarResultadoTarjeta} onCrear={crearTarjetaManual} onActualizar={actualizarTarjetaManual} onEliminar={borrarTarjeta} />}

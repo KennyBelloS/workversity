@@ -61,7 +61,7 @@ export default function PanelTemporizador({ tarea, usuarioId, onTiempo, tiempoTo
       faseRef.current = 'descanso'; setFase('descanso');
       const d = duracion(modo, 'descanso', ciclosRef.current);
       setSeg(d); finRef.current = Date.now() + d * 1000;
-      avisar('¡Sesión terminada! 🎉', `Descansa ${Math.round(d / 60)} minutos.`);
+      avisar('¡Sesión terminada!', `Descansa ${Math.round(d / 60)} minutos.`);
       setCorriendo(true);
     } else {
       faseRef.current = 'trabajo'; setFase('trabajo'); setSeg(MODOS[modo].trabajo * 60);
@@ -140,11 +140,11 @@ export default function PanelTemporizador({ tarea, usuarioId, onTiempo, tiempoTo
   const R = 44;
 
   return (
-    <section className="rounded-md2 bg-white p-4 shadow-card">
+    <section className="ficha">
       {!compacto && (
         <div className="mb-3 grid grid-cols-2 gap-1.5">
           {Object.entries(MODOS).map(([k, m]) => (
-            <button key={k} onClick={() => cambiarModo(k)} disabled={corriendo} className={`rounded-sm2 border px-2 py-2 text-[11px] font-bold transition disabled:opacity-50 ${modo === k ? 'border-primary bg-primarySoft text-primary' : 'border-black/10 text-textSecondary'}`}>{m.nombre}</button>
+            <button key={k} onClick={() => cambiarModo(k)} disabled={corriendo} className={`rounded-sm2 border px-2 py-2 text-t-micro font-bold transition disabled:opacity-50 ${modo === k ? 'border-primary bg-primarySoft text-primary' : 'border-black/10 text-textSecondary'}`}>{m.nombre}</button>
           ))}
         </div>
       )}
@@ -153,24 +153,24 @@ export default function PanelTemporizador({ tarea, usuarioId, onTiempo, tiempoTo
         <div className="relative h-28 w-28 shrink-0">
           <svg viewBox="0 0 100 100" className="absolute inset-0 -rotate-90">
             <circle cx="50" cy="50" r={R} fill="none" stroke="rgb(var(--bg))" strokeWidth="8" />
-            <circle cx="50" cy="50" r={R} fill="none" stroke={fase === 'trabajo' ? 'rgb(var(--primary))' : '#17C964'} strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * R} strokeDashoffset={2 * Math.PI * R * (1 - progreso)} style={{ transition: 'stroke-dashoffset .25s linear' }} />
+            <circle cx="50" cy="50" r={R} fill="none" stroke={fase === 'trabajo' ? 'rgb(var(--primary))' : '#2F7A55'} strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * R} strokeDashoffset={2 * Math.PI * R * (1 - progreso)} style={{ transition: 'stroke-dashoffset .25s linear' }} />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <span className="text-2xl font-extrabold tabular-nums" aria-live="off">{mmss(seg)}</span>
-            <span className="flex items-center gap-1 text-[10px] font-bold text-textSecondary">{fase === 'trabajo' ? 'Trabajo' : <><Coffee size={10} /> Descanso</>}</span>
+            <span className="flex items-center gap-1 text-t-nota font-bold text-textSecondary">{fase === 'trabajo' ? 'Trabajo' : <><Coffee size={10} /> Descanso</>}</span>
           </div>
         </div>
         <div className="min-w-0 flex-1 space-y-2">
           <div className="flex gap-2">
             {!corriendo ? (
-              <button onClick={iniciar} className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-white"><Play size={15} /> {seg !== (modo === 'libre' ? 0 : cfg.trabajo * 60) || ciclos > 0 ? 'Seguir' : 'Empezar'}</button>
+              <button onClick={iniciar} className="boton-ppal"><Play size={15} /> {seg !== (modo === 'libre' ? 0 : cfg.trabajo * 60) || ciclos > 0 ? 'Seguir' : 'Empezar'}</button>
             ) : (
               <button onClick={pausar} className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-warning px-4 py-2.5 text-sm font-bold text-white"><Pause size={15} /> Pausar</button>
             )}
             <button onClick={reiniciar} aria-label="Reiniciar" className="rounded-full border border-black/10 p-2.5 text-textSecondary"><RotateCcw size={15} /></button>
             {fase === 'descanso' && <button onClick={saltarDescanso} aria-label="Saltar descanso" className="rounded-full border border-black/10 p-2.5 text-textSecondary"><SkipForward size={15} /></button>}
           </div>
-          <p className="text-[11px] text-textSecondary">
+          <p className="text-t-micro text-textSecondary">
             Sesiones: <b>{ciclos}</b> · En esta tarea: <b>{formatoMinutos(tiempoTotal)}</b>{estimado ? <> de ≈ {formatoMinutos(estimado)}</> : null}
           </p>
         </div>
@@ -178,12 +178,12 @@ export default function PanelTemporizador({ tarea, usuarioId, onTiempo, tiempoTo
 
       {!compacto && (
         <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-black/5 pt-3">
-          <button onClick={() => setDistracciones((d) => d + 1)} className="rounded-full bg-bg px-3 py-1.5 text-[11px] font-bold text-textSecondary" title="Anota cada vez que te distraes">🧠 Me distraje{distracciones ? ` · ${distracciones}` : ''}</button>
-          <label className="flex items-center gap-1.5 text-[11px] font-bold text-textSecondary">
+          <button onClick={() => setDistracciones((d) => d + 1)} className="rounded-full bg-bg px-3 py-1.5 text-t-micro font-bold text-textSecondary" title="Anota cada vez que te distraes">Me distraje{distracciones ? ` · ${distracciones}` : ''}</button>
+          <label className="flex items-center gap-1.5 text-t-micro font-bold text-textSecondary">
             <Volume2 size={13} />
-            <select value={sonido} onChange={(e) => setSonido(e.target.value)} aria-label="Sonido de fondo" className="rounded-full bg-bg px-2 py-1 text-[11px] outline-none">
+            <select value={sonido} onChange={(e) => setSonido(e.target.value)} aria-label="Sonido de fondo" className="rounded-full bg-bg px-2 py-1 text-t-micro outline-none">
               <option value="">Sin sonido</option>
-              {SONIDOS.map((s) => <option key={s.id} value={s.id}>{s.emoji} {s.nombre}</option>)}
+              {SONIDOS.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
             </select>
           </label>
           {sonido && <input type="range" min={0.05} max={1} step={0.05} value={volumen} onChange={(e) => setVolumen(Number(e.target.value))} aria-label="Volumen" className="w-20 accent-primary" />}

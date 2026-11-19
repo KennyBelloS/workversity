@@ -15,7 +15,7 @@ const idNodo = (prefijo, i) => `${prefijo}${i}`;
  * diagrama de flujo (se ve más limpio y legible que el "mindmap" nativo de Mermaid). */
 export function mapaConceptualAMermaid(mapa) {
   if (!mapa || mapa.ramas.length === 0) return null;
-  const lineas = ['flowchart TD', `  centro[${etiqueta(mapa.centro)}]`, '  style centro fill:#5B8DEF,color:#fff,stroke:#5B8DEF'];
+  const lineas = ['flowchart TD', `  centro[${etiqueta(mapa.centro)}]`, '  style centro fill:#3B5BA9,color:#fff,stroke:#3B5BA9'];
   mapa.ramas.forEach((r, i) => {
     lineas.push(`  ${idNodo('t', i)}(${etiqueta(r.palabra)})`);
     lineas.push(`  centro --- ${idNodo('t', i)}`);
